@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "*.cps": "javascript",
+        "functional": "cpp"
+    }
+}
