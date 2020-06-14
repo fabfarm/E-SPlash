@@ -4,7 +4,13 @@
  ****************************************************************************/
 /*  Up to this date: 07th of June 2020 I don't consider myself a programer 
  *  so I need to stand on top of giants sholders for my programing projects:
- *  A Portion of this code was based on Rui Santos Code;
+ *  A Portion of this code was based on Rui Santos Code; 
+ *  Codes from Rui Santos mixed toghether:
+ *  https://randomnerdtutorials.com/esp32-web-server-spiffs-spi-flash-file-system/
+ *  https://randomnerdtutorials.com/esp32-relay-module-ac-web-server/
+ *  https://randomnerdtutorials.com/esp32-date-time-ntp-client-server-arduino/
+ *  From Techtutorialsx.com
+ *  https://techtutorialsx.com/2017/12/01/esp32-arduino-asynchronous-http-webserver/
  *  A Portion of this code was based on Shakeels code for ESP8266 ;
  *  My contributions: 
  *     -So far I made it work on platformio :), that took me quite a lot of time
@@ -35,7 +41,14 @@
 #include "WiFi.h"
 #include "ESPAsyncWebServer.h"
 #include "SPIFFS.h"
-#include <AsyncTCP.h>
+#include "AsyncTCP.h"
+#include "Adafruit_Sensor.h"
+#include "DHT.h"
+#include "time.h"
+
+const char* ntpServer = "pool.ntp.org";
+const long  gmtOffset_sec = 0;
+const int   daylightOffset_sec = 3600;
 
 // Network Credentials
 const char* ssid = "rato";
@@ -51,49 +64,26 @@ AsyncWebServer server(80);
 #define NUM_RELAYS  4
 
 // Assign each GPIO to a relay
-int relayGPIOs[NUM_RELAYS] = {26, 25, 33, 32};
+int relayGPIOs[NUM_RELAYS] = {26, 25, 33, 27};
+
+// Digital pin connected to the DHT sensor
+#define DHTPIN 32     
+
+// Uncomment the type of sensor in use:
+#define DHTTYPE    DHT11     // DHT 11
+//#define DHTTYPE    DHT22     // DHT 22 (AM2302)
+//#define DHTTYPE    DHT21     // DHT 21 (AM2301)
+
+DHT dht(DHTPIN, DHTTYPE);
 
 //
 const char* PARAM_INPUT_1 = "relay";  
 const char* PARAM_INPUT_2 = "state";
 
-// Replaces placeholder with button section in your web page
-String processor(const String& var){
-  //Serial.println(var);
-  if(var == "BUTTONPLACEHOLDER"){
-    String buttons ="";
-    for(int i=1; i<=NUM_RELAYS; i++){
-      String relayStateValue = relayState(i);
-      buttons+= "<h4>Relay #" + String(i) + " - GPIO " + relayGPIOs[i-1] + "</h4><label class=\"switch\"><input type=\"checkbox\" onchange=\"toggleCheckbox(this)\" id=\"" + String(i) + "\" "+ relayStateValue +"><span class=\"slider\"></span></label>";
-    }
-    return buttons;
-  }
-  return String();
-}
-
-String relayState(int numRelay){
-  if(RELAY_NO){
-    if(digitalRead(relayGPIOs[numRelay-1])){
-      return "";
-    }
-    else {
-      return "checked";
-    }
-  }
-  else {
-    if(digitalRead(relayGPIOs[numRelay-1])){
-      return "checked";
-    }
-    else {
-      return "";
-    }
-  }
-  return "";
-}
-
 void setup(){
   // Serial port for debugging purposes
   Serial.begin(9600);
+
   // Initialize SPIFFS
   if(!SPIFFS.begin(true)){
     Serial.println("An Error has occurred while mounting SPIFFS");
@@ -120,6 +110,10 @@ void setup(){
   // Print ESP32 Local IP Address
   Serial.println(WiFi.localIP());
 
+  // Init and get the time
+  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+  printLocalTime();
+
 /*
 *Now we are going to configure the route where server will be listening for incoming HTTP requests 
 and a function that will be executed when a request is received on that route.
@@ -127,10 +121,15 @@ We specify this by calling the "on" method on the server object. With server.on(
 As first input, this method receives a string with the path where it will be listening. 
 We are going to set it to listen for requests on the “/” route. This could be anything. 
 It is basically what you write after the ip adress when in the browser or an APP.
+This website has a great explanation of the ESP32 Arduino: Asynchronous HTTP web server
+https://techtutorialsx.com/2017/12/01/esp32-arduino-asynchronous-http-webserver/
 So... 
 - First parameter here is: "/" thats the root directory.
 - Second parameter is HTTP_GET thats an enum of type WebRequestMethod a method defined in the library here --> https://github.com/me-no-dev/ESPAsyncWebServer/blob/63b5303880023f17e1bca517ac593d8a33955e94/src/ESPAsyncWebServer.h
 - Third parameter is a the function AsyncWebServerRequest
+So there is this c++ lambda function used here. My litle understanding is that they are locally declared unamed function this means they dont have a name and are declared locally :-)
+ I don't grasp the concept fully haha.
+ the syntax is [captures](params){body} where in here [] is empity
 */
 
   // Route for root / web page
@@ -138,6 +137,17 @@ So...
     request->send(SPIFFS, "/index.html", String(), false, processor);
   });
 
+ // Route for root / web page
+  server.on("/temp.html", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/temp.html", String(), false, processor);
+  });
+  server.on("/temperature", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send_P(200, "text/plain", readDHTTemperature().c_str());
+  });
+  server.on("/humidity", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send_P(200, "text/plain", readDHTHumidity().c_str());
+  });
+  
  // Send a GET request to <ESP_IP>/update?relay=<inputMessage>&state=<inputMessage2>
   server.on("/update", HTTP_GET, [] (AsyncWebServerRequest *request) {
     String inputMessage;
@@ -164,13 +174,128 @@ So...
       inputParam = "none";
     }
     Serial.println(inputMessage + inputMessage2);
+
+    //This is the last part of the lambda function. 
+    //This method receives as first input the HTTP response code, which will be 200 in our case.  This is the HTTP response code for “OK”.
     request->send_P(200, "text/plain", "OK");
   });
 
-  // Start server
+  // Start server here
   server.begin();
 }
 
 void loop(){
+  delay(10000);
+  printLocalTime();
+}
 
+
+
+
+
+
+String readDHTTemperature() {
+  // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
+  // Read temperature as Celsius (the default)
+  float t = dht.readTemperature();
+  // Read temperature as Fahrenheit (isFahrenheit = true)
+  //float t = dht.readTemperature(true);
+  // Check if any reads failed and exit early (to try again).
+  if (isnan(t)) {    
+    Serial.println("Failed to read from DHT sensor!");
+    return "--";
+  }
+  else {
+    Serial.println(t);
+    return String(t);
+  }
+}
+
+String readDHTHumidity() {
+  // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
+  float h = dht.readHumidity();
+  if (isnan(h)) {
+    Serial.println("Failed to read from DHT sensor!");
+    return "--";
+  }
+  else {
+    Serial.println(h);
+    return String(h);
+  }
+}
+
+// Replaces placeholder with button section in your web page
+String processor(const String& var){
+  //Serial.println(var);
+  if(var == "BUTTONPLACEHOLDER"){
+    String buttons ="";
+    for(int i=1; i<=NUM_RELAYS; i++){
+      String relayStateValue = relayState(i);
+      //Here parts of the HTML will be parsed to index.html like Relay # followed by its value in variable for the GPIO numbers
+      buttons+= "<h4>Turn on water on " + String(i) + "</h4><h4>Valve (relay) #" + String(i) + " - GPIO " + relayGPIOs[i-1] + "</h4><label class=\"switch\"><input type=\"checkbox\" onchange=\"toggleCheckbox(this)\" id=\"" + String(i) + "\" "+ relayStateValue +"><span class=\"slider\"></span></label>";
+    }
+    return buttons;
+  }
+
+  else if(var == "TEMPERATURE"){
+    return readDHTTemperature();
+  }
+  else if(var == "HUMIDITY"){
+    return readDHTHumidity();
+  }
+  return String();
+}
+
+String relayState(int valveRelayNum){
+  if(RELAY_NO){
+    if(digitalRead(relayGPIOs[valveRelayNum-1])){
+      return "";
+    }
+    else {
+      return "checked";
+    }
+  }
+  else {
+    if(digitalRead(relayGPIOs[valveRelayNum-1])){
+      return "checked";
+    }
+    else {
+      return "";
+    }
+  }
+  return "";
+}
+
+void printLocalTime(){
+  struct tm timeinfo;
+  if(!getLocalTime(&timeinfo)){
+    Serial.println("Failed to obtain time");
+    return;
+  }
+  Serial.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
+  Serial.print("Day of week: ");
+  Serial.println(&timeinfo, "%A");
+  Serial.print("Month: ");
+  Serial.println(&timeinfo, "%B");
+  Serial.print("Day of Month: ");
+  Serial.println(&timeinfo, "%d");
+  Serial.print("Year: ");
+  Serial.println(&timeinfo, "%Y");
+  Serial.print("Hour: ");
+  Serial.println(&timeinfo, "%H");
+  Serial.print("Hour (12 hour format): ");
+  Serial.println(&timeinfo, "%I");
+  Serial.print("Minute: ");
+  Serial.println(&timeinfo, "%M");
+  Serial.print("Second: ");
+  Serial.println(&timeinfo, "%S");
+
+  Serial.println("Time variables");
+  char timeHour[3];
+  strftime(timeHour,3, "%H", &timeinfo);
+  Serial.println(timeHour);
+  char timeWeekDay[10];
+  strftime(timeWeekDay,10, "%A", &timeinfo);
+  Serial.println(timeWeekDay);
+  Serial.println();
 }
