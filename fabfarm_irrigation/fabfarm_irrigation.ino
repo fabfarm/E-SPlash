@@ -163,9 +163,9 @@ So there is this c++ lambda function used here. My litle understanding is that t
     request->send(SPIFFS, "/index.html", String(), false, processor);
   });
 
- // server.on("/temp.html", HTTP_GET, [](AsyncWebServerRequest *request){
- //   request->send(SPIFFS, "/temp.html", String(), false, processor);
- // });
+  server.on("/temp.html", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/temp.html", String(), false, processor);
+  });
 
   server.on("/farmtimenow", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send_P(200, "text/plain", printFarmTime().c_str());
@@ -294,7 +294,7 @@ String relayState(int valveRelayNum){
   return "";
 }
 
-String printFarmTime(){
+String printLocalTime(){
 //  struct tm timeinfo;
 //  if(!getLocalTime(&timeinfo)){
 //  Serial.println("Failed to obtain time");
@@ -303,37 +303,19 @@ String printFarmTime(){
   String FarmHour = "teste";
   return FarmHour;
 }
-
-void printLocalTime(){
+//this function was found here https://arduino.stackexchange.com/questions/52676/how-do-you-convert-a-formatted-print-statement-into-a-string-variable
+//I did a minor change so instead of a void function it now returns a string to be used to show time in the webinterface
+String printFarmTime()
+{
+  time_t rawtime;
   struct tm timeinfo;
-  if(!getLocalTime(&timeinfo)){
-    Serial.println("Failed to obtain time");
-    return;
-  }
-  Serial.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
-  Serial.print("Day of week: ");
-  Serial.println(&timeinfo, "%A");
-  Serial.print("Month: ");
-  Serial.println(&timeinfo, "%B");
-  Serial.print("Day of Month: ");
-  Serial.println(&timeinfo, "%d");
-  Serial.print("Year: ");
-  Serial.println(&timeinfo, "%Y");
-  Serial.print("Hour: ");
-  Serial.println(&timeinfo, "%H");
-  Serial.print("Hour (12 hour format): ");
-  Serial.println(&timeinfo, "%I");
-  Serial.print("Minute: ");
-  Serial.println(&timeinfo, "%M");
-  Serial.print("Second: ");
-  Serial.println(&timeinfo, "%S");
+  getLocalTime(&timeinfo);
+  char timeStringBuff[50]; //50 chars should be enough
+  strftime(timeStringBuff, sizeof(timeStringBuff), "%A, %B %d %Y %H:%M:%S", &timeinfo);
+  //print like "const char*"
+  Serial.println(timeStringBuff);
 
-  Serial.println("Time variables");
-  char timeHour[3];
-  strftime(timeHour,3, "%H", &timeinfo);
-  Serial.println(timeHour);
-  char timeWeekDay[10];
-  strftime(timeWeekDay,10, "%A", &timeinfo);
-  Serial.println(timeWeekDay);
-  Serial.println();
+  //Optional: Construct String object 
+  String timeAsAString(timeStringBuff);
+  return timeAsAString;
 }

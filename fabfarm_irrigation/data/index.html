@@ -82,13 +82,20 @@
         }
 
     </style>
+    <script language="javascript" src="serverDate.js"></script>
 </head>
-
+<script language="javascript">
+    var localTime = new Date();
+    document.write("Local machine time is: " + localTime + "<br>");
+    document.write("Server time is: " + date);
+    </script>
 <body>
     <h2>Fab Farm Irrigation System</h2>
+    
     <p>
         <i class="fas fa-clock"></i>
         <span class="dht-labels">Farm Time</span>
+        <br>
         <span id="farmtimenow">%FARMTIMENOW%</span>
     </p>
     <hr>
