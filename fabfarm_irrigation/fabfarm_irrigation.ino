@@ -99,8 +99,31 @@ void setup(){
       digitalWrite(relayGPIOs[i-1], LOW);
     }
   }
-  
+  /*
   // Connect the ESP to the Wi-Fi using the credentials entered before
+  //with WiFi.mode(WIFI_STA) besides the wifi client we will have a access point
+  WiFi.mode(WIFI_AP_STA);// looks like this is not really needed, I need to investigate better how wifi works.
+  //So far the behaviour is that it creates a soft access point and also connect to the network thru access point 
+  //Here is how to start the soft access point :  WiFi.softAP("softap", "imakestuff");
+  //This part of the code was taken from https://arduino-esp8266.readthedocs.io/en/latest/esp8266wifi/readme.html
+  Serial.print("Setting soft-AP ... ");
+  boolean result = WiFi.softAP("softap", "imakestuff");
+  if(result == true)
+  {
+    Serial.println("Soft Access Point Started");
+    IPAddress mySoftIP = WiFi.softAPIP();
+    Serial.print("Soft Acess Point IP address: ");
+    Serial.println(mySoftIP);
+  }
+  else
+  {
+    Serial.println("Soft Access Point Failed!");
+  }
+  */
+  WiFi.softAP("softap", "imakestuff");
+  IPAddress IP = WiFi.softAPIP();
+  
+  //here  start wifi sessions as a client.
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
@@ -108,9 +131,12 @@ void setup(){
   }
 
   // Print ESP32 Local IP Address
+  Serial.print("The Fabfarm Irrigation system network IP is:");
   Serial.println(WiFi.localIP());
+  //Serial.print("The gateway IP is:")
+  //Serial.println(WiFi.gatewayIP());
 
-  // Init and get the time
+  // Init and get the time from ntpServer
   configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
   printLocalTime();
 
@@ -137,9 +163,12 @@ So there is this c++ lambda function used here. My litle understanding is that t
     request->send(SPIFFS, "/index.html", String(), false, processor);
   });
 
- // Route for root / web page
-  server.on("/temp.html", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(SPIFFS, "/temp.html", String(), false, processor);
+ // server.on("/temp.html", HTTP_GET, [](AsyncWebServerRequest *request){
+ //   request->send(SPIFFS, "/temp.html", String(), false, processor);
+ // });
+
+  server.on("/farmtimenow", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send_P(200, "text/plain", printFarmTime().c_str());
   });
   server.on("/temperature", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send_P(200, "text/plain", readDHTTemperature().c_str());
@@ -185,12 +214,9 @@ So there is this c++ lambda function used here. My litle understanding is that t
 }
 
 void loop(){
-  delay(10000);
-  printLocalTime();
+  //delay(10000);
+  //printLocalTime();
 }
-
-
-
 
 
 
@@ -236,7 +262,9 @@ String processor(const String& var){
     }
     return buttons;
   }
-
+  else if(var == "FARMTIMENOW"){
+    return printFarmTime();
+  }
   else if(var == "TEMPERATURE"){
     return readDHTTemperature();
   }
@@ -264,6 +292,16 @@ String relayState(int valveRelayNum){
     }
   }
   return "";
+}
+
+String printFarmTime(){
+//  struct tm timeinfo;
+//  if(!getLocalTime(&timeinfo)){
+//  Serial.println("Failed to obtain time");
+//  return;
+//}
+  String FarmHour = "teste";
+  return FarmHour;
 }
 
 void printLocalTime(){
