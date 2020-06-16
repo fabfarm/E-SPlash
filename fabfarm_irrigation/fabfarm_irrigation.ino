@@ -138,7 +138,9 @@ void setup(){
 
   // Init and get the time from ntpServer
   configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
-  printLocalTime();
+  printFarmTime();
+  Serial.print("Now the Short Version: ");
+  printShortFarmTime();
 
 /*
 *Now we are going to configure the route where server will be listening for incoming HTTP requests 
@@ -168,7 +170,7 @@ So there is this c++ lambda function used here. My litle understanding is that t
   });
 
   server.on("/farmtimenow", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send_P(200, "text/plain", printFarmTime().c_str());
+    request->send_P(200, "text/plain", printShortFarmTime().c_str());
   });
   server.on("/temperature", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send_P(200, "text/plain", readDHTTemperature().c_str());
@@ -214,8 +216,7 @@ So there is this c++ lambda function used here. My litle understanding is that t
 }
 
 void loop(){
-  //delay(10000);
-  //printLocalTime();
+
 }
 
 
@@ -263,7 +264,7 @@ String processor(const String& var){
     return buttons;
   }
   else if(var == "FARMTIMENOW"){
-    return printFarmTime();
+    return printShortFarmTime();
   }
   else if(var == "TEMPERATURE"){
     return readDHTTemperature();
@@ -294,15 +295,6 @@ String relayState(int valveRelayNum){
   return "";
 }
 
-String printLocalTime(){
-//  struct tm timeinfo;
-//  if(!getLocalTime(&timeinfo)){
-//  Serial.println("Failed to obtain time");
-//  return;
-//}
-  String FarmHour = "teste";
-  return FarmHour;
-}
 //this function was found here https://arduino.stackexchange.com/questions/52676/how-do-you-convert-a-formatted-print-statement-into-a-string-variable
 //I did a minor change so instead of a void function it now returns a string to be used to show time in the webinterface
 String printFarmTime()
@@ -312,6 +304,20 @@ String printFarmTime()
   getLocalTime(&timeinfo);
   char timeStringBuff[50]; //50 chars should be enough
   strftime(timeStringBuff, sizeof(timeStringBuff), "%A, %B %d %Y %H:%M:%S", &timeinfo);
+  //print like "const char*"
+  Serial.println(timeStringBuff);
+
+  //Construct to create the String object 
+  String timeAsAString(timeStringBuff);
+  return timeAsAString;
+}
+String printShortFarmTime()
+{
+  time_t rawtime;
+  struct tm timeinfo;
+  getLocalTime(&timeinfo);
+  char timeStringBuff[50]; //50 chars should be enough
+  strftime(timeStringBuff, sizeof(timeStringBuff), "%H:%M:%S", &timeinfo);
   //print like "const char*"
   Serial.println(timeStringBuff);
 
