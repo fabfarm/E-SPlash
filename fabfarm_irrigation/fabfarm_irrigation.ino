@@ -138,9 +138,20 @@ void setup(){
 
   // Init and get the time from ntpServer
   configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
-  printFarmTime();
-  Serial.print("Now the Short Version: ");
-  printShortFarmTime();
+  //printFarmTime();
+  //Serial.print("Now the Short Version: ");
+  //printShortFarmTime();
+  
+  //Printing Only the hours and minutes
+  Serial.print("Prepare for time...");
+  modifiedPrintLocalTime();
+  Serial.println("");
+
+  //Print Only The hours
+  Serial.print("Now prepare again to get more time...");
+  Serial.print(gimeTime(1));
+  Serial.print(":");
+  Serial.println(gimeTime(2));
 
 /*
 *Now we are going to configure the route where server will be listening for incoming HTTP requests 
@@ -324,4 +335,73 @@ String printShortFarmTime()
   //Construct to create the String object 
   String timeAsAString(timeStringBuff);
   return timeAsAString;
+}
+
+void modifiedPrintLocalTime()
+// Function based on post in the https://forum.arduino.cc/index.php?topic=536464.0 Arduino Forum by user Abhay
+{ 
+    int OnlyYear;
+    int onlyMonth;
+    int onlyDay;
+    int onlyHour;
+    int onlyMin;
+    int onlySec;
+    
+    struct tm timeinfo;
+    if(!getLocalTime(&timeinfo)){
+        Serial.println("Failed to obtain time");
+        return;
+        }
+//Serial.println(&timeinfo, "%m %d %Y / %H:%M:%S");
+//scanf(&timeinfo, "%m %d %Y / %H:%M:%S")
+        onlyHour = timeinfo.tm_hour;
+        onlyMin  = timeinfo.tm_min;
+        onlySec  = timeinfo.tm_sec;
+        onlyDay = timeinfo.tm_mday;
+        onlyMonth = timeinfo.tm_mon + 1;
+        OnlyYear = timeinfo.tm_year +1900;
+        
+        //test
+        Serial.print("Print only Hour and Minutes");
+        Serial.print(onlyHour);
+        Serial.print(":");
+        Serial.print(onlyMin);
+        }
+
+int gimeTime(char what) {
+
+    int OnlyYear;
+    int onlyMonth;
+    int onlyDay;
+    int onlyHour;
+    int onlyMin;
+    int onlySec;
+
+    struct tm timeinfo;
+    if(!getLocalTime(&timeinfo)){
+      Serial.println("Failed to obtain time");
+      //return;
+      }
+    onlyHour = timeinfo.tm_hour;
+    onlyMin  = timeinfo.tm_min;
+    onlySec  = timeinfo.tm_sec;
+    onlyDay = timeinfo.tm_mday;
+    onlyMonth = timeinfo.tm_mon + 1;
+    OnlyYear = timeinfo.tm_year +1900;
+
+    switch (what) {
+      case 1:
+      return onlyHour;
+      break;
+      case 2:
+      return onlyMin;
+      break;
+      case 3:
+      return onlySec;
+      break;
+      default:
+    // if nothing else matches, do the default
+    // default is optional
+    break;
+    }
 }
