@@ -315,7 +315,7 @@ String printFarmTime()
   //print like "const char*"
   Serial.println(timeStringBuff);
 
-  //Optional: Construct String object 
+  //Construct to create the String object 
   String timeAsAString(timeStringBuff);
   return timeAsAString;
 }
