@@ -14,13 +14,12 @@
         }
 
         h2 {
-          font-size: 2.4rem;
-      }
+            font-size: 3.0rem;
+        }
 
-      p {
-
-          font-size: 2.2rem;
-      }
+        p {
+            font-size: 3.0rem;
+        }
 
         body {
             max-width: 600px;
@@ -28,41 +27,16 @@
             padding-bottom: 25px;
         }
 
-        table {
-          width: 100%;
-          max-width: 600px;
-      }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 120px;
+            height: 68px
+        }
 
-      input {
-          border: 1px solid #ccc;
-          color: #888;
-          margin: 0.5em;
-          vertical-align: middle;
-          outline: 0;
-          padding: 0.5em 1em;
-          border-radius: 4px;
-          width: calc(100% - 3em - 2px);
-          font-family: sans-serif;
-      }
-
-      #output {
-          background: lightyellow;
-          padding: 10px;
-          border: 1px solid tan;
-          margin: 0 0 10px 0;
-      }
-
-      .switch {
-          vertical-align: middle;
-          display: inline-block;
-          position: relative;
-          width: 120px;
-          height: 47px
-      }
-
-      .switch input {
-          display: none
-      }
+        .switch input {
+            display: none
+        }
 
         .slider {
             position: absolute;
@@ -75,44 +49,17 @@
         }
 
         .slider:before {
-          position: absolute;
-          content: "";
-          height: 30px;
-          width: 52px;
-          left: 8px;
-          bottom: 8px;
-          background-color: #fff;
-          -webkit-transition: .4s;
-          transition: .4s;
-          border-radius: 68px
-      }
-
-      .slider2 {
-          -webkit-appearance: none;
-          margin: 14px;
-          width: 300px;
-          height: 20px;
-          background: #ccc;
-          outline: none;
-          -webkit-transition: .2s;
-          transition: opacity .2s;
-      }
-
-      .slider2::-webkit-slider-thumb {
-          -webkit-appearance: none;
-          appearance: none;
-          width: 30px;
-          height: 30px;
-          background: #2f4468;
-          cursor: pointer;
-      }
-
-      .slider2::-moz-range-thumb {
-          width: 30px;
-          height: 30px;
-          background: #2f4468;
-          cursor: pointer;
-      }
+            position: absolute;
+            content: "";
+            height: 52px;
+            width: 52px;
+            left: 8px;
+            bottom: 8px;
+            background-color: #fff;
+            -webkit-transition: .4s;
+            transition: .4s;
+            border-radius: 68px
+        }
 
         input:checked+.slider {
             background-color: #2196F3
@@ -143,7 +90,7 @@
     document.write("Server time is: " + date);
     </script>
 <body>
-    <h2>FabFarm fabESPlash</h2>
+    <h2>Fab Farm Irrigation System</h2>
     
     <p>
         <i class="fas fa-clock"></i>
@@ -152,54 +99,15 @@
         <span id="farmtimenow">%FARMTIMENOW%</span>
     </p>
     <hr>
-    <p>Zone1</p>
-    <table class="datetime-tool">
-      <tr>
-        <form action="some c code">
-                <td><label for="time">Time of cycle start:</label></td>
-                <td><input type="time" id="appt" name="appt" required value="08:30" /></td>
-                <td><input type="submit" value="Submit start cycle time"></td>
-            </form>
-        </tr>
-    </table>
-    <div>
-        <span id="timerValue">%TIMERVALUE%</span>
-        <span class=""><input type="range" onchange="updateSliderTimer(this)" id="timerSlider" min="0" max="3600" value="%TIMERVALUE%" step="60" class="slider2"></span>
-
     %BUTTONPLACEHOLDER%
-</div>
-<hr>
     <script>
         function toggleCheckbox(element) {
-            var sliderValue = document.getElementById("timerSlider").value;
             var xhr = new XMLHttpRequest();
             if (element.checked) {
                 xhr.open("GET", "/update?relay=" + element.id + "&state=1", true);
-                xhr.send();
-                var count = sliderValue,
-                    timer = setInterval(function() {
-                        count--;
-                        document.getElementById("timerValue").innerHTML = count;
-                        if (count == 0) {
-                            clearInterval(timer);
-                            document.getElementById("timerValue").innerHTML = document.getElementById("timerSlider").value;
-                        }
-                    }, 1000);
-                sliderValue = sliderValue * 1000;
             } else {
                 xhr.open("GET", "/update?relay=" + element.id + "&state=0", true);
-                document.getElementById(element.id).checked = false;
-                    xhr.send();
-                }, sliderValue);
             }
-            xhr.send();
-        }
-        
-        function updateSliderTimer(element) {
-            var sliderValue = document.getElementById("timerSlider").value;
-            document.getElementById("timerValue").innerHTML = sliderValue;
-            var xhr = new XMLHttpRequest();
-            xhr.open("GET", "/slider?value=" + sliderValue, true);
             xhr.send();
         }
 
@@ -253,15 +161,6 @@
         xhttp.open("GET", "/humidity", true);
         xhttp.send();
     }, 10000);
-
-</script>
-
-<script>
-    $("button").click(function() {
-        var value = $(this).parent().parent().find("input").val();
-        $("#output").html(value + "<br>&lt;time datetime='" + value + "'>&lt;/time>");
-        console.log(value);
-    });
 
 </script>
 

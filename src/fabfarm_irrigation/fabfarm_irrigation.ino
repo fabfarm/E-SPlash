@@ -59,13 +59,14 @@ const char* password = "imakestuff";
 AsyncWebServer server(80);
 
 // Set to true to define Relay as Normally Open (NO)
-#define RELAY_NO false
+#define relayNO false
 
-// Set number of relays, will be used in the array
-#define NUM_RELAYS  4
+// Set number of zones, will be used in the array
+#define zones 3
 
 // Assign each GPIO to a relay
-int relayGPIOs[NUM_RELAYS] = {26, 25, 33, 27};
+int relayGPIOs[zones] = {26, 25, 33};
+int pumpGpio = 27;
 
 // Digital pin connected to the DHT sensor
 #define DHTPIN 32     
@@ -82,78 +83,33 @@ DHT dht(DHTPIN, DHTTYPE);
 const char* PARAM_INPUT_1 = "relay";  
 const char* PARAM_INPUT_2 = "state";
 
+String timerSliderValue = "3600";
+
+/******************************************************************************************
+******************************void setup Starts here***************************************
+*******************************************************************************************/
 void setup(){
   // Serial port for debugging purposes
   Serial.begin(9600);
-
-  // Initialize SPIFFS 
-  //That is the file system.
-  if(!SPIFFS.begin(true)){
-    Serial.println("An Error has occurred while mounting SPIFFS");
-    return;
-  }
-// Set all relays to off when the program starts - if set to Normally Open (NO), the relay is off when you set the relay to HIGH
-turnRelaysToOff();
-
-  /*
-  // Connect the ESP to the Wi-Fi using the credentials entered before
-  //with WiFi.mode(WIFI_STA) besides the wifi client we will have a access point
-  WiFi.mode(WIFI_AP_STA);// looks like this is not really needed, I need to investigate better how wifi works.
-  //So far the behaviour is that it creates a soft access point and also connect to the network thru access point 
-  //Here is how to start the soft access point :  WiFi.softAP("softap", "imakestuff");
-  //This part of the code was taken from https://arduino-esp8266.readthedocs.io/en/latest/esp8266wifi/readme.html
-  Serial.print("Setting soft-AP ... ");
-  boolean result = WiFi.softAP("softap", "imakestuff");
-  if(result == true)
-  {
-    Serial.println("Soft Access Point Started");
-    IPAddress mySoftIP = WiFi.softAPIP();
-    Serial.print("Soft Acess Point IP address: ");
-    Serial.println(mySoftIP);
-  }
-  else
-  {
-    Serial.println("Soft Access Point Failed!");
-  }
-  */
-  WiFi.softAP("softap", "imakestuff");
-  IPAddress IP = WiFi.softAPIP();
   
-  //here  start wifi sessions as a client.
-  WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(1000);
-    Serial.println("Connecting to WiFi..");
-  }
+  // Function to initialize Spiffs file system
+  getSpiffGoing();
 
-  // Print ESP32 Local IP Address
-  Serial.print("The Fabfarm Irrigation system network IP is:");
-  Serial.println(WiFi.localIP());
-  //Serial.print("The gateway IP is:")
-  //Serial.println(WiFi.gatewayIP());
+  // Set all relays to off when the program starts - if set to Normally Open (NO), the relay is off when you set the relay to HIGH
+  turnRelaysToOff();
+
+  //Function to start the wifi softap and client going
+  getWifiGoing();
 
   // Init and get the time from ntpServer
   // some info on https://lastminuteengineers.com/esp32-ntp-server-date-time-tutorial/
   // and here https://randomnerdtutorials.com/esp32-date-time-ntp-client-server-arduino/
   // struct tm info: http://www.cplusplus.com/reference/ctime/tm/
   // Still about Struct https://learn.adafruit.com/circuit-playground-simple-simon/the-structure-of-struct
-  
   configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
   
-  //printFarmTime();
-  //Serial.print("Now the Short Version: ");
-  //printShortFarmTime();
-  
-  //Printing Only the hours and minutes
-  Serial.print("Prepare for time...");
-  modifiedPrintLocalTime();
-  Serial.println("");
-
-  //Print Only The hours
-  Serial.print("Now prepare again to get more time...");
-  Serial.print(gimeTime(1));
-  Serial.print(":");
-  Serial.println(gimeTime(2));
+  //Print time in different ways to Serial monitor
+  testPrintTimeWays();
 
 /*
 *Now we are going to configure the route where server will be listening for incoming HTTP requests 
@@ -182,12 +138,18 @@ So there is this c++ lambda function used here. My litle understanding is that t
     request->send(SPIFFS, "/temp.html", String(), false, processor);
   });
 
+    server.on("/mashup/indexold.html", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/indexold.html", String(), false, processor);
+  });
+
   server.on("/farmtimenow", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send_P(200, "text/plain", printShortFarmTime().c_str());
   });
+
   server.on("/temperature", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send_P(200, "text/plain", readDHTTemperature().c_str());
   });
+  
   server.on("/humidity", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send_P(200, "text/plain", readDHTHumidity().c_str());
   });
@@ -204,7 +166,7 @@ So there is this c++ lambda function used here. My litle understanding is that t
       inputParam = PARAM_INPUT_1;
       inputMessage2 = request->getParam(PARAM_INPUT_2)->value();
       inputParam2 = PARAM_INPUT_2;
-      if(RELAY_NO){
+      if(relayNO){
         Serial.print("NO ");
         digitalWrite(relayGPIOs[inputMessage.toInt()-1], !inputMessage2.toInt());
       }
@@ -224,16 +186,47 @@ So there is this c++ lambda function used here. My litle understanding is that t
     request->send_P(200, "text/plain", "OK");
   });
 
+  // Send a GET request to <ESP_IP>/slider?value=<inputMessage>
+  server.on("/slider", HTTP_GET, [] (AsyncWebServerRequest *request) {
+    String inputMessage;
+    // GET input1 value on <ESP_IP>/slider?value=<inputMessage>
+    if (request->hasParam(PARAM_INPUT_2)) {
+      inputMessage = request->getParam(PARAM_INPUT_2)->value();
+      timerSliderValue = inputMessage;
+    }
+    else {
+      inputMessage = "No message sent";
+    }
+    Serial.println(inputMessage);
+    request->send(200, "text/plain", "OK");
+  });
+
   // Start server here
   server.begin();
 }
+/******************************************************************************************
+******************************void setup ends here*****************************************
+*******************************************************************************************/
 
+
+
+/******************************************************************************************
+******************************void loop starts here****************************************
+*******************************************************************************************/
 void loop(){
 
+
+
+
 }
+/******************************************************************************************
+********************************void loop ends here****************************************
+*******************************************************************************************/
 
-
-
+/******************************************************************************************
+***********************From this place The functions Beggin********************************
+*******************************************************************************************/
+//Function to read the temperature Sensor
 String readDHTTemperature() {
   // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
   // Read temperature as Celsius (the default)
@@ -250,7 +243,7 @@ String readDHTTemperature() {
     return String(t);
   }
 }
-
+//Function to read Humidity sensor
 String readDHTHumidity() {
   // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
   float h = dht.readHumidity();
@@ -264,17 +257,20 @@ String readDHTHumidity() {
   }
 }
 
-// Replaces placeholder with button section in your web page
+//Function that replaces placeholder with button section in your web page. It sends a chunk of the HTML that is missing directelly to the defined area "placeholder"  of the HTML
 String processor(const String& var){
   //Serial.println(var);
   if(var == "BUTTONPLACEHOLDER"){
     String buttons ="";
-    for(int i=1; i<=NUM_RELAYS; i++){
-      String relayStateValue = relayState(i);
+    for(int i=1; i<=zones; i++){
+      String zoneStateValue = zoneState(i);
       //Here parts of the HTML will be parsed to index.html like Relay # followed by its value in variable for the GPIO numbers
-      buttons+= "<h4>Turn on water on " + String(i) + "</h4><h4>Valve (relay) #" + String(i) + " - GPIO " + relayGPIOs[i-1] + "</h4><label class=\"switch\"><input type=\"checkbox\" onchange=\"toggleCheckbox(this)\" id=\"" + String(i) + "\" "+ relayStateValue +"><span class=\"slider\"></span></label>";
+      buttons+= "<span class=\"w3-hide-small\"><h4>Zone " + String(i) + "</h4><h4>Valve (relay) #" + String(i) + " - GPIO " + relayGPIOs[i-1] + "</h4><label class=\"switch\"><input type=\"checkbox\" onchange=\"toggleCheckbox(this)\" id=\"" + String(i) + "\" "+ zoneStateValue +"><span class=\"slider\"></span></label></span>";
     }
     return buttons;
+  }
+  else if(var == "TIMERVALUE"){
+    return timerSliderValue;
   }
   else if(var == "FARMTIMENOW"){
     return printShortFarmTime();
@@ -288,8 +284,9 @@ String processor(const String& var){
   return String();
 }
 
-String relayState(int valveRelayNum){
-  if(RELAY_NO){
+//Function to set zone State (relay pin State)
+String zoneState(int valveRelayNum){
+  if(relayNO){
     if(digitalRead(relayGPIOs[valveRelayNum-1])){
       return "";
     }
@@ -308,6 +305,7 @@ String relayState(int valveRelayNum){
   return "";
 }
 
+//Function to print full Date and local time
 //this function was found here https://arduino.stackexchange.com/questions/52676/how-do-you-convert-a-formatted-print-statement-into-a-string-variable
 //I did a minor change so instead of a void function it now returns a string to be used to show time in the webinterface
 String printFarmTime()
@@ -324,6 +322,8 @@ String printFarmTime()
   String timeAsAString(timeStringBuff);
   return timeAsAString;
 }
+
+//Function to print only the hours of local time
 String printShortFarmTime()
 {
   time_t rawtime;
@@ -339,6 +339,7 @@ String printShortFarmTime()
   return timeAsAString;
 }
 
+//Modified print local time function
 void modifiedPrintLocalTime()
 // Function based on post in the https://forum.arduino.cc/index.php?topic=536464.0 Arduino Forum by user Abhay
 { 
@@ -370,6 +371,7 @@ void modifiedPrintLocalTime()
         Serial.print(onlyMin);
         }
 
+//Function to get chunks of time elements like hours, minutes etc... //Input 1 for hour, 2 for minutes, 3 for seconds
 int gimeTime(char what) {
 
     int OnlyYear;
@@ -410,13 +412,105 @@ int gimeTime(char what) {
 
 // Set all relays to off when the program starts - if set to Normally Open (NO), the relay is off when you set the relay to HIGH
 void turnRelaysToOff(){
-    for(int i=1; i<=NUM_RELAYS; i++){
+    for(int i=1; i<=zones; i++){
     pinMode(relayGPIOs[i-1], OUTPUT);
-    if(RELAY_NO){
+    if(relayNO){
       digitalWrite(relayGPIOs[i-1], HIGH);
     }
     else{
       digitalWrite(relayGPIOs[i-1], LOW);
     }
   }
+}
+
+//Function to Start/Stop irrigation Zones
+int zoneStartStop (int zone, int startStop){
+  int waitTime = 1000;
+  if (startStop == 1){
+  digitalWrite(relayGPIOs[zone], startStop);
+  Serial.print("*** Zone Valve");
+  Serial.print(zone);
+  Serial.println("ON ***");
+  delay(waitTime);
+  digitalWrite(pumpGpio, startStop);
+  Serial.print("*** Pump turned ON ***");
+  }
+  else{
+  digitalWrite(relayGPIOs[zone], startStop);
+  Serial.print("*** Zone Valve");
+  Serial.print(zone);
+  Serial.println("OFF ***");
+  delay(waitTime);
+  digitalWrite(pumpGpio, startStop);
+  Serial.print("*** Pump turned ON ***");
+  }
+}
+
+//Function to initialize the Wifi
+void getWifiGoing(){
+  /*
+  // Connect the ESP to the Wi-Fi using the credentials entered before
+  //with WiFi.mode(WIFI_STA) besides the wifi client we will have a access point
+  WiFi.mode(WIFI_AP_STA);// looks like this is not really needed, I need to investigate better how wifi works.
+  //So far the behaviour is that it creates a soft access point and also connect to the network thru access point 
+  //Here is how to start the soft access point :  WiFi.softAP("softap", "imakestuff");
+  //This part of the code was taken from https://arduino-esp8266.readthedocs.io/en/latest/esp8266wifi/readme.html
+  Serial.print("Setting soft-AP ... ");
+  boolean result = WiFi.softAP("softap", "imakestuff");
+  if(result == true)
+  {
+    Serial.println("Soft Access Point Started");
+    IPAddress mySoftIP = WiFi.softAPIP();
+    Serial.print("Soft Acess Point IP address: ");
+    Serial.println(mySoftIP);
+  }
+  else
+  {
+    Serial.println("Soft Access Point Failed!");
+  }
+  */
+  WiFi.softAP("softap", "imakestuff");
+  IPAddress IP = WiFi.softAPIP();
+  
+  //here  start wifi sessions as a client.
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(1000);
+    Serial.println("Connecting to WiFi..");
+  }
+
+  // Print ESP32 Local IP Address
+  Serial.print("The Fabfarm Irrigation system network IP is:");
+  Serial.println(WiFi.localIP());
+  //Serial.print("The gateway IP is:")
+  //Serial.println(WiFi.gatewayIP());
+
+}
+
+//Function to initialize Spiffs
+void getSpiffGoing(){
+  // Initialize SPIFFS 
+  //That is the file system.PARAM_INPUT_1
+  if(!SPIFFS.begin(true)){
+    Serial.println("An Error has occurred while mounting SPIFFS");
+    return;
+  }
+}
+
+//Function to test the various diferent ways to print time
+void testPrintTimeWays(){
+    //printFarmTime();
+  //Serial.print("Now the Short Version: ");
+  //printShortFarmTime();
+  
+  //Printing Only the hours and minutes
+  Serial.print("Prepare for time...");
+  modifiedPrintLocalTime();
+  Serial.println("");
+
+  //Print Only The hours
+  Serial.print("Now prepare again to get more time...");
+  Serial.print(gimeTime(1));
+  Serial.print(":");
+  Serial.println(gimeTime(2));
 }
