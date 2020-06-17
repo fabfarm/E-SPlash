@@ -44,7 +44,8 @@
 #include "AsyncTCP.h"
 #include "Adafruit_Sensor.h"
 #include "DHT.h"
-#include "time.h"
+//Documentation here --> https://github.com/PaulStoffregen/Time
+//#include "time.h"
 
 const char* ntpServer = "pool.ntp.org";
 const long  gmtOffset_sec = 0;
@@ -74,6 +75,7 @@ int relayGPIOs[NUM_RELAYS] = {26, 25, 33, 27};
 //#define DHTTYPE    DHT22     // DHT 22 (AM2302)
 //#define DHTTYPE    DHT21     // DHT 21 (AM2301)
 
+//Send the pin and type of sensor
 DHT dht(DHTPIN, DHTTYPE);
 
 //
@@ -84,21 +86,15 @@ void setup(){
   // Serial port for debugging purposes
   Serial.begin(9600);
 
-  // Initialize SPIFFS
+  // Initialize SPIFFS 
+  //That is the file system.
   if(!SPIFFS.begin(true)){
     Serial.println("An Error has occurred while mounting SPIFFS");
     return;
   }
-  // Set all relays to off when the program starts - if set to Normally Open (NO), the relay is off when you set the relay to HIGH
-  for(int i=1; i<=NUM_RELAYS; i++){
-    pinMode(relayGPIOs[i-1], OUTPUT);
-    if(RELAY_NO){
-      digitalWrite(relayGPIOs[i-1], HIGH);
-    }
-    else{
-      digitalWrite(relayGPIOs[i-1], LOW);
-    }
-  }
+// Set all relays to off when the program starts - if set to Normally Open (NO), the relay is off when you set the relay to HIGH
+turnRelaysToOff();
+
   /*
   // Connect the ESP to the Wi-Fi using the credentials entered before
   //with WiFi.mode(WIFI_STA) besides the wifi client we will have a access point
@@ -137,7 +133,13 @@ void setup(){
   //Serial.println(WiFi.gatewayIP());
 
   // Init and get the time from ntpServer
+  // some info on https://lastminuteengineers.com/esp32-ntp-server-date-time-tutorial/
+  // and here https://randomnerdtutorials.com/esp32-date-time-ntp-client-server-arduino/
+  // struct tm info: http://www.cplusplus.com/reference/ctime/tm/
+  // Still about Struct https://learn.adafruit.com/circuit-playground-simple-simon/the-structure-of-struct
+  
   configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+  
   //printFarmTime();
   //Serial.print("Now the Short Version: ");
   //printShortFarmTime();
@@ -362,7 +364,7 @@ void modifiedPrintLocalTime()
         OnlyYear = timeinfo.tm_year +1900;
         
         //test
-        Serial.print("Print only Hour and Minutes");
+        Serial.print("Print only Hour and Minutes...");
         Serial.print(onlyHour);
         Serial.print(":");
         Serial.print(onlyMin);
@@ -404,4 +406,17 @@ int gimeTime(char what) {
     // default is optional
     break;
     }
+}
+
+// Set all relays to off when the program starts - if set to Normally Open (NO), the relay is off when you set the relay to HIGH
+void turnRelaysToOff(){
+    for(int i=1; i<=NUM_RELAYS; i++){
+    pinMode(relayGPIOs[i-1], OUTPUT);
+    if(RELAY_NO){
+      digitalWrite(relayGPIOs[i-1], HIGH);
+    }
+    else{
+      digitalWrite(relayGPIOs[i-1], LOW);
+    }
+  }
 }
