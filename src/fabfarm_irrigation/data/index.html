@@ -170,29 +170,20 @@
 </div>
 <hr>
     <script>
-        function toggleCheckbox(element) {
+        // this function gets invoked  on checkBox event 
+        function toggleCheckbox(element/*the checkbox*/) {
+
+            // after the checkbox is checked, we retrieve the slider value
             var sliderValue = document.getElementById("timerSlider").value;
+
+            // initialize a http request ... depending on IF the checkbox is checked
             var xhr = new XMLHttpRequest();
-            if (element.checked) {
-                xhr.open("GET", "/update?relay=" + element.id + "&state=1", true);
-                xhr.send();
-                var count = sliderValue,
-                    timer = setInterval(function() {
-                        count--;
-                        document.getElementById("timerValue").innerHTML = count;
-                        if (count == 0) {
-                            clearInterval(timer);
-                            document.getElementById("timerValue").innerHTML = document.getElementById("timerSlider").value;
-                        }
-                    }, 1000);
-                sliderValue = sliderValue * 1000;
-            } else {
-                xhr.open("GET", "/update?relay=" + element.id + "&state=0", true);
-                document.getElementById(element.id).checked = false;
-                    xhr.send();
-                }, sliderValue);
-            }
-            xhr.send();
+            var state = element.checked ? "1" : "0"; // if checked then state will be 1 otherwise state is 0
+            var url = "/update?relay=" + element.id + "&state=" + state + "&sliderValue=" + sliderValue;
+
+            xhr.open("GET", url, true); // "öpens" the http connection
+            xhr.send();     //  sends the request
+
         }
         
         function updateSliderTimer(element) {
