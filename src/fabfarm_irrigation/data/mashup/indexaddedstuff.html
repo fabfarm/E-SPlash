@@ -149,7 +149,6 @@
         function toggleCheckbox(element) {
             var sliderValue = document.getElementById("timerSlider").value;
             var xhr = new XMLHttpRequest();
-            
             if (element.checked) {
                 xhr.open("GET", "/update?state=1", true);
                 xhr.send();
@@ -169,7 +168,6 @@
                     xhr.send();
                 }, sliderValue);
             }
-            
         }
 
         function updateSliderTimer(element) {

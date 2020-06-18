@@ -139,7 +139,7 @@ So there is this c++ lambda function used here. My litle understanding is that t
   });
 
     server.on("/mashup/indexold.html", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(SPIFFS, "/mashup/indexold.html", String(), false, processor);
+    request->send(SPIFFS, "/indexold.html", String(), false, processor);
   });
 
   server.on("/farmtimenow", HTTP_GET, [](AsyncWebServerRequest *request){
