@@ -13,10 +13,10 @@ Need a polling mechanism
 |                                       |   [ ] Override button                                                |
 | Displays                              | [ ] Stores info above at SPIFFS (csv ? )                             |
 |[x] time of day                        | logic test:                                                          |
-|[x] Humidity                           |   keep checking:  ({                                    |
-|[x] Temperature                        |       - am I ('zone x') in an On window  ('time + duration') ?
-                                                        Yes: 'be sure' I'm on   
-                                                        No: be sure I'm off
+|[x] Humidity                           |   keep checking:  ({                                                 |
+|[x] Temperature                        |       - am I ('zone x') in an On window  ('time + duration') ?       |
+|                                       |                 Yes: 'be sure' I'm on                                |
+|                                       |                 No: be sure I'm off                                  |
 |[ ] current zone programs stored       |       -wait for override button and break cycle if received          |
 |[ ] override button                    |   wait for override buton and turn on/off anytime                    |  
 |[ ] current zone state  (ON/OFF)       | Updates/sends current situation:                                     |
