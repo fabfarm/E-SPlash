@@ -21,7 +21,7 @@ Need a polling mechanism
 |[ ] override button                    |   wait for override buton and turn on/off anytime                    |  
 |[ ] current zone state  (ON/OFF)       | Updates/sends current situation:                                     |
 |                                       | [x]Time of day;                                                      |
-|                                       | [ ]State of zone (ON/OFF)                                            |
+|                                       | [x]State of zone (ON/OFF)                                            |
 |                                       | [x]sensor information (humidity/temperature)                         |
 |                                       |                                                                      |
 |                                       |                                                                      |
