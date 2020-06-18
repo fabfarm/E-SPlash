@@ -65,7 +65,6 @@ AsyncWebServer server(80);
 #define zones 3
 
 // Assign each GPIO to a relay
-// TODO: read this from data file (csv ?) / v2
 int relayGPIOs[zones] = {26, 25, 33};
 int pumpGpio = 27;
 
@@ -84,19 +83,17 @@ DHT dht(DHTPIN, DHTTYPE);
 const char* PARAM_INPUT_1 = "relay";  
 const char* PARAM_INPUT_2 = "state";
 
-String timerSliderValue = "60";
+String timerSliderValue = "3600";
 
-// Main entry point / start up routine
-void setup(){ // 
-
+/******************************************************************************************
+******************************void setup Starts here***************************************
+*******************************************************************************************/
+void setup(){
   // Serial port for debugging purposes
   Serial.begin(9600);
   
   // Function to initialize Spiffs file system
   getSpiffGoing();
-
-  // TODO: read data file here ...
-  // readDataFile(); 
 
   // Set all relays to off when the program starts - if set to Normally Open (NO), the relay is off when you set the relay to HIGH
   turnRelaysToOff();
@@ -137,10 +134,6 @@ So there is this c++ lambda function used here. My litle understanding is that t
     request->send(SPIFFS, "/index.html", String(), false, processor);
   });
 
-  server.on("/logo", HTTP_GET, [](AsyncWebServerRequest *request){
-  request->send(SPIFFS, "/logo.jpeg", "image/jpeg");
-});
-
   server.on("/temp.html", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(SPIFFS, "/temp.html", String(), false, processor);
   });
@@ -163,12 +156,6 @@ So there is this c++ lambda function used here. My litle understanding is that t
   
  // Send a GET request to <ESP_IP>/update?relay=<inputMessage>&state=<inputMessage2>
   server.on("/update", HTTP_GET, [] (AsyncWebServerRequest *request) {
-
-    /* Write results to csv file
-      depends on what info we have ... do we have all info for all relays here ?
-        YES: Great, just write it all to csv, DONE
-        NO: ok, so we have to read from csv, find our relay #, *update*, then *rewrite*
-        */
     String inputMessage;
     String inputParam;
     String inputMessage2;
@@ -227,7 +214,8 @@ So there is this c++ lambda function used here. My litle understanding is that t
 ******************************void loop starts here****************************************
 *******************************************************************************************/
 void loop(){
- 
+
+
 
 
 }
@@ -277,12 +265,7 @@ String processor(const String& var){
     for(int i=1; i<=zones; i++){
       String zoneStateValue = zoneState(i);
       //Here parts of the HTML will be parsed to index.html like Relay # followed by its value in variable for the GPIO numbers
-      buttons+= "<span class=\"w3-hide-small\"><h4>Zone " + String(i) 
-        + "</h4><h4>Valve (relay) #" + String(i) + " - GPIO " 
-        + relayGPIOs[i-1] + "</h4><label class=\"switch\"><input type=\"checkbox\" onchange=\"toggleCheckbox(this)\" id=\"" 
-        + String(i) + "\" " 
-        + zoneStateValue +
-        "><span class=\"slider\"></span></label></span>";
+      buttons+= "<span class=\"w3-hide-small\"><h4>Zone " + String(i) + "</h4><h4>Valve (relay) #" + String(i) + " - GPIO " + relayGPIOs[i-1] + "</h4><label class=\"switch\"><input type=\"checkbox\" onchange=\"toggleCheckbox(this)\" id=\"" + String(i) + "\" "+ zoneStateValue +"><span class=\"slider\"></span></label></span>";
     }
     return buttons;
   }
@@ -444,21 +427,22 @@ void turnRelaysToOff(){
 int zoneStartStop (int zone, int startStop){
   int waitTime = 1000;
   if (startStop == 1){
-    digitalWrite(relayGPIOs[zone], startStop);
-    Serial.print("*** Zone Valve");
-    Serial.print(zone);
-    Serial.println("ON ***");
-    delay(waitTime);
-    digitalWrite(pumpGpio, startStop);
-    Serial.print("*** Pump turned ON ***");
-  } else{
-    digitalWrite(relayGPIOs[zone], startStop);
-    Serial.print("*** Zone Valve");
-    Serial.print(zone);
-    Serial.println("OFF ***");
-    delay(waitTime);
-    digitalWrite(pumpGpio, startStop);
-    Serial.print("*** Pump turned ON ***");
+  digitalWrite(relayGPIOs[zone], startStop);
+  Serial.print("*** Zone Valve");
+  Serial.print(zone);
+  Serial.println("ON ***");
+  delay(waitTime);
+  digitalWrite(pumpGpio, startStop);
+  Serial.print("*** Pump turned ON ***");
+  }
+  else{
+  digitalWrite(relayGPIOs[zone], startStop);
+  Serial.print("*** Zone Valve");
+  Serial.print(zone);
+  Serial.println("OFF ***");
+  delay(waitTime);
+  digitalWrite(pumpGpio, startStop);
+  Serial.print("*** Pump turned ON ***");
   }
 }
 
