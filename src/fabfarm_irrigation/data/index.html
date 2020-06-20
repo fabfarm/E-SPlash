@@ -2,86 +2,11 @@
 <html>
 
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <!-- TODO: grab fontawesomes & server locally -->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-
     <link rel="icon" href="data:,">
-    <style>
-        html {
-            font-family: Arial;
-            display: inline-block;
-            text-align: center;
-        }
-
-        h2 {
-            font-size: 3.0rem;
-        }
-
-        p {
-            font-size: 3.0rem;
-        }
-
-        body {
-            max-width: 600px;
-            margin: 0px auto;
-            padding-bottom: 25px;
-        }
-
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 120px;
-            height: 68px
-        }
-
-        .switch input {
-            display: none
-        }
-
-        .slider {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            border-radius: 34px
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 52px;
-            width: 52px;
-            left: 8px;
-            bottom: 8px;
-            background-color: #fff;
-            -webkit-transition: .4s;
-            transition: .4s;
-            border-radius: 68px
-        }
-
-        input:checked+.slider {
-            background-color: #2196F3
-        }
-
-        input:checked+.slider:before {
-            -webkit-transform: translateX(52px);
-            -ms-transform: translateX(52px);
-            transform: translateX(52px)
-        }
-
-        .units {
-            font-size: 1.2rem;
-        }
-
-        .dht-labels {
-            font-size: 1.5rem;
-            vertical-align: middle;
-            padding-bottom: 15px;
-        }
-
-    </style>
+    <link rel="stylesheet" href="style.css">
     <script language="javascript" src="serverDate.js"></script>
 </head>
 <script language="javascript">
@@ -90,8 +15,10 @@
     document.write("Server time is: " + date);
     </script>
 <body>
+
     <h2>Fab Farm Irrigation System</h2>
     
+    <!-- TODO: we can replace placeholders with simple js -->
     <p>
         <i class="fas fa-clock"></i>
         <span class="dht-labels">Farm Time</span>
@@ -99,19 +26,8 @@
         <span id="farmtimenow">%FARMTIMENOW%</span>
     </p>
     <hr>
+    <!-- TODO: the buttons here can have onChange events that auto-calls back w/o needing a submit -->
     %BUTTONPLACEHOLDER%
-    <script>
-        function toggleCheckbox(element) {
-            var xhr = new XMLHttpRequest();
-            if (element.checked) {
-                xhr.open("GET", "/update?relay=" + element.id + "&state=1", true);
-            } else {
-                xhr.open("GET", "/update?relay=" + element.id + "&state=0", true);
-            }
-            xhr.send();
-        }
-
-    </script>
     <hr>
     <p>
         <i class="fas fa-thermometer-half"></i>
@@ -129,38 +45,62 @@
 
 </body>
 <script>
+
+    // pint the server for new info every X seconds
     setInterval(function() {
-        var xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function() {
+
+        var r1 = new XMLHttpRequest();
+        r1.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
                 document.getElementById("farmtimenow").innerHTML = this.responseText;
             }
         };
-        xhttp.open("GET", "/farmtimenow", true);
-        xhttp.send();
-    }, 10000);
-
-    setInterval(function() {
-        var xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function() {
+        r1.open("GET", "/farmtimenow", true);
+        r1.send();
+        
+        var r2 = new XMLHttpRequest();
+        r2.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
                 document.getElementById("temperature").innerHTML = this.responseText;
             }
         };
-        xhttp.open("GET", "/temperature", true);
-        xhttp.send();
-    }, 10000);
+        r2.open("GET", "/temperature", true);
+        r2.send();
 
-    setInterval(function() {
-        var xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function() {
+        var r3 = new XMLHttpRequest();
+        r3.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
                 document.getElementById("humidity").innerHTML = this.responseText;
             }
         };
-        xhttp.open("GET", "/humidity", true);
-        xhttp.send();
+        r3.open("GET", "/humidity", true);
+        r3.send();
+
+        //TODO: change the above to make *1* request and get json back
+        var r3 = new XMLHttpRequest();
+        r3.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                //document.getElementById("getData").innerHTML = this.responseText;
+                console.log("Got json", this.responseText);
+            }
+        };
+        r3.open("GET", "/getData", true);
+        r3.send();
+
+
     }, 10000);
+      
+    
+    function toggleCheckbox(element) {
+            var xhr = new XMLHttpRequest();
+            if (element.checked) {
+                xhr.open("GET", "/update?relay=" + element.id + "&state=1", true);
+            } else {
+                xhr.open("GET", "/update?relay=" + element.id + "&state=0", true);
+            }
+            xhr.send();
+        }
+
 
 </script>
 

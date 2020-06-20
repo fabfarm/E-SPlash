@@ -51,11 +51,17 @@
 #include "AsyncTCP.h"
 #include "Adafruit_Sensor.h"
 #include "DHT.h"
+
+#include "AsyncJson.h"
+#include "ArduinoJson.h"
+
 //Documentation here --> https://github.com/PaulStoffregen/Time
 //#include "time.h"
 
-const char *ntpServer = "pool.ntp.org";
+// read / write json to save state
 const char *dataFile = "data.json";
+
+const char *ntpServer = "pool.ntp.org";
 const long gmtOffset_sec = 0;
 const int daylightOffset_sec = 3600;
 
@@ -189,27 +195,79 @@ So there is this c++ lambda function used here. My litle understanding is that t
     request->send(SPIFFS, "/index.html", String(), false, processor);
   });
 
+  server.on("/style.css", HTTP_GET, [](AsyncWebServerRequest *request) {
+    request->send(SPIFFS, "/style.css", String(), false, processor);
+  });
+
   server.on("/temp.html", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(SPIFFS, "/temp.html", String(), false, processor);
   });
 
+  // we want to collapse all 'get data x' methods into one single function
+  // that return json
   server.on("/farmtimenow", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send_P(200, "text/plain", printShortFarmTime().c_str());
   });
   server.on("/temperature", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send_P(200, "text/plain", readDHTTemperature().c_str());
   });
-
   server.on("/humidity", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send_P(200, "text/plain", readDHTHumidity().c_str());
   });
 
-  // server sends settings on js change: write them to disk
-  server.on("/save", HTTP_POST, [](AsyncWebServerRequest *request) {
-    request->send_P(200, "text/plain", readDHTHumidity().c_str());
+  /* Endpoints:
+  1) /getData: returns json with temp, humidity, etc *and* valve info (status etc) 
+  2) /save: on change in the UI, commit settings 
+  3) /override: to turn off a running value. Might make sense to include this in /save and have
+    save be smart enough to parse that info out & take action. 
+  Given these 3, we can get rid of the individual /farmtime, /temperature, etc and make it 1 call
+  */
+ 
+  //In progress: one single endpoint to get data - will return json 
+  //    of temp/humidity/etc/etc 
+  server.on("/getData", HTTP_GET, [](AsyncWebServerRequest *request) {
+    request->send_P(200, "application/json", "{ \"status\": \"todo\"} ");
   });
 
+  // Purpose: disable a running valve
+ server.on("/override", HTTP_GET, [](AsyncWebServerRequest *request) {
+    //TODO
+  });
+
+  //Purpose: This method takes a json payload from the server & saves it to disk
+  // It's triggered only when there's a change in the UI 
+  server.on("/save", HTTP_POST, [](AsyncWebServerRequest *request) {
+    String paramName = "json";
+    if (request->hasParam(paramName, true)) {
+      String json = request->getParam(paramName, true)->value();
+      std::ofstream f;
+      f.open(dataFile);
+      f << json;    //dump json straight to disk
+      f.close();
+    } //else: we should signal that we didn't get what we expected
+  });
+
+  /* send data - work in progress - we can build the json here to include current value status
+  AsyncResponseStream *response = request->beginResponseStream("application/json");
+  DynamicJsonBuffer jsonBuffer;
+  JsonObject &root = jsonBuffer.createObject();
+  root["heap"] = ESP.getFreeHeap();
+  root["ssid"] = WiFi.SSID();
+  root.printTo(*response);
+  request->send(response);
+
+  // endpoint for html page to submit json
+  AsyncCallbackJsonWebHandler *handler = new AsyncCallbackJsonWebHandler("/getData", [](AsyncWebServerRequest *request, const JsonVariant &json) {
+    // check for overrides here?
+
+    // write to disk (only if different?)
+    JsonObject jsonObj = json.as<JsonObject>();
+  });
+  server.addHandler(handler);
+  */
+
   // Send a GET request to <ESP_IP>/update?relay=<inputMessage>&state=<inputMessage2>
+  //TODO: collapse this into /getData and /save
   server.on("/update", HTTP_GET, [](AsyncWebServerRequest *request) {
     String inputMessage;
     String inputParam;
@@ -253,7 +311,8 @@ void loop()
 {
 }
 
-// Dump data from the html to disk - this will state for a restart 
+// Dump data from the html to disk - this will state for a restart
+/* TODO: don't need a separate method for this
 void saveData(const String &data)
 {
   std::ofstream f;
@@ -261,7 +320,9 @@ void saveData(const String &data)
   f << "Writing this to a file";
   f.close();
 }
+*/
 
+//TODO: collapse all of these into a single getData method t
 String readDHTTemperature()
 {
   // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
@@ -299,6 +360,7 @@ String readDHTHumidity()
 }
 
 // Replaces placeholder with button section in your web page
+//TODO: this can collapse down into the JSON 
 String processor(const String &var)
 {
   //Serial.println(var);
@@ -312,17 +374,11 @@ String processor(const String &var)
       buttons += "<h4>Turn on water on " + String(i) + "</h4><h4>Valve (relay) #" + String(i) + " - GPIO " + relayGPIOs[i - 1] + "</h4><label class=\"switch\"><input type=\"checkbox\" onchange=\"toggleCheckbox(this)\" id=\"" + String(i) + "\" " + relayStateValue + "><span class=\"slider\"></span></label>";
     }
     return buttons;
-  }
-  else if (var == "FARMTIMENOW")
-  {
+  } else if (var == "FARMTIMENOW") {
     return printShortFarmTime();
-  }
-  else if (var == "TEMPERATURE")
-  {
+  } else if (var == "TEMPERATURE") {
     return readDHTTemperature();
-  }
-  else if (var == "HUMIDITY")
-  {
+  } else if (var == "HUMIDITY") {
     return readDHTHumidity();
   }
   return String();
