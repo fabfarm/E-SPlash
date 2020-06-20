@@ -1,10 +1,10 @@
 /****************************************************************************
- *                                  Aknowledments                           * 
- *                                  by LucioPGN                             * 
+ *                                  Aknowledments                           *
+ *                                  by LucioPGN                             *
  ****************************************************************************/
-/*  Up to this date: 07th of June 2020 I don't consider myself a programer 
+/*  Up to this date: 07th of June 2020 I don't consider myself a programer
  *  so I need to stand on top of giants sholders for my programing projects:
- *  A Portion of this code was based on Rui Santos Code; 
+ *  A Portion of this code was based on Rui Santos Code;
  *  Codes from Rui Santos mixed toghether:
  *  https://randomnerdtutorials.com/esp32-web-server-spiffs-spi-flash-file-system/
  *  https://randomnerdtutorials.com/esp32-relay-module-ac-web-server/
@@ -12,7 +12,7 @@
  *  From Techtutorialsx.com
  *  https://techtutorialsx.com/2017/12/01/esp32-arduino-asynchronous-http-webserver/
  *  A Portion of this code was based on Shakeels code for ESP8266 ;
- *  My contributions: 
+ *  My contributions:
  *     -So far I made it work on platformio :), that took me quite a lot of time
  *     -That means:
  *        +created a new project;
@@ -33,9 +33,16 @@
  *    -Add a phone interface (APP)
  *    -Add function to set current time
  *    -Add renaming function to each relay so one can relate the relay to the area of interest or at least rename relays to actual areas of the farm.
- * 
+ *
  ****************************************************************************/
- 
+
+#include <fstream>
+#include <iostream>
+#include <fstream>
+//#include <string>
+#include <sstream>
+#include <streambuf>
+//#include <string>
 
 //Required Libraries
 #include "WiFi.h"
@@ -47,13 +54,14 @@
 //Documentation here --> https://github.com/PaulStoffregen/Time
 //#include "time.h"
 
-const char* ntpServer = "pool.ntp.org";
-const long  gmtOffset_sec = 0;
-const int   daylightOffset_sec = 3600;
+const char *ntpServer = "pool.ntp.org";
+const char *dataFile = "data.json";
+const long gmtOffset_sec = 0;
+const int daylightOffset_sec = 3600;
 
 // Network Credentials
-const char* ssid = "rato";
-const char* password = "imakestuff";
+const char *ssid = "rato";
+const char *password = "imakestuff";
 
 //Start the Async Web Server listening on port 80
 AsyncWebServer server(80);
@@ -62,16 +70,16 @@ AsyncWebServer server(80);
 #define RELAY_NO false
 
 // Set number of relays, will be used in the array
-#define NUM_RELAYS  4
+#define NUM_RELAYS 4
 
 // Assign each GPIO to a relay
 int relayGPIOs[NUM_RELAYS] = {26, 25, 33, 27};
 
 // Digital pin connected to the DHT sensor
-#define DHTPIN 32     
+#define DHTPIN 32
 
 // Uncomment the type of sensor in use:
-#define DHTTYPE    DHT11     // DHT 11
+#define DHTTYPE DHT11 // DHT 11
 //#define DHTTYPE    DHT22     // DHT 22 (AM2302)
 //#define DHTTYPE    DHT21     // DHT 21 (AM2301)
 
@@ -79,27 +87,29 @@ int relayGPIOs[NUM_RELAYS] = {26, 25, 33, 27};
 DHT dht(DHTPIN, DHTTYPE);
 
 //
-const char* PARAM_INPUT_1 = "relay";  
-const char* PARAM_INPUT_2 = "state";
+const char *PARAM_INPUT_1 = "relay";
+const char *PARAM_INPUT_2 = "state";
 
-void setup(){
+void setup()
+{
   // Serial port for debugging purposes
   Serial.begin(9600);
 
-  // Initialize SPIFFS 
+  // Initialize SPIFFS
   //That is the file system.
-  if(!SPIFFS.begin(true)){
+  if (!SPIFFS.begin(true))
+  {
     Serial.println("An Error has occurred while mounting SPIFFS");
     return;
   }
-// Set all relays to off when the program starts - if set to Normally Open (NO), the relay is off when you set the relay to HIGH
-turnRelaysToOff();
+  // Set all relays to off when the program starts - if set to Normally Open (NO), the relay is off when you set the relay to HIGH
+  turnRelaysToOff();
 
   /*
   // Connect the ESP to the Wi-Fi using the credentials entered before
   //with WiFi.mode(WIFI_STA) besides the wifi client we will have a access point
   WiFi.mode(WIFI_AP_STA);// looks like this is not really needed, I need to investigate better how wifi works.
-  //So far the behaviour is that it creates a soft access point and also connect to the network thru access point 
+  //So far the behaviour is that it creates a soft access point and also connect to the network thru access point
   //Here is how to start the soft access point :  WiFi.softAP("softap", "imakestuff");
   //This part of the code was taken from https://arduino-esp8266.readthedocs.io/en/latest/esp8266wifi/readme.html
   Serial.print("Setting soft-AP ... ");
@@ -118,10 +128,11 @@ turnRelaysToOff();
   */
   WiFi.softAP("softap", "imakestuff");
   IPAddress IP = WiFi.softAPIP();
-  
+
   //here  start wifi sessions as a client.
   WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) {
+  while (WiFi.status() != WL_CONNECTED)
+  {
     delay(1000);
     Serial.println("Connecting to WiFi..");
   }
@@ -137,13 +148,13 @@ turnRelaysToOff();
   // and here https://randomnerdtutorials.com/esp32-date-time-ntp-client-server-arduino/
   // struct tm info: http://www.cplusplus.com/reference/ctime/tm/
   // Still about Struct https://learn.adafruit.com/circuit-playground-simple-simon/the-structure-of-struct
-  
+
   configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
-  
+
   //printFarmTime();
   //Serial.print("Now the Short Version: ");
   //printShortFarmTime();
-  
+
   //Printing Only the hours and minutes
   Serial.print("Prepare for time...");
   modifiedPrintLocalTime();
@@ -155,16 +166,16 @@ turnRelaysToOff();
   Serial.print(":");
   Serial.println(gimeTime(2));
 
-/*
-*Now we are going to configure the route where server will be listening for incoming HTTP requests 
+  /*
+*Now we are going to configure the route where server will be listening for incoming HTTP requests
 and a function that will be executed when a request is received on that route.
-We specify this by calling the "on" method on the server object. With server.on(){}; 
-As first input, this method receives a string with the path where it will be listening. 
-We are going to set it to listen for requests on the “/” route. This could be anything. 
+We specify this by calling the "on" method on the server object. With server.on(){};
+As first input, this method receives a string with the path where it will be listening.
+We are going to set it to listen for requests on the “/” route. This could be anything.
 It is basically what you write after the ip adress when in the browser or an APP.
 This website has a great explanation of the ESP32 Arduino: Asynchronous HTTP web server
 https://techtutorialsx.com/2017/12/01/esp32-arduino-asynchronous-http-webserver/
-So... 
+So...
 - First parameter here is: "/" thats the root directory.
 - Second parameter is HTTP_GET thats an enum of type WebRequestMethod a method defined in the library here --> https://github.com/me-no-dev/ESPAsyncWebServer/blob/63b5303880023f17e1bca517ac593d8a33955e94/src/ESPAsyncWebServer.h
 - Third parameter is a the function AsyncWebServerRequest
@@ -174,52 +185,62 @@ So there is this c++ lambda function used here. My litle understanding is that t
 */
 
   // Route for root / web page
-  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
+  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(SPIFFS, "/index.html", String(), false, processor);
   });
 
-  server.on("/temp.html", HTTP_GET, [](AsyncWebServerRequest *request){
+  server.on("/temp.html", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(SPIFFS, "/temp.html", String(), false, processor);
   });
 
-  server.on("/farmtimenow", HTTP_GET, [](AsyncWebServerRequest *request){
+  server.on("/farmtimenow", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send_P(200, "text/plain", printShortFarmTime().c_str());
   });
-  server.on("/temperature", HTTP_GET, [](AsyncWebServerRequest *request){
+  server.on("/temperature", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send_P(200, "text/plain", readDHTTemperature().c_str());
   });
-  server.on("/humidity", HTTP_GET, [](AsyncWebServerRequest *request){
+
+  server.on("/humidity", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send_P(200, "text/plain", readDHTHumidity().c_str());
   });
-  
- // Send a GET request to <ESP_IP>/update?relay=<inputMessage>&state=<inputMessage2>
-  server.on("/update", HTTP_GET, [] (AsyncWebServerRequest *request) {
+
+  // server sends settings on js change: write them to disk
+  server.on("/save", HTTP_POST, [](AsyncWebServerRequest *request) {
+    request->send_P(200, "text/plain", readDHTHumidity().c_str());
+  });
+
+  // Send a GET request to <ESP_IP>/update?relay=<inputMessage>&state=<inputMessage2>
+  server.on("/update", HTTP_GET, [](AsyncWebServerRequest *request) {
     String inputMessage;
     String inputParam;
     String inputMessage2;
     String inputParam2;
     // GET input1 value on <ESP_IP>/update?relay=<inputMessage>
-    if (request->hasParam(PARAM_INPUT_1) & request->hasParam(PARAM_INPUT_2)) {
+    if (request->hasParam(PARAM_INPUT_1) & request->hasParam(PARAM_INPUT_2))
+    {
       inputMessage = request->getParam(PARAM_INPUT_1)->value();
       inputParam = PARAM_INPUT_1;
       inputMessage2 = request->getParam(PARAM_INPUT_2)->value();
       inputParam2 = PARAM_INPUT_2;
-      if(RELAY_NO){
+      if (RELAY_NO)
+      {
         Serial.print("NO ");
-        digitalWrite(relayGPIOs[inputMessage.toInt()-1], !inputMessage2.toInt());
+        digitalWrite(relayGPIOs[inputMessage.toInt() - 1], !inputMessage2.toInt());
       }
-      else{
+      else
+      {
         Serial.print("NC ");
-        digitalWrite(relayGPIOs[inputMessage.toInt()-1], inputMessage2.toInt());
+        digitalWrite(relayGPIOs[inputMessage.toInt() - 1], inputMessage2.toInt());
       }
     }
-    else {
+    else
+    {
       inputMessage = "No message sent";
       inputParam = "none";
     }
     Serial.println(inputMessage + inputMessage2);
 
-    //This is the last part of the lambda function. 
+    //This is the last part of the lambda function.
     //This method receives as first input the HTTP response code, which will be 200 in our case.  This is the HTTP response code for “OK”.
     request->send_P(200, "text/plain", "OK");
   });
@@ -228,80 +249,106 @@ So there is this c++ lambda function used here. My litle understanding is that t
   server.begin();
 }
 
-void loop(){
-
+void loop()
+{
 }
 
+// Dump data from the html to disk - this will state for a restart 
+void saveData(const String &data)
+{
+  std::ofstream f;
+  f.open(dataFile);
+  f << "Writing this to a file";
+  f.close();
+}
 
-
-String readDHTTemperature() {
+String readDHTTemperature()
+{
   // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
   // Read temperature as Celsius (the default)
   float t = dht.readTemperature();
   // Read temperature as Fahrenheit (isFahrenheit = true)
   //float t = dht.readTemperature(true);
   // Check if any reads failed and exit early (to try again).
-  if (isnan(t)) {    
+  if (isnan(t))
+  {
     Serial.println("Failed to read from DHT sensor!");
     return "--";
   }
-  else {
+  else
+  {
     Serial.println(t);
     return String(t);
   }
 }
 
-String readDHTHumidity() {
+String readDHTHumidity()
+{
   // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
   float h = dht.readHumidity();
-  if (isnan(h)) {
+  if (isnan(h))
+  {
     Serial.println("Failed to read from DHT sensor!");
     return "--";
   }
-  else {
+  else
+  {
     Serial.println(h);
     return String(h);
   }
 }
 
 // Replaces placeholder with button section in your web page
-String processor(const String& var){
+String processor(const String &var)
+{
   //Serial.println(var);
-  if(var == "BUTTONPLACEHOLDER"){
-    String buttons ="";
-    for(int i=1; i<=NUM_RELAYS; i++){
+  if (var == "BUTTONPLACEHOLDER")
+  {
+    String buttons = "";
+    for (int i = 1; i <= NUM_RELAYS; i++)
+    {
       String relayStateValue = relayState(i);
       //Here parts of the HTML will be parsed to index.html like Relay # followed by its value in variable for the GPIO numbers
-      buttons+= "<h4>Turn on water on " + String(i) + "</h4><h4>Valve (relay) #" + String(i) + " - GPIO " + relayGPIOs[i-1] + "</h4><label class=\"switch\"><input type=\"checkbox\" onchange=\"toggleCheckbox(this)\" id=\"" + String(i) + "\" "+ relayStateValue +"><span class=\"slider\"></span></label>";
+      buttons += "<h4>Turn on water on " + String(i) + "</h4><h4>Valve (relay) #" + String(i) + " - GPIO " + relayGPIOs[i - 1] + "</h4><label class=\"switch\"><input type=\"checkbox\" onchange=\"toggleCheckbox(this)\" id=\"" + String(i) + "\" " + relayStateValue + "><span class=\"slider\"></span></label>";
     }
     return buttons;
   }
-  else if(var == "FARMTIMENOW"){
+  else if (var == "FARMTIMENOW")
+  {
     return printShortFarmTime();
   }
-  else if(var == "TEMPERATURE"){
+  else if (var == "TEMPERATURE")
+  {
     return readDHTTemperature();
   }
-  else if(var == "HUMIDITY"){
+  else if (var == "HUMIDITY")
+  {
     return readDHTHumidity();
   }
   return String();
 }
 
-String relayState(int valveRelayNum){
-  if(RELAY_NO){
-    if(digitalRead(relayGPIOs[valveRelayNum-1])){
+String relayState(int valveRelayNum)
+{
+  if (RELAY_NO)
+  {
+    if (digitalRead(relayGPIOs[valveRelayNum - 1]))
+    {
       return "";
     }
-    else {
+    else
+    {
       return "checked";
     }
   }
-  else {
-    if(digitalRead(relayGPIOs[valveRelayNum-1])){
+  else
+  {
+    if (digitalRead(relayGPIOs[valveRelayNum - 1]))
+    {
       return "checked";
     }
-    else {
+    else
+    {
       return "";
     }
   }
@@ -316,11 +363,11 @@ String printFarmTime()
   struct tm timeinfo;
   getLocalTime(&timeinfo);
   char timeStringBuff[50]; //50 chars should be enough
-  strftime(timeStringBuff, sizeof(timeStringBuff), "%A, %B %d %Y %H:%M:%S", &timeinfo);
+  strftime(timeStringBuff, sizeof(timeStringBuff), "A,BdYH:M:S", &timeinfo);
   //print like "const char*"
   Serial.println(timeStringBuff);
 
-  //Construct to create the String object 
+  //Construct to create the String object
   String timeAsAString(timeStringBuff);
   return timeAsAString;
 }
@@ -330,93 +377,101 @@ String printShortFarmTime()
   struct tm timeinfo;
   getLocalTime(&timeinfo);
   char timeStringBuff[50]; //50 chars should be enough
-  strftime(timeStringBuff, sizeof(timeStringBuff), "%H:%M:%S", &timeinfo);
+  strftime(timeStringBuff, sizeof(timeStringBuff), "H:M:S", &timeinfo);
   //print like "const char*"
   Serial.println(timeStringBuff);
 
-  //Construct to create the String object 
+  //Construct to create the String object
   String timeAsAString(timeStringBuff);
   return timeAsAString;
 }
 
 void modifiedPrintLocalTime()
 // Function based on post in the https://forum.arduino.cc/index.php?topic=536464.0 Arduino Forum by user Abhay
-{ 
-    int OnlyYear;
-    int onlyMonth;
-    int onlyDay;
-    int onlyHour;
-    int onlyMin;
-    int onlySec;
-    
-    struct tm timeinfo;
-    if(!getLocalTime(&timeinfo)){
-        Serial.println("Failed to obtain time");
-        return;
-        }
-//Serial.println(&timeinfo, "%m %d %Y / %H:%M:%S");
-//scanf(&timeinfo, "%m %d %Y / %H:%M:%S")
-        onlyHour = timeinfo.tm_hour;
-        onlyMin  = timeinfo.tm_min;
-        onlySec  = timeinfo.tm_sec;
-        onlyDay = timeinfo.tm_mday;
-        onlyMonth = timeinfo.tm_mon + 1;
-        OnlyYear = timeinfo.tm_year +1900;
-        
-        //test
-        Serial.print("Print only Hour and Minutes...");
-        Serial.print(onlyHour);
-        Serial.print(":");
-        Serial.print(onlyMin);
-        }
+{
+  int OnlyYear;
+  int onlyMonth;
+  int onlyDay;
+  int onlyHour;
+  int onlyMin;
+  int onlySec;
 
-int gimeTime(char what) {
+  struct tm timeinfo;
+  if (!getLocalTime(&timeinfo))
+  {
+    Serial.println("Failed to obtain time");
+    return;
+  }
+  //Serial.println(&timeinfo, "mdY /H:M:S");
+  //scanf(&timeinfo, "mdY /H:M:S")
+  onlyHour = timeinfo.tm_hour;
+  onlyMin = timeinfo.tm_min;
+  onlySec = timeinfo.tm_sec;
+  onlyDay = timeinfo.tm_mday;
+  onlyMonth = timeinfo.tm_mon + 1;
+  OnlyYear = timeinfo.tm_year + 1900;
 
-    int OnlyYear;
-    int onlyMonth;
-    int onlyDay;
-    int onlyHour;
-    int onlyMin;
-    int onlySec;
+  //test
+  Serial.print("Print only Hour and Minutes...");
+  Serial.print(onlyHour);
+  Serial.print(":");
+  Serial.print(onlyMin);
+}
 
-    struct tm timeinfo;
-    if(!getLocalTime(&timeinfo)){
-      Serial.println("Failed to obtain time");
-      //return;
-      }
-    onlyHour = timeinfo.tm_hour;
-    onlyMin  = timeinfo.tm_min;
-    onlySec  = timeinfo.tm_sec;
-    onlyDay = timeinfo.tm_mday;
-    onlyMonth = timeinfo.tm_mon + 1;
-    OnlyYear = timeinfo.tm_year +1900;
+int gimeTime(char what)
+{
 
-    switch (what) {
-      case 1:
-      return onlyHour;
-      break;
-      case 2:
-      return onlyMin;
-      break;
-      case 3:
-      return onlySec;
-      break;
-      default:
+  int OnlyYear;
+  int onlyMonth;
+  int onlyDay;
+  int onlyHour;
+  int onlyMin;
+  int onlySec;
+
+  struct tm timeinfo;
+  if (!getLocalTime(&timeinfo))
+  {
+    Serial.println("Failed to obtain time");
+    //return;
+  }
+  onlyHour = timeinfo.tm_hour;
+  onlyMin = timeinfo.tm_min;
+  onlySec = timeinfo.tm_sec;
+  onlyDay = timeinfo.tm_mday;
+  onlyMonth = timeinfo.tm_mon + 1;
+  OnlyYear = timeinfo.tm_year + 1900;
+
+  switch (what)
+  {
+  case 1:
+    return onlyHour;
+    break;
+  case 2:
+    return onlyMin;
+    break;
+  case 3:
+    return onlySec;
+    break;
+  default:
     // if nothing else matches, do the default
     // default is optional
     break;
-    }
+  }
 }
 
 // Set all relays to off when the program starts - if set to Normally Open (NO), the relay is off when you set the relay to HIGH
-void turnRelaysToOff(){
-    for(int i=1; i<=NUM_RELAYS; i++){
-    pinMode(relayGPIOs[i-1], OUTPUT);
-    if(RELAY_NO){
-      digitalWrite(relayGPIOs[i-1], HIGH);
+void turnRelaysToOff()
+{
+  for (int i = 1; i <= NUM_RELAYS; i++)
+  {
+    pinMode(relayGPIOs[i - 1], OUTPUT);
+    if (RELAY_NO)
+    {
+      digitalWrite(relayGPIOs[i - 1], HIGH);
     }
-    else{
-      digitalWrite(relayGPIOs[i-1], LOW);
+    else
+    {
+      digitalWrite(relayGPIOs[i - 1], LOW);
     }
   }
 }
