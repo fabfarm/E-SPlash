@@ -54,7 +54,6 @@
 #include "AsyncJson.h"
 #include "ArduinoJson.h"
 
-
 //Documentation here --> https://github.com/PaulStoffregen/Time
 //#include "time.h"
 
@@ -121,7 +120,7 @@ void setup()
   Serial.println("read file - COMPLETE");
   f.close();
 
-  // we take json from disk & create json object 
+  // we take json from disk & create json object
   Serial.println("json deserialize test - BEGIN");
   deserializeJson(doc, json);
   // TODO: set OUTPUT for each relay
@@ -129,7 +128,7 @@ void setup()
   //pinMode(relayGPIOs[i - 1], OUTPUT);
   //digitalWrite(relayGPIOs[i - 1], HIGH);
 
-  //Lucio TODO: proactively disable everything / consider if we want to have it start in stopped state  
+  //Lucio TODO: proactively disable everything / consider if we want to have it start in stopped state
 
   WiFi.softAP("softap", "imakestuff");
   IPAddress IP = WiFi.softAPIP();
@@ -154,33 +153,34 @@ void setup()
   });
 
   // Route to load style.css file
-  server.on("/style.css", HTTP_GET, [](AsyncWebServerRequest *request){
+  server.on("/style.css", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(SPIFFS, "/style.css", "text/css");
   });
 
-  server.on("/logo.jpeg", HTTP_GET, [](AsyncWebServerRequest *request){
+  server.on("/logo.jpeg", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(SPIFFS, "/logo.jpeg", "image/jpeg");
   });
-  
- server.on(
-    "/post",
-    HTTP_POST,
-    [](AsyncWebServerRequest * request){},
-    NULL,
-    [](AsyncWebServerRequest * request, uint8_t *data, size_t len, size_t index, size_t total) {
 
-      for (size_t i = 0; i < len; i++) {
-        Serial.write(data[i]);
-      }
+  server.on(
+      "/update",
+      HTTP_POST,
+      [](AsyncWebServerRequest *request) {},
+      NULL,
+      [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
+        Serial.println("/update");
+        Serial.println(total);
+        Serial.printf("Getting update data - BEGIN\n");
+        for (size_t i = 0; i < len; i++)
+        {
+          Serial.write(data[i]);
+        }
+        Serial.println("Getting update data - BEGIN");
 
-      Serial.println();
+        request->send(200);
+      });
 
-      request->send(200);
-  });
-
- // http://[ip]/getData <== returns json
- server.on("/getData", HTTP_GET, [](AsyncWebServerRequest *request) {
-      
+  // http://[ip]/getData <== returns json
+  server.on("/getData", HTTP_GET, [](AsyncWebServerRequest *request) {
     /* 
     1) start with our json object.
     2) we get new data (temp/humidit/y/relay status)
@@ -191,10 +191,10 @@ void setup()
 
     Serial.println("/getData");
     JsonObject data = doc["data"];
-    data["currentTime"] = printShortFarmTime();  // TODO: why aren't times working ? 
-    data["temperature"] = readDHTTemperature();  // TODO: fix me
+    data["currentTime"] = printShortFarmTime(); // TODO: why aren't times working ?
+    data["temperature"] = readDHTTemperature(); // TODO: fix me
     data["humidity"] = readDHTHumidity();
-    
+
     char json[1024];
     Serial.println("Serialize json & return to caller - BEGIN");
 
@@ -203,52 +203,51 @@ void setup()
     Serial.println("Serialize json & return to caller - COMPLETE");
 
     request->send(200, "application/json", json);
- });
+  });
 
-  
+  AsyncCallbackJsonWebHandler *handler = new AsyncCallbackJsonWebHandler("/updateData", [](AsyncWebServerRequest *request, JsonVariant &json) {
+    //DynamicJsonDocument data(2048);
+    Serial.println("/updateData 100% sure");
+    doc = json.as<JsonObject>();
+    /*
+    if (json.is<JsonArray>())
+    {
+      Serial.println("JsonArray");
+      doc = json.as<JsonArray>();
+    }
+    else if (json.is<JsonObject>())
+    {
+      Serial.println("JsonObject");
+      doc = json.as<JsonObject>();
+    } else {
+      Serial.println("oh no");
+    }*/
 
-AsyncCallbackJsonWebHandler* handler = new AsyncCallbackJsonWebHandler("/update", [](AsyncWebServerRequest *request, JsonVariant &json) {
+    String jsonString;
+    //write this to disk
 
-	const JsonObject& jsonObj = json.as<JsonObject>();
-
-  //JsonObject data = doc["data"]; 
-   // const char* output;
-   String output;
-    serializeJson(doc, jsonObj);
-    Serial.println("----------------------");
-    Serial.println(output);
-    Serial.println("----------------------");
-
-// deserializeJson(doc, json) 
-	request->send(200, "application/text", "looks good");
-});
-
-
-
-server.addHandler(handler);
+    serializeJson(doc, jsonString);
+    
+    request->send(200, "application/json", jsonString);
+    Serial.println("-------------------");
+    Serial.println(jsonString);
+    Serial.println("-------------------");
+  });
+  server.addHandler(handler);
 
   // Start server here
   server.begin();
 }
 
-void handleBody(AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total){
-  if(!index){
-    Serial.printf("BodyStart: %u B\n", total);
-  }
-  for(size_t i=0; i<len; i++){
-    Serial.write(data[i]);
-  }
-  if(index + len == total){
-    Serial.printf("BodyEnd: %u B\n", total);
-  }
-}
-
 // turn things on and off
 void loop()
 {
-//      Serial.println("looping ...");
-//turns things on and off: digitalWrite(relayGPIOs[i - 1], RELAY_NO ? HIGH : LOW);
-//if (digitalRead(relayGPIOs[valveRelayNum - 1]))
+  //sleep for a sec
+  delay(1000);
+
+  //      Serial.println("looping ...");
+  //turns things on and off: digitalWrite(relayGPIOs[i - 1], RELAY_NO ? HIGH : LOW);
+  //if (digitalRead(relayGPIOs[valveRelayNum - 1]))
 
   /*
 if override is manual
