@@ -1,0 +1,23 @@
+ Serial.print("Now the Short Version: ");
+  printShortFarmTime();
+  
+  void shortSimpleTime(){
+    //Will print simple time on monitor
+  int OnlyYear;
+  int onlyMonth;
+  int onlyDay;
+  int onlyHour;
+  int onlyMin;
+  int onlySec;
+
+  struct tm timeinfo;
+  if (!getLocalTime(&timeinfo))
+  {
+    Serial.println("Failed to obtain time");
+    //return;
+  }
+  Serial.print("simple Time:"); 
+  Serial.print(onlyHour);
+  Serial.print(":");
+  Serial.println(onlyMin);
+}

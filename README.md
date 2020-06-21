@@ -1,4 +1,4 @@
-# FabLab Irregation System
+# FabLab Irrigation System
 
 ## Design
 
