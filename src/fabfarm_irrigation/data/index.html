@@ -47,34 +47,9 @@
 <script>
 
     // pint the server for new info every X seconds
+    /*
     setInterval(function() {
 
-        var r1 = new XMLHttpRequest();
-        r1.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) {
-                document.getElementById("farmtimenow").innerHTML = this.responseText;
-            }
-        };
-        r1.open("GET", "/farmtimenow", true);
-        r1.send();
-        
-        var r2 = new XMLHttpRequest();
-        r2.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) {
-                document.getElementById("temperature").innerHTML = this.responseText;
-            }
-        };
-        r2.open("GET", "/temperature", true);
-        r2.send();
-
-        var r3 = new XMLHttpRequest();
-        r3.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) {
-                document.getElementById("humidity").innerHTML = this.responseText;
-            }
-        };
-        r3.open("GET", "/humidity", true);
-        r3.send();
 
         //TODO: change the above to make *1* request and get json back
         var r3 = new XMLHttpRequest();
@@ -89,19 +64,9 @@
 
 
     }, 10000);
+    */
       
     
-    function toggleCheckbox(element) {
-            var xhr = new XMLHttpRequest();
-            if (element.checked) {
-                xhr.open("GET", "/update?relay=" + element.id + "&state=1", true);
-            } else {
-                xhr.open("GET", "/update?relay=" + element.id + "&state=0", true);
-            }
-            xhr.send();
-        }
-
-
 </script>
 
 </html>

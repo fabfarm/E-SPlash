@@ -124,7 +124,6 @@ void setup()
   // we take json from disk & create json object 
   Serial.println("json deserialize test - BEGIN");
   deserializeJson(doc, json);
-  
   // TODO: set OUTPUT for each relay
   // TODO: also set each to off initially
   //pinMode(relayGPIOs[i - 1], OUTPUT);
@@ -162,19 +161,35 @@ void setup()
   server.on("/logo.jpeg", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(SPIFFS, "/logo.jpeg", "image/jpeg");
   });
+  
+ server.on(
+    "/post",
+    HTTP_POST,
+    [](AsyncWebServerRequest * request){},
+    NULL,
+    [](AsyncWebServerRequest * request, uint8_t *data, size_t len, size_t index, size_t total) {
+
+      for (size_t i = 0; i < len; i++) {
+        Serial.write(data[i]);
+      }
+
+      Serial.println();
+
+      request->send(200);
+  });
 
  // http://[ip]/getData <== returns json
  server.on("/getData", HTTP_GET, [](AsyncWebServerRequest *request) {
       
     /* 
     1) start with our json object.
-    2) we get new data (temp/humidity/relay status)
+    2) we get new data (temp/humidit/y/relay status)
     3) update the json object
     4) serialize ==> json
     5) return json to html 
     */
 
-    Serial.println(" json deserialize test - COMMPLETE");
+    Serial.println("/getData");
     JsonObject data = doc["data"];
     data["currentTime"] = printShortFarmTime();  // TODO: why aren't times working ? 
     data["temperature"] = readDHTTemperature();  // TODO: fix me
@@ -185,37 +200,30 @@ void setup()
 
     serializeJson(doc, json);
 
-    // create json string from object
-    request->send_P(200, "application/json", json);
+    Serial.println("Serialize json & return to caller - COMPLETE");
+
+    request->send(200, "application/json", json);
+ });
+
   
-  });
-
-  // Job of this function: 
-  // 1) save json to disk
-  // 2) update our json *object* 
- server.on("/update2", HTTP_GET,[](AsyncWebServerRequest *request) {
-
-     Serial.println("Get request from js call - BEGIN");
-    //TODO: get json from request
-
-    //NOTE: we're naively trusting that the js coming back from the html is ok
-
-    //TODO: get json from request
-    //deserializeJson(doc, "Get me from request");
-    
-    //TODO: get this from documentation
-    //File f = SPIFFS.open("/data.json");
-    //f("TODO: write json string from request");
-    //f.close();
-
-  });
 
 AsyncCallbackJsonWebHandler* handler = new AsyncCallbackJsonWebHandler("/update", [](AsyncWebServerRequest *request, JsonVariant &json) {
-  const JsonObject& jsonObj = json.as<JsonObject>();
 
-  Serial.println("Get request from js :)  call - BEGIN");
-  // ...
+	const JsonObject& jsonObj = json.as<JsonObject>();
+
+  //JsonObject data = doc["data"]; 
+   // const char* output;
+   String output;
+    serializeJson(doc, jsonObj);
+    Serial.println("----------------------");
+    Serial.println(output);
+    Serial.println("----------------------");
+
+// deserializeJson(doc, json) 
+	request->send(200, "application/text", "looks good");
 });
+
+
 
 server.addHandler(handler);
 
@@ -223,10 +231,22 @@ server.addHandler(handler);
   server.begin();
 }
 
+void handleBody(AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total){
+  if(!index){
+    Serial.printf("BodyStart: %u B\n", total);
+  }
+  for(size_t i=0; i<len; i++){
+    Serial.write(data[i]);
+  }
+  if(index + len == total){
+    Serial.printf("BodyEnd: %u B\n", total);
+  }
+}
+
 // turn things on and off
 void loop()
 {
-      Serial.println("looping ...");
+//      Serial.println("looping ...");
 //turns things on and off: digitalWrite(relayGPIOs[i - 1], RELAY_NO ? HIGH : LOW);
 //if (digitalRead(relayGPIOs[valveRelayNum - 1]))
 
