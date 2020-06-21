@@ -24,34 +24,36 @@ Sample json for https://arduinojson.org/v6/assistant/
 */
 
 using namespace std;
-// prototype
+
+// prototypes
 void serialize();
 void test(const char*);
 void deserialize(const char*);
 
-
 int main() { 
 
-    // dump to disk 
-    const char *output = "input.json";
+    // Write json to a file ...
+    const char *output = "test.json";
     ofstream f;
     f.open (output);
-    f << "Writing this to a file";
+    const char* json = "{\"data\":{\"time\":1351824120,\"temperature\":23,\"humidity\":45},\"valves\":[{\"name\":\"valve1\",\"pin\":123,\"status\":1,\"duration\":1000,\"times\":[\"00:00\",\"01:00\"]},{\"name\":\"valve2\",\"pin\":234,\"status\":1,\"duration\":3000,\"times\":[\"00:00\",\"01:00\"]},{\"name\":\"valve3\",\"pin\":345,\"status\":10,\"duration\":2000,\"times\":[\"00:00\",\"01:00\"]}]}";
+    f <<  json;
     f.close();
 
-    // read from disk
-    const char *dataFile = "output.json";
-    ifstream t(dataFile);
-    stringstream buffer;
-    buffer << t.rdbuf();
-    cout<<buffer.str()<<"\n";
+    // Read json from the file ...
+    ostringstream sstream;
+    ifstream fs("test.json");
+    sstream << fs.rdbuf();
+    const string str(sstream.str());
+    const char* ptr = str.c_str();
 
-    const char* json = "{\"data\":{\"time\":1351824120,\"temperature\":23,\"humidity\":45},\"valves\":[{\"name\":\"valve1\",\"pin\":123,\"status\":1,\"duration\":1000,\"times\":[\"00:00\",\"01:00\"]},{\"name\":\"valve2\",\"pin\":234,\"status\":1,\"duration\":3000,\"times\":[\"00:00\",\"01:00\"]},{\"name\":\"valve3\",\"pin\":345,\"status\":10,\"duration\":2000,\"times\":[\"00:00\",\"01:00\"]}]}";
+    // deserialize json and update some vales 
+    test(ptr);
 
-    test(json);
     return 0;
 }
 
+// Confirm that we can take json, deserialize it, set new values, and reserialize it back to Json (yes)
 void test(const char* json) {
 
     const size_t capacity = 3*JSON_ARRAY_SIZE(2) + JSON_ARRAY_SIZE(3) + JSON_OBJECT_SIZE(2) + JSON_OBJECT_SIZE(3) + 3*JSON_OBJECT_SIZE(5) + 210;
@@ -67,11 +69,13 @@ void test(const char* json) {
     data["temperature"] = "2222222";  //TODO: string or ints?
     data["humidity"] = "333333"; //TODO: string or ints ?
 
+    // For command line testing, just cout - but arduinojson can serialize to Serial strea, Serial, etc
     string output;
     serializeJson(doc, output);
     //deserializeJson(doc, Serial);
-    cout<<output<<"\n";
+    cout<<"Got updated json:\n"<<output<<"\n";
 }
+
 void serialize() {
 
     //TODO: do we need to change this every time we change our json ? :(
@@ -131,26 +135,12 @@ void deserialize(const char* json) {
     // start with json string 
     deserializeJson(doc, json);
 
-    //we'll want to actually *set* values here then serialize back to json 
     JsonObject data = doc["data"];
 
-    //Set current values:
-    data["time"] = "111111"; // TODO: string or int?
-    data["temperature"] = "2222222";  //TODO: string or ints?
-    data["humidity"] = "333333"; //TODO: string or ints ?
+    long data_time = data["time"]; // 1351824120
+    int data_temperature = data["temperature"]; // 23
+    int data_humidity = data["humidity"]; // 45
 
-    string output;
-    serializeJson(doc, output);
-    //deserializeJson(doc, Serial);
-    cout<<output<<"\n";
-
-    //serialize(data);
-
-    //long data_time = data["time"]; // 1351824120
-    //int data_temperature = data["temperature"]; // 23
-    //int data_humidity = data["humidity"]; // 45
-
-    /*
     JsonArray valves = doc["valves"];
 
     JsonObject valves_0 = valves[0];
@@ -179,5 +169,4 @@ void deserialize(const char* json) {
 
     const char* valves_2_times_0 = valves_2["times"][0]; // "00:00"
     const char* valves_2_times_1 = valves_2["times"][1]; // "01:00"
-    */
 }
