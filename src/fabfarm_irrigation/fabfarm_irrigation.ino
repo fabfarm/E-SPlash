@@ -72,12 +72,15 @@ const char *password = "imakestuff";
 //Start the Async Web Server listening on port 80
 AsyncWebServer server(80);
 
+// "the brains" - a json object
+DynamicJsonDocument doc(2048); // from arduinoJson
+
 // Set to true to define Relay as Normally Open (NO)
 #define RELAY_NO false
 
+//TODO: this will go into the json
 // Set number of relays, will be used in the array
 #define NUM_RELAYS 4
-
 // Assign each GPIO to a relay
 int relayGPIOs[NUM_RELAYS] = {26, 25, 33, 27};
 
@@ -96,9 +99,6 @@ DHT dht(DHTPIN, DHTTYPE);
 const char *PARAM_INPUT_1 = "relay";
 const char *PARAM_INPUT_2 = "state";
 
-// we want all methods in this code to have access to updating the doc
-DynamicJsonDocument doc(2048);
-
 void setup()
 {
   // Serial port for debugging purposes
@@ -111,8 +111,6 @@ void setup()
     Serial.println("An Error has occurred while mounting SPIFFS");
     return;
   }
-  // Set all relays to off when the program starts - if set to Normally Open (NO), the relay is off when you set the relay to HIGH
-  turnRelaysToOff();
 
   // we always read the data.json from disk on startup (always!)
   // Read json from the file ...
@@ -127,28 +125,13 @@ void setup()
   Serial.println("json deserialize test - BEGIN");
   deserializeJson(doc, json);
   
+  // TODO: set OUTPUT for each relay
+  // TODO: also set each to off initially
+  //pinMode(relayGPIOs[i - 1], OUTPUT);
+  //digitalWrite(relayGPIOs[i - 1], HIGH);
 
-  /*
-  // Connect the ESP to the Wi-Fi using the credentials entered before
-  //with WiFi.mode(WIFI_STA) besides the wifi client we will have a access point
-  WiFi.mode(WIFI_AP_STA);// looks like this is not really needed, I need to investigate better how wifi works.
-  //So far the behaviour is that it creates a soft access point and also connect to the network thru access point
-  //Here is how to start the soft access point :  WiFi.softAP("softap", "imakestuff");
-  //This part of the code was taken from https://arduino-esp8266.readthedocs.io/en/latest/esp8266wifi/readme.html
-  Serial.print("Setting soft-AP ... ");
-  boolean result = WiFi.softAP("softap", "imakestuff");
-  if(result == true)
-  {
-    Serial.println("Soft Access Point Started");
-    IPAddress mySoftIP = WiFi.softAPIP();
-    Serial.print("Soft Acess Point IP address: ");
-    Serial.println(mySoftIP);
-  }
-  else
-  {
-    Serial.println("Soft Access Point Failed!");
-  }
-  */
+  //Lucio TODO: proactively disable everything / consider if we want to have it start in stopped state  
+
   WiFi.softAP("softap", "imakestuff");
   IPAddress IP = WiFi.softAPIP();
 
@@ -163,53 +146,12 @@ void setup()
   // Print ESP32 Local IP Address
   Serial.print("The Fabfarm Irrigation system network IP is:");
   Serial.println(WiFi.localIP());
-  //Serial.print("The gateway IP is:")
-  //Serial.println(WiFi.gatewayIP());
-
-  // Init and get the time from ntpServer
-  // some info on https://lastminuteengineers.com/esp32-ntp-server-date-time-tutorial/
-  // and here https://randomnerdtutorials.com/esp32-date-time-ntp-client-server-arduino/
-  // struct tm info: http://www.cplusplus.com/reference/ctime/tm/
-  // Still about Struct https://learn.adafruit.com/circuit-playground-simple-simon/the-structure-of-struct
 
   configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
 
-  //printFarmTime();
-  //Serial.print("Now the Short Version: ");
-  //printShortFarmTime();
-
-  //Printing Only the hours and minutes
-  Serial.print("Prepare for time...");
-  modifiedPrintLocalTime();
-  Serial.println("");
-
-  //Print Only The hours
-  Serial.print("Now prepare again to get more time...");
-  Serial.print(gimeTime(1));
-  Serial.print(":");
-  Serial.println(gimeTime(2));
-
-  /*
-*Now we are going to configure the route where server will be listening for incoming HTTP requests
-and a function that will be executed when a request is received on that route.
-We specify this by calling the "on" method on the server object. With server.on(){};
-As first input, this method receives a string with the path where it will be listening.
-We are going to set it to listen for requests on the “/” route. This could be anything.
-It is basically what you write after the ip adress when in the browser or an APP.
-This website has a great explanation of the ESP32 Arduino: Asynchronous HTTP web server
-https://techtutorialsx.com/2017/12/01/esp32-arduino-asynchronous-http-webserver/
-So...
-- First parameter here is: "/" thats the root directory.
-- Second parameter is HTTP_GET thats an enum of type WebRequestMethod a method defined in the library here --> https://github.com/me-no-dev/ESPAsyncWebServer/blob/63b5303880023f17e1bca517ac593d8a33955e94/src/ESPAsyncWebServer.h
-- Third parameter is a the function AsyncWebServerRequest
-So there is this c++ lambda function used here. My litle understanding is that they are locally declared unamed function this means they dont have a name and are declared locally :-)
- I don't grasp the concept fully haha.
- the syntax is [captures](params){body} where in here [] is empity
-*/
-
   // Route for root / web page
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-    request->send(SPIFFS, "/index.html", String(), false, processor);
+    request->send(SPIFFS, "/index.html", String(), false);
   });
 
   // Route to load style.css file
@@ -221,167 +163,85 @@ So there is this c++ lambda function used here. My litle understanding is that t
     request->send(SPIFFS, "/logo.jpeg", "image/jpeg");
   });
 
-/*
-  server.on("/temp.html", HTTP_GET, [](AsyncWebServerRequest *request) {
-    request->send(SPIFFS, "/temp.html", String(), false, processor);
-  });
-
-  // we want to collapse all 'get data x' methods into one single function
-  // that return json
-  server.on("/farmtimenow", HTTP_GET, [](AsyncWebServerRequest *request) {
-    request->send_P(200, "text/plain", printShortFarmTime().c_str());
-  });
-  server.on("/temperature", HTTP_GET, [](AsyncWebServerRequest *request) {
-    request->send_P(200, "text/plain", readDHTTemperature().c_str());
-  });
-  server.on("/humidity", HTTP_GET, [](AsyncWebServerRequest *request) {
-    request->send_P(200, "text/plain", readDHTHumidity().c_str());
-  });
-  */
-
  // http://[ip]/getData <== returns json
  server.on("/getData", HTTP_GET, [](AsyncWebServerRequest *request) {
+      
+    /* 
+    1) start with our json object.
+    2) we get new data (temp/humidity/relay status)
+    3) update the json object
+    4) serialize ==> json
+    5) return json to html 
+    */
+
+    Serial.println(" json deserialize test - COMMPLETE");
+    JsonObject data = doc["data"];
+    data["currentTime"] = printShortFarmTime();  // TODO: why aren't times working ? 
+    data["temperature"] = readDHTTemperature();  // TODO: fix me
+    data["humidity"] = readDHTHumidity();
     
-  /* 
-  1) start with our json object.
-  2) we get new data (temp/humidity/relay status)
-  3) update the json object
-  4) serialize ==> json
-  5) return json to html 
-  */
+    char json[1024];
+    Serial.println("Serialize json & return to caller - BEGIN");
 
-  Serial.println(" json deserialize test - COMMPLETE");
-  
-  //we'll want to actually set values here then serialize back to json 
-  JsonObject data = doc["data"];
+    serializeJson(doc, json);
 
-  // Read some value off of the object 
-  //const char* time = data["currentTime"];
-  data["currentTime"] = printShortFarmTime();  //"1111122232"; // getTime();
-  data["temperature"] = readDHTTemperature();  //"1111122232"; // getTime();
-  data["humidit"] = readDHTHumidity();
-  //Set current values:
-  //Serial.println("Read value from json object - BEGIN");
-  //Serial.println( time );
-  //Serial.println("Read value from json object - COMPLETE");
-  
-  // For command line testing, just cout - but arduinojson can serialize to Serial strea, Serial, etc
-  //string output;
-  
-  //onst char* jsonString;
-  //String json;
-  char json[1024];
-  Serial.println("Serialize json & return to caller - BEGIN");
-
-  serializeJson(doc, json);
-  //deserializeJson(doc, Serial);
-  //cout<<"Got updated json:\n"<<output<<"\n";
-
-  // create json string from object
-  request->send_P(200, "application/json", json);
-  
-  //Serial.println("Serialize json & return to caller - COMPPLETE");
-
+    // create json string from object
+    request->send_P(200, "application/json", json);
   
   });
 
-  // Purpose: disable a running valve
- server.on("/override", HTTP_GET, [](AsyncWebServerRequest *request) {
-    //TODO
+  // Job of this function: 
+  // 1) save json to disk
+  // 2) update our json *object* 
+ server.on("/update2", HTTP_GET,[](AsyncWebServerRequest *request) {
+
+     Serial.println("Get request from js call - BEGIN");
+    //TODO: get json from request
+
+    //NOTE: we're naively trusting that the js coming back from the html is ok
+
+    //TODO: get json from request
+    //deserializeJson(doc, "Get me from request");
+    
+    //TODO: get this from documentation
+    //File f = SPIFFS.open("/data.json");
+    //f("TODO: write json string from request");
+    //f.close();
+
   });
 
-  //Purpose: This method takes a json payload from the server & saves it to disk
-  // It's triggered only when there's a change in the UI 
-  /*
-  server.on("/save", HTTP_POST, [](AsyncWebServerRequest *request) {
-    String paramName = "json";
-    if (request->hasParam(paramName, true)) {
-      String json = request->getParam(paramName, true)->value();
-      std::ofstream f;
-      f.open(dataFile);
-      f << json;    //dump json straight to disk
-      f.close();
-    } //else: we should signal that we didn't get what we expected
-  });
-  */
+AsyncCallbackJsonWebHandler* handler = new AsyncCallbackJsonWebHandler("/update", [](AsyncWebServerRequest *request, JsonVariant &json) {
+  const JsonObject& jsonObj = json.as<JsonObject>();
 
-  /* send data - work in progress - we can build the json here to include current value status
-  AsyncResponseStream *response = request->beginResponseStream("application/json");
-  DynamicJsonBuffer jsonBuffer;
-  JsonObject &root = jsonBuffer.createObject();
-  root["heap"] = ESP.getFreeHeap();
-  root["ssid"] = WiFi.SSID();
-  root.printTo(*response);
-  request->send(response);
+  Serial.println("Get request from js :)  call - BEGIN");
+  // ...
+});
 
-  // endpoint for html page to submit json
-  AsyncCallbackJsonWebHandler *handler = new AsyncCallbackJsonWebHandler("/getData", [](AsyncWebServerRequest *request, const JsonVariant &json) {
-    // check for overrides here?
-
-    // write to disk (only if different?)
-    JsonObject jsonObj = json.as<JsonObject>();
-  });
-  server.addHandler(handler);
-  */
-
-  // Send a GET request to <ESP_IP>/update?relay=<inputMessage>&state=<inputMessage2>
-  //TODO: collapse this into /getData and /save
-  server.on("/update", HTTP_GET, [](AsyncWebServerRequest *request) {
-    String inputMessage;
-    String inputParam;
-    String inputMessage2;
-    String inputParam2;
-    // GET input1 value on <ESP_IP>/update?relay=<inputMessage>
-    if (request->hasParam(PARAM_INPUT_1) & request->hasParam(PARAM_INPUT_2))
-    {
-      inputMessage = request->getParam(PARAM_INPUT_1)->value();
-      inputParam = PARAM_INPUT_1;
-      inputMessage2 = request->getParam(PARAM_INPUT_2)->value();
-      inputParam2 = PARAM_INPUT_2;
-      if (RELAY_NO)
-      {
-        Serial.print("NO ");
-        digitalWrite(relayGPIOs[inputMessage.toInt() - 1], !inputMessage2.toInt());
-      }
-      else
-      {
-        Serial.print("NC ");
-        digitalWrite(relayGPIOs[inputMessage.toInt() - 1], inputMessage2.toInt());
-      }
-    }
-    else
-    {
-      inputMessage = "No message sent";
-      inputParam = "none";
-    }
-    Serial.println(inputMessage + inputMessage2);
-
-    //This is the last part of the lambda function.
-    //This method receives as first input the HTTP response code, which will be 200 in our case.  This is the HTTP response code for “OK”.
-    request->send_P(200, "text/plain", "OK");
-  });
+server.addHandler(handler);
 
   // Start server here
   server.begin();
 }
 
+// turn things on and off
 void loop()
 {
-/*
-*
-*/
-}
+      Serial.println("looping ...");
+//turns things on and off: digitalWrite(relayGPIOs[i - 1], RELAY_NO ? HIGH : LOW);
+//if (digitalRead(relayGPIOs[valveRelayNum - 1]))
 
-// Dump data from the html to disk - this will state for a restart
-/* TODO: don't need a separate method for this
-void saveData(const String &data)
-{
-  std::ofstream f;
-  f.open(dataFile);
-  f << "Writing this to a file";
-  f.close();
-}
+  /*
+if override is manual
+  for each relay
+    if enabled turn on
+    else turn off
+else
+    for each relay
+      if time frame maches turn on
+      else turn off
+
 */
+}
 
 //TODO: collapse all of these into a single getData method t
 String readDHTTemperature()
@@ -418,58 +278,6 @@ String readDHTHumidity()
     Serial.println(h);
     return String(h);
   }
-}
-
-// Replaces placeholder with button section in your web page
-//TODO: this can collapse down into the JSON 
-String processor(const String &var)
-{
-  //Serial.println(var);
-  if (var == "BUTTONPLACEHOLDER")
-  {
-    String buttons = "";
-    for (int i = 1; i <= NUM_RELAYS; i++)
-    {
-      String relayStateValue = relayState(i);
-      //Here parts of the HTML will be parsed to index.html like Relay # followed by its value in variable for the GPIO numbers
-      buttons += "<h4>Turn on water on " + String(i) + "</h4><h4>Valve (relay) #" + String(i) + " - GPIO " + relayGPIOs[i - 1] + "</h4><label class=\"switch\"><input type=\"checkbox\" onchange=\"toggleCheckbox(this)\" id=\"" + String(i) + "\" " + relayStateValue + "><span class=\"slider\"></span></label>";
-    }
-    return buttons;
-  } else if (var == "FARMTIMENOW") {
-    return printShortFarmTime();
-  } else if (var == "TEMPERATURE") {
-    return readDHTTemperature();
-  } else if (var == "HUMIDITY") {
-    return readDHTHumidity();
-  }
-  return String();
-}
-
-String relayState(int valveRelayNum)
-{
-  if (RELAY_NO)
-  {
-    if (digitalRead(relayGPIOs[valveRelayNum - 1]))
-    {
-      return "";
-    }
-    else
-    {
-      return "checked";
-    }
-  }
-  else
-  {
-    if (digitalRead(relayGPIOs[valveRelayNum - 1]))
-    {
-      return "checked";
-    }
-    else
-    {
-      return "";
-    }
-  }
-  return "";
 }
 
 //this function was found here https://arduino.stackexchange.com/questions/52676/how-do-you-convert-a-formatted-print-statement-into-a-string-variable
@@ -577,18 +385,11 @@ int gimeTime(char what)
 }
 
 // Set all relays to off when the program starts - if set to Normally Open (NO), the relay is off when you set the relay to HIGH
-void turnRelaysToOff()
+void initializeRelays()
 {
   for (int i = 1; i <= NUM_RELAYS; i++)
   {
     pinMode(relayGPIOs[i - 1], OUTPUT);
-    if (RELAY_NO)
-    {
-      digitalWrite(relayGPIOs[i - 1], HIGH);
-    }
-    else
-    {
-      digitalWrite(relayGPIOs[i - 1], LOW);
-    }
+    //digitalWrite(relayGPIOs[i - 1], RELAY_NO ? HIGH : LOW);
   }
 }
