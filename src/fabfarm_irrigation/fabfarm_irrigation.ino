@@ -195,8 +195,13 @@ So there is this c++ lambda function used here. My litle understanding is that t
     request->send(SPIFFS, "/index.html", String(), false, processor);
   });
 
-  server.on("/style.css", HTTP_GET, [](AsyncWebServerRequest *request) {
-    request->send(SPIFFS, "/style.css", String(), false, processor);
+  // Route to load style.css file
+  server.on("/style.css", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/style.css", "text/css");
+  });
+
+  server.on("/logo.jpeg", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/logo.jpeg", "image/jpeg");
   });
 
   server.on("/temp.html", HTTP_GET, [](AsyncWebServerRequest *request) {
