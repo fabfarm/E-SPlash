@@ -113,16 +113,18 @@ void setup()
 
   // we always read the data.json from disk on startup (always!)
   // Read json from the file ...
-  File f = SPIFFS.open("/data.json");
+  
+  File f = SPIFFS.open("/data.json", "r");
   String json = f.readString();
   Serial.println("read file - BEGIN");
   Serial.println(json);
   Serial.println("read file - COMPLETE");
   f.close();
-
+  
   // we take json from disk & create json object
   Serial.println("json deserialize test - BEGIN");
   deserializeJson(doc, json);
+  
   // TODO: set OUTPUT for each relay
   // TODO: also set each to off initially
   //pinMode(relayGPIOs[i - 1], OUTPUT);
@@ -161,25 +163,6 @@ void setup()
     request->send(SPIFFS, "/logo.jpeg", "image/jpeg");
   });
 
-  server.on(
-      "/update",
-      HTTP_POST,
-      [](AsyncWebServerRequest *request) {},
-      NULL,
-      [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
-        Serial.println("/update");
-        Serial.println(total);
-        Serial.printf("Getting update data - BEGIN\n");
-        for (size_t i = 0; i < len; i++)
-        {
-          Serial.write(data[i]);
-        }
-        Serial.println("Getting update data - BEGIN");
-
-        request->send(200);
-      });
-
-  // http://[ip]/getData <== returns json
   server.on("/getData", HTTP_GET, [](AsyncWebServerRequest *request) {
     /* 
     1) start with our json object.
@@ -206,33 +189,29 @@ void setup()
   });
 
   AsyncCallbackJsonWebHandler *handler = new AsyncCallbackJsonWebHandler("/updateData", [](AsyncWebServerRequest *request, JsonVariant &json) {
-    //DynamicJsonDocument data(2048);
-    Serial.println("/updateData 100% sure");
     doc = json.as<JsonObject>();
-    /*
-    if (json.is<JsonArray>())
-    {
-      Serial.println("JsonArray");
-      doc = json.as<JsonArray>();
-    }
-    else if (json.is<JsonObject>())
-    {
-      Serial.println("JsonObject");
-      doc = json.as<JsonObject>();
-    } else {
-      Serial.println("oh no");
-    }*/
 
     String jsonString;
-    //write this to disk
-
     serializeJson(doc, jsonString);
-    
-    request->send(200, "application/json", jsonString);
+
+    //write this to disk
+  // Read json from the file ...
+    Serial.println("Saving to disk - BEGIN");
+    File f = SPIFFS.open("/data.json", "w");
+    if(!f) {
+      Serial.println("Faile to open file for writing");
+    }
+
+    int bytesWritten = f.print(jsonString);
+    f.close();
+    Serial.printf("Saving to disk - COMPLETE(%d bytes)\n", bytesWritten);
+      
+    request->send(200); // "application/json", jsonString);
     Serial.println("-------------------");
     Serial.println(jsonString);
     Serial.println("-------------------");
   });
+
   server.addHandler(handler);
 
   // Start server here
