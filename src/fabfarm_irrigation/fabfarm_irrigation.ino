@@ -39,10 +39,9 @@
 #include <fstream>
 #include <iostream>
 #include <fstream>
-//#include <string>
 #include <sstream>
 #include <streambuf>
-//#include <string>
+#include <string>
 
 //Required Libraries
 #include "WiFi.h"
@@ -54,6 +53,7 @@
 
 #include "AsyncJson.h"
 #include "ArduinoJson.h"
+
 
 //Documentation here --> https://github.com/PaulStoffregen/Time
 //#include "time.h"
@@ -96,6 +96,9 @@ DHT dht(DHTPIN, DHTTYPE);
 const char *PARAM_INPUT_1 = "relay";
 const char *PARAM_INPUT_2 = "state";
 
+// we want all methods in this code to have access to updating the doc
+DynamicJsonDocument doc(2048);
+
 void setup()
 {
   // Serial port for debugging purposes
@@ -110,6 +113,20 @@ void setup()
   }
   // Set all relays to off when the program starts - if set to Normally Open (NO), the relay is off when you set the relay to HIGH
   turnRelaysToOff();
+
+  // we always read the data.json from disk on startup (always!)
+  // Read json from the file ...
+  File f = SPIFFS.open("/data.json");
+  String json = f.readString();
+  Serial.println("read file - BEGIN");
+  Serial.println(json);
+  Serial.println("read file - COMPLETE");
+  f.close();
+
+  // we take json from disk & create json object 
+  Serial.println("json deserialize test - BEGIN");
+  deserializeJson(doc, json);
+  
 
   /*
   // Connect the ESP to the Wi-Fi using the credentials entered before
@@ -204,6 +221,7 @@ So there is this c++ lambda function used here. My litle understanding is that t
     request->send(SPIFFS, "/logo.jpeg", "image/jpeg");
   });
 
+/*
   server.on("/temp.html", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(SPIFFS, "/temp.html", String(), false, processor);
   });
@@ -219,19 +237,52 @@ So there is this c++ lambda function used here. My litle understanding is that t
   server.on("/humidity", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send_P(200, "text/plain", readDHTHumidity().c_str());
   });
-
-  /* Endpoints:
-  1) /getData: returns json with temp, humidity, etc *and* valve info (status etc) 
-  2) /save: on change in the UI, commit settings 
-  3) /override: to turn off a running value. Might make sense to include this in /save and have
-    save be smart enough to parse that info out & take action. 
-  Given these 3, we can get rid of the individual /farmtime, /temperature, etc and make it 1 call
   */
- 
-  //In progress: one single endpoint to get data - will return json 
-  //    of temp/humidity/etc/etc 
-  server.on("/getData", HTTP_GET, [](AsyncWebServerRequest *request) {
-    request->send_P(200, "application/json", "{ \"status\": \"todo\"} ");
+
+ // http://[ip]/getData <== returns json
+ server.on("/getData", HTTP_GET, [](AsyncWebServerRequest *request) {
+    
+  /* 
+  1) start with our json object.
+  2) we get new data (temp/humidity/relay status)
+  3) update the json object
+  4) serialize ==> json
+  5) return json to html 
+  */
+
+  Serial.println(" json deserialize test - COMMPLETE");
+  
+  //we'll want to actually set values here then serialize back to json 
+  JsonObject data = doc["data"];
+
+  // Read some value off of the object 
+  //const char* time = data["currentTime"];
+  data["currentTime"] = printShortFarmTime();  //"1111122232"; // getTime();
+  data["temperature"] = readDHTTemperature();  //"1111122232"; // getTime();
+  data["humidit"] = readDHTHumidity();
+  //Set current values:
+  //Serial.println("Read value from json object - BEGIN");
+  //Serial.println( time );
+  //Serial.println("Read value from json object - COMPLETE");
+  
+  // For command line testing, just cout - but arduinojson can serialize to Serial strea, Serial, etc
+  //string output;
+  
+  //onst char* jsonString;
+  //String json;
+  char json[1024];
+  Serial.println("Serialize json & return to caller - BEGIN");
+
+  serializeJson(doc, json);
+  //deserializeJson(doc, Serial);
+  //cout<<"Got updated json:\n"<<output<<"\n";
+
+  // create json string from object
+  request->send_P(200, "application/json", json);
+  
+  //Serial.println("Serialize json & return to caller - COMPPLETE");
+
+  
   });
 
   // Purpose: disable a running valve
@@ -241,6 +292,7 @@ So there is this c++ lambda function used here. My litle understanding is that t
 
   //Purpose: This method takes a json payload from the server & saves it to disk
   // It's triggered only when there's a change in the UI 
+  /*
   server.on("/save", HTTP_POST, [](AsyncWebServerRequest *request) {
     String paramName = "json";
     if (request->hasParam(paramName, true)) {
@@ -251,6 +303,7 @@ So there is this c++ lambda function used here. My litle understanding is that t
       f.close();
     } //else: we should signal that we didn't get what we expected
   });
+  */
 
   /* send data - work in progress - we can build the json here to include current value status
   AsyncResponseStream *response = request->beginResponseStream("application/json");
@@ -314,6 +367,9 @@ So there is this c++ lambda function used here. My litle understanding is that t
 
 void loop()
 {
+/*
+*
+*/
 }
 
 // Dump data from the html to disk - this will state for a restart
@@ -339,7 +395,7 @@ String readDHTTemperature()
   if (isnan(t))
   {
     Serial.println("Failed to read from DHT sensor!");
-    return "--";
+    return "Failed to read temperator from sensor";
   }
   else
   {
@@ -355,7 +411,7 @@ String readDHTHumidity()
   if (isnan(h))
   {
     Serial.println("Failed to read from DHT sensor!");
-    return "--";
+    return "Failed to read humidity from sensor";
   }
   else
   {

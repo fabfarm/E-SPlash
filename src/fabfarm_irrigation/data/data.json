@@ -10,17 +10,16 @@
             "pin": 123,
             "status": 1,
             "times": [
-                { "startTime": "09:00", "duration": 4000},
-                { "startTime": "10:00", "duration": 4000}
-            ]
-        },
+                { "startTime": "09:00", "duration": 4000, "enabled": 1},
+                { "startTime": "10:00", "duration": 4000, "enabled": 0}
+            ]},
         {
             "name": "garden",
             "pin": 234,
             "status": 1,
             "times": [
-                { "startTime": "11:00", "duration": 4000},
-                { "startTime": "12:00", "duration": 4000}
+                { "startTime": "12:45", "duration": 4000, "enabled": 1},
+                { "startTime": "16:45", "duration": 4000, "enabled": 0}
             ]
         }
 
