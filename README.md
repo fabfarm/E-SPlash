@@ -1,4 +1,4 @@
-# Fablab Irregation System
+# Fablab Irrigation System
 
 HTML <--> JavaScript  <--> C++
 
