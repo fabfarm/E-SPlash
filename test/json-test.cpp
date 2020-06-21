@@ -8,8 +8,6 @@
 /* 
 Sample POC for json serialize / deserialize 
 ---
-Sample testing json serialize / deserialize.
-
 Command line compiled + run with:
 > g++ -I. test.cpp -o test.exe
 > ./test.exe 
@@ -28,6 +26,7 @@ Sample json for https://arduinojson.org/v6/assistant/
 using namespace std;
 // prototype
 void serialize();
+void test(const char*);
 void deserialize(const char*);
 
 
@@ -49,12 +48,35 @@ int main() {
 
     const char* json = "{\"data\":{\"time\":1351824120,\"temperature\":23,\"humidity\":45},\"valves\":[{\"name\":\"valve1\",\"pin\":123,\"status\":1,\"duration\":1000,\"times\":[\"00:00\",\"01:00\"]},{\"name\":\"valve2\",\"pin\":234,\"status\":1,\"duration\":3000,\"times\":[\"00:00\",\"01:00\"]},{\"name\":\"valve3\",\"pin\":345,\"status\":10,\"duration\":2000,\"times\":[\"00:00\",\"01:00\"]}]}";
 
-    serialize();
+    test(json);
     return 0;
 }
 
+void test(const char* json) {
+
+    const size_t capacity = 3*JSON_ARRAY_SIZE(2) + JSON_ARRAY_SIZE(3) + JSON_OBJECT_SIZE(2) + JSON_OBJECT_SIZE(3) + 3*JSON_OBJECT_SIZE(5) + 210;
+    DynamicJsonDocument doc(capacity);
+    // start with json string 
+    deserializeJson(doc, json);
+
+    //we'll want to actually *set* values here then serialize back to json 
+    JsonObject data = doc["data"];
+
+    //Set current values:
+    data["time"] = "111111"; // TODO: string or int?
+    data["temperature"] = "2222222";  //TODO: string or ints?
+    data["humidity"] = "333333"; //TODO: string or ints ?
+
+    string output;
+    serializeJson(doc, output);
+    //deserializeJson(doc, Serial);
+    cout<<output<<"\n";
+}
 void serialize() {
+
+    //TODO: do we need to change this every time we change our json ? :(
     const size_t capacity = 3*JSON_ARRAY_SIZE(2) + JSON_ARRAY_SIZE(3) + JSON_OBJECT_SIZE(2) + JSON_OBJECT_SIZE(3) + 3*JSON_OBJECT_SIZE(5);
+
     DynamicJsonDocument doc(capacity);
 
     JsonObject data = doc.createNestedObject("data");
@@ -106,14 +128,29 @@ void deserialize(const char* json) {
 
     const size_t capacity = 3*JSON_ARRAY_SIZE(2) + JSON_ARRAY_SIZE(3) + JSON_OBJECT_SIZE(2) + JSON_OBJECT_SIZE(3) + 3*JSON_OBJECT_SIZE(5) + 210;
     DynamicJsonDocument doc(capacity);
-
+    // start with json string 
     deserializeJson(doc, json);
 
+    //we'll want to actually *set* values here then serialize back to json 
     JsonObject data = doc["data"];
-    long data_time = data["time"]; // 1351824120
-    int data_temperature = data["temperature"]; // 23
-    int data_humidity = data["humidity"]; // 45
 
+    //Set current values:
+    data["time"] = "111111"; // TODO: string or int?
+    data["temperature"] = "2222222";  //TODO: string or ints?
+    data["humidity"] = "333333"; //TODO: string or ints ?
+
+    string output;
+    serializeJson(doc, output);
+    //deserializeJson(doc, Serial);
+    cout<<output<<"\n";
+
+    //serialize(data);
+
+    //long data_time = data["time"]; // 1351824120
+    //int data_temperature = data["temperature"]; // 23
+    //int data_humidity = data["humidity"]; // 45
+
+    /*
     JsonArray valves = doc["valves"];
 
     JsonObject valves_0 = valves[0];
@@ -142,4 +179,5 @@ void deserialize(const char* json) {
 
     const char* valves_2_times_0 = valves_2["times"][0]; // "00:00"
     const char* valves_2_times_1 = valves_2["times"][1]; // "01:00"
+    */
 }

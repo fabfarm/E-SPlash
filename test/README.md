@@ -1,4 +1,4 @@
-Proof of concept testing [arduinoJson](https://arduinojson.org)
+Stand-alone Proof of concept testing serialize / deserialize json with [arduinoJson](https://arduinojson.org)
 
 <hr/>
 
