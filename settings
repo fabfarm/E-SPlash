@@ -1,0 +1,8 @@
+{ "zones" :
+    [
+        { "name": "zone1", "pin": 1, "times": [ 9, 10, 12, 13 ] },
+        { "name": "zone2", "pin": 2, "times": [ 9, 10, 12, 13 ] },
+        { "name": "zone3", "pin": 3, "times": [ 9, 10, 12, 13 ] }
+    ]
+}
+
