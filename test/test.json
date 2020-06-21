@@ -1,0 +1,1 @@
+{"data":{"time":1351824120,"temperature":23,"humidity":45},"relays":[{"name":"relay1","pin":123,"status":1,"duration":1000,"times":["00:00","01:00"]},{"name":"relay2","pin":234,"status":1,"duration":3000,"times":["00:00","01:00"]},{"name":"relay3","pin":345,"status":10,"duration":2000,"times":["00:00","01:00"]}]}
