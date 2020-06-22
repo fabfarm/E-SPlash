@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <!-- TODO: grab fontawesomes & server locally -->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" href="style.css" />
+    <link rel="stylesheet" type="text/css" href="/style.css" />
 </head>
 
 <body>
     <h2>Fab Farm Irrigation System</h2>
 
-    <img src="logo.jpeg" style="height:400px;" /></p>
+    <img src="/logo.jpeg" style="height:400px;" /></p>
         <i class="fas fa-clock"></i>
         <span class="dht-labels">Farm Time:</span>
         <span id="currentTime"></span>
@@ -32,6 +32,7 @@
  
 </body>
 <script>
+    // keep global json object - we'll update this on element change
 
     var jsonData; 
 
@@ -54,6 +55,14 @@
         xmlhttp.send(json);
     }
 
+    /* Currently we load this once from the server & it's working well.
+    Once we start pinging the server for updates, we'll run into the issue where this keep running over and over
+    again and will keep adding elements to the page ! We need to fix this so we build the page based on the json
+    and either
+    a) rebuild it per ping (?)
+    b) only update the relevant elements if it's already built
+    */
+    
     //setInterval(function() {
 
         //TODO: change the above to make *1* request and get json back
@@ -107,12 +116,12 @@
                 }                    
 
                 var main = document.getElementById("main");
-                main.innerHTML = html;
+                main.innerHTML = html; //this will REBUILD the page per ping (?)
 
             };
         }; 
-        //r3.open("GET", "/getData", true);
-        r3.open("GET", "sample.json", true);
+        r3.open("GET", "/getData", true);
+        //r3.open("GET", "sample.json", true);
         r3.send();
 
 

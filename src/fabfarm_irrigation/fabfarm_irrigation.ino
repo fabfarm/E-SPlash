@@ -226,7 +226,33 @@ void setup()
 void loop()
 {
   //sleep for a sec
-  delay(1000);
+  //delay(500);
+
+  JsonArray data = doc["data"];
+  int override = data["override"];
+  // if(override) { .... }
+
+  JsonArray relays = doc["relays"];
+
+  for (int i = 0; i < relays.size(); i++)
+  {
+    const char *relayName = relays[i]["name"]; // "relay1"
+    int pin = relays[i]["pin"];                // 123
+    int isEnabled = relays[i]["isEnabled"];    // 1
+    int duration = relays[i]["duration"];      // 1000
+    /* 
+    for (int j = 0; j < relays[i]["times"].size(); j++)
+    {
+      JsonObject times = relays[i][j].createNestedObject();
+      const char *startTime = times["startTime"]; // = "12:45";
+      int duration = times["duration"];           // = 25;
+      ---> turn on and off in here <---
+    }
+    */
+
+    pinMode(pin, OUTPUT);
+    digitalWrite(pin, isEnabled ? HIGH : LOW);
+  }
 
   //      Serial.println("looping ...");
   //turns things on and off: digitalWrite(relayGPIOs[i - 1], RELAY_NO ? HIGH : LOW);

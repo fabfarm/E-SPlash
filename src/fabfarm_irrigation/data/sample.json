@@ -7,16 +7,16 @@
     },
     "relays": [
         {
-            "name": "pool",
-            "pin": 123,
+            "name": "Sauna",
+            "pin": 25,
             "isRunning": 1,
             "isEnabled": 1,
             "times": [
-                { "startTime": "09:00", "duration": 5}
+                { "startTime": "10:00", "duration": 5}
             ]},
         {
-            "name": "super squirt gun",
-            "pin": 234,
+            "name": "Natalias Spa",
+            "pin": 26,
             "isRunning": 1,
             "isEnabled": 0,
             "status": 1,
@@ -26,8 +26,8 @@
             ]
         },
         {
-            "name": "garden",
-            "pin": 234,
+            "name": "Lucios Hot Tub",
+            "pin": 33,
             "isRunning": 1,
             "isEnabled": 1,
             "status": 1,

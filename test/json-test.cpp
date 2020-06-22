@@ -111,6 +111,12 @@ void serialize() {
 
     JsonArray relays = doc.createNestedArray("relays");
 
+    for(int i =0; i < relays.size(); i++){
+        
+        relays[i]["isEnabled"] = 1;
+
+    }
+
     JsonObject relays_0 = relays.createNestedObject();
     relays_0["name"] = "relay1";
     relays_0["pin"] = 123;
