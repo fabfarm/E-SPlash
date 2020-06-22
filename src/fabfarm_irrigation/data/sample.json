@@ -9,16 +9,27 @@
         {
             "name": "pool",
             "pin": 123,
-            "isRuning": 1,
+            "isRunning": 1,
             "isEnabled": 1,
             "times": [
                 { "startTime": "09:00", "duration": 4000, "enabled": 1},
                 { "startTime": "10:00", "duration": 4000, "enabled": 0}
             ]},
         {
+            "name": "hot tub",
+            "pin": 234,
+            "isRunning": 1,
+            "isEnabled": 1,
+            "status": 1,
+            "times": [
+                { "startTime": "12:45", "duration": 4000, "enabled": 1},
+                { "startTime": "16:45", "duration": 4000, "enabled": 0}
+            ]
+        },
+        {
             "name": "garden",
             "pin": 234,
-            "isRuning": 1,
+            "isRunning": 1,
             "isEnabled": 1,
             "status": 1,
             "times": [

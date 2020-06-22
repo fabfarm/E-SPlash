@@ -4,41 +4,53 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <!-- TODO: grab fontawesomes & server locally -->
-    <link rel="stylesheet" type="text/css" href="all.css" />
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="style.css" />
-    
 </head>
 
 <body>
     <h2>Fab Farm Irrigation System</h2>
 
     <img src="logo.jpeg" style="height:400px;" /></p>
-
         <i class="fas fa-clock"></i>
         <span class="dht-labels">Farm Time:</span>
         <span id="currentTime"></span>
         <br/>
     <hr>
-    <!-- TODO: the buttons here can have onChange events that auto-calls back w/o needing a submit -->
-    %BUTTONPLACEHOLDER%
-    <hr>
-    <p>
         <i class="fas fa-thermometer-half"></i>
-        <span class="dht-labels">Temperature</span>
-        <span id="temperature">%TEMPERATURE%</span>
+        <span id="temperature" class="dht-labels">Temperature</span>
         <sup class="units">&deg;C</sup>
-    </p>
     <hr>
-    <p>
         <i class="fas fa-tint"></i>
         <span class="dht-labels">Humidity</span>
-        <span id="humidity">%HUMIDITY%</span>
+        <span id="humidity"></span>
         <sup class="units">%</sup>
-    </p>
+    <hr/>
+    <div>
+    Manual 
+    <label class="switch">
+    <input type="checkbox" onChange="update(this);" id="override"/>
+    <span class="slider"></span> 
+    </label> Automatic
+    <hr/>
+    Relays:
+    <div id="relaySection"></div>
 
+ 
 </body>
 <script>
 
+    var jsonData; 
+
+    // gets called anytime anything changes :)
+    function update(obj) {
+        // update the json & send it back 
+        //TODO: what's the best way to associate changed items / values with the json ? 
+        //      better to create it all in js ?
+        console.log("What changed", obj.id);
+        console.log("update!", jsonData);
+
+    }
     //setInterval(function() {
 
         //TODO: change the above to make *1* request and get json back
@@ -47,12 +59,36 @@
             if (this.readyState == 4 && this.status == 200) {
                 //document.getElementById("getData").innerHTML = this.responseText;
                 console.log("Got json", this.responseText);
-                var jsonData = JSON.parse(this.responseText);
-
+                jsonData = JSON.parse(this.responseText);
                 document.getElementById("currentTime").innerText = jsonData.data.currentTime;
+                document.getElementById("temperature").innerText = jsonData.data.temperature;
+                document.getElementById("humidity").innerText = jsonData.data.humidity;
 
-            }
-        };
+                var relaySection = document.getElementById("relaySection");
+                for(var i = 0; i  < jsonData.relays.length; i++) {
+                    var relay = jsonData.relays[i];
+                    console.log(relay);
+                    var html = `<hr/><span>${relay.name}</span>
+                                pin: ${relay.pin} / isRunning: ${relay.isRunning} 
+                                / Relay enabled: <span class="w3-hide-small">
+                                    <label class="switch">
+                                     <input type="checkbox" onchange="toggleCheckbox(this)" id="output"/>
+                                      <span class="slider"/>
+                                    </label>
+                                </span>
+                                <div>Schedules for relay:</div>`
+                    var div = document.createElement("div");
+                    div.innerHTML = html;
+                    relaySection.appendChild(div);
+
+                    var schedules = `<label for="time"></label></td>
+                        <td><input type="time" id="appt" name="appt" required value="08:30" /></td>
+                    <span class=""><input type="range" onchange="updateSliderTimer(this)" id="timerSlider" 
+                        min="0" max="3600" value="10" step="60" class="slider2"></span>
+                        <hr/>`;
+                }
+            };
+        }; 
         //r3.open("GET", "/getData", true);
         r3.open("GET", "sample.json", true);
         r3.send();
