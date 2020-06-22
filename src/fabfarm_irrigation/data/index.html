@@ -2,29 +2,22 @@
 <html>
 
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <!-- TODO: grab fontawesomes & server locally -->
-    <link rel="stylesheet" type="text/css" href="all.css">
-    <link rel="stylesheet" type="text/css" href="style.css">
-    <script language="javascript" src="serverDate.js"></script>
-</head>
-<script language="javascript">
-    var localTime = new Date();
-    document.write("Local machine time is: " + localTime + "<br>");
-    document.write("Server time is: " + date);
-    </script>
-<body>
-
-    <h2>Fab Farm Irrigation System</h2>
-    <p><img src="logo.jpeg" style="height:400px;"/></p>
+    <link rel="stylesheet" type="text/css" href="all.css" />
+    <link rel="stylesheet" type="text/css" href="style.css" />
     
-    <!-- TODO: we can replace placeholders with simple js -->
-    <p>
+</head>
+
+<body>
+    <h2>Fab Farm Irrigation System</h2>
+
+    <img src="logo.jpeg" style="height:400px;" /></p>
+
         <i class="fas fa-clock"></i>
-        <span class="dht-labels">Farm Time</span>
-        <br>
-        <span id="farmtimenow">%FARMTIMENOW%</span>
-    </p>
+        <span class="dht-labels">Farm Time:</span>
+        <span id="currentTime"></span>
+        <br/>
     <hr>
     <!-- TODO: the buttons here can have onChange events that auto-calls back w/o needing a submit -->
     %BUTTONPLACEHOLDER%
@@ -46,10 +39,7 @@
 </body>
 <script>
 
-    // pint the server for new info every X seconds
-    /*
-    setInterval(function() {
-
+    //setInterval(function() {
 
         //TODO: change the above to make *1* request and get json back
         var r3 = new XMLHttpRequest();
@@ -57,16 +47,20 @@
             if (this.readyState == 4 && this.status == 200) {
                 //document.getElementById("getData").innerHTML = this.responseText;
                 console.log("Got json", this.responseText);
+                var jsonData = JSON.parse(this.responseText);
+
+                document.getElementById("currentTime").innerText = jsonData.data.currentTime;
+
             }
         };
-        r3.open("GET", "/getData", true);
+        //r3.open("GET", "/getData", true);
+        r3.open("GET", "sample.json", true);
         r3.send();
 
 
-    }, 10000);
-    */
-      
-    
+    //}, 10000);
+
+
 </script>
 
 </html>

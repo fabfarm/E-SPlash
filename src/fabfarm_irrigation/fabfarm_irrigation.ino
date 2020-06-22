@@ -54,13 +54,9 @@
 #include "AsyncJson.h"
 #include "ArduinoJson.h"
 
-//Documentation here --> https://github.com/PaulStoffregen/Time
-//#include "time.h"
-
 // read / write json to save state
 const char *dataFile = "data.json";
-
-const char *ntpServer = "pool.ntp.org";
+const char *ntpServer = "us.pool.ntp.org";
 const long gmtOffset_sec = 0;
 const int daylightOffset_sec = 3600;
 
@@ -113,18 +109,18 @@ void setup()
 
   // we always read the data.json from disk on startup (always!)
   // Read json from the file ...
-  
+
   File f = SPIFFS.open("/data.json", "r");
   String json = f.readString();
   Serial.println("read file - BEGIN");
   Serial.println(json);
   Serial.println("read file - COMPLETE");
   f.close();
-  
+
   // we take json from disk & create json object
   Serial.println("json deserialize test - BEGIN");
   deserializeJson(doc, json);
-  
+
   // TODO: set OUTPUT for each relay
   // TODO: also set each to off initially
   //pinMode(relayGPIOs[i - 1], OUTPUT);
@@ -144,10 +140,12 @@ void setup()
   }
 
   // Print ESP32 Local IP Address
-  Serial.print("The Fabfarm Irrigation system network IP is:");
+  Serial.println("The Fabfarm Irrigation system network IP is:");
   Serial.println(WiFi.localIP());
 
   configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+  printShortFarmTime();
+  // Get time from time server
 
   // Route for root / web page
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
@@ -158,7 +156,9 @@ void setup()
   server.on("/style.css", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(SPIFFS, "/style.css", "text/css");
   });
-
+  server.on("/all.css", HTTP_GET, [](AsyncWebServerRequest *request) {
+    request->send(SPIFFS, "/all.css", "text/css");
+  });
   server.on("/logo.jpeg", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(SPIFFS, "/logo.jpeg", "image/jpeg");
   });
@@ -171,6 +171,9 @@ void setup()
     4) serialize ==> json
     5) return json to html 
     */
+
+    struct tm timeinfo;
+    getLocalTime(&timeinfo);
 
     Serial.println("/getData");
     JsonObject data = doc["data"];
@@ -195,17 +198,18 @@ void setup()
     serializeJson(doc, jsonString);
 
     //write this to disk
-  // Read json from the file ...
+    // Read json from the file ...
     Serial.println("Saving to disk - BEGIN");
     File f = SPIFFS.open("/data.json", "w");
-    if(!f) {
+    if (!f)
+    {
       Serial.println("Faile to open file for writing");
     }
 
     int bytesWritten = f.print(jsonString);
     f.close();
     Serial.printf("Saving to disk - COMPLETE(%d bytes)\n", bytesWritten);
-      
+
     request->send(200); // "application/json", jsonString);
     Serial.println("-------------------");
     Serial.println(jsonString);
@@ -241,7 +245,6 @@ else
 */
 }
 
-//TODO: collapse all of these into a single getData method t
 String readDHTTemperature()
 {
   // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
@@ -294,15 +297,22 @@ String printFarmTime()
   String timeAsAString(timeStringBuff);
   return timeAsAString;
 }
+
 String printShortFarmTime()
 {
   time_t rawtime;
   struct tm timeinfo;
+
   getLocalTime(&timeinfo);
   char timeStringBuff[50]; //50 chars should be enough
   strftime(timeStringBuff, sizeof(timeStringBuff), "H:M:S", &timeinfo);
+
   //print like "const char*"
+  Serial.println("Checking time - BEGIN");
+  Serial.printf("Hour: %d\n", timeinfo.tm_hour);
+  Serial.printf("Minute: %d\n", timeinfo.tm_min);
   Serial.println(timeStringBuff);
+  Serial.println("Checking time - COMPLETE");
 
   //Construct to create the String object
   String timeAsAString(timeStringBuff);
@@ -312,7 +322,7 @@ String printShortFarmTime()
 void modifiedPrintLocalTime()
 // Function based on post in the https://forum.arduino.cc/index.php?topic=536464.0 Arduino Forum by user Abhay
 {
-  int OnlyYear;
+  int onlyYear;
   int onlyMonth;
   int onlyDay;
   int onlyHour;
@@ -332,7 +342,7 @@ void modifiedPrintLocalTime()
   onlySec = timeinfo.tm_sec;
   onlyDay = timeinfo.tm_mday;
   onlyMonth = timeinfo.tm_mon + 1;
-  OnlyYear = timeinfo.tm_year + 1900;
+  onlyYear = timeinfo.tm_year + 1900;
 
   //test
   Serial.print("Print only Hour and Minutes...");
@@ -341,48 +351,8 @@ void modifiedPrintLocalTime()
   Serial.print(onlyMin);
 }
 
-int gimeTime(char what)
-{
-
-  int OnlyYear;
-  int onlyMonth;
-  int onlyDay;
-  int onlyHour;
-  int onlyMin;
-  int onlySec;
-
-  struct tm timeinfo;
-  if (!getLocalTime(&timeinfo))
-  {
-    Serial.println("Failed to obtain time");
-    //return;
-  }
-  onlyHour = timeinfo.tm_hour;
-  onlyMin = timeinfo.tm_min;
-  onlySec = timeinfo.tm_sec;
-  onlyDay = timeinfo.tm_mday;
-  onlyMonth = timeinfo.tm_mon + 1;
-  OnlyYear = timeinfo.tm_year + 1900;
-
-  switch (what)
-  {
-  case 1:
-    return onlyHour;
-    break;
-  case 2:
-    return onlyMin;
-    break;
-  case 3:
-    return onlySec;
-    break;
-  default:
-    // if nothing else matches, do the default
-    // default is optional
-    break;
-  }
-}
-
 // Set all relays to off when the program starts - if set to Normally Open (NO), the relay is off when you set the relay to HIGH
+// TODO: think about this
 void initializeRelays()
 {
   for (int i = 1; i <= NUM_RELAYS; i++)
