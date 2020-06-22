@@ -12,18 +12,17 @@
             "isRunning": 1,
             "isEnabled": 1,
             "times": [
-                { "startTime": "09:00", "duration": 4000, "enabled": 1},
-                { "startTime": "10:00", "duration": 4000, "enabled": 0}
+                { "startTime": "09:00", "duration": 5}
             ]},
         {
-            "name": "hot tub",
+            "name": "super squirt gun",
             "pin": 234,
             "isRunning": 1,
-            "isEnabled": 1,
+            "isEnabled": 0,
             "status": 1,
             "times": [
-                { "startTime": "12:45", "duration": 4000, "enabled": 1},
-                { "startTime": "16:45", "duration": 4000, "enabled": 0}
+                { "startTime": "12:45", "duration": 15},
+                { "startTime": "16:45", "duration": 20}
             ]
         },
         {
@@ -33,8 +32,9 @@
             "isEnabled": 1,
             "status": 1,
             "times": [
-                { "startTime": "12:45", "duration": 4000, "enabled": 1},
-                { "startTime": "16:45", "duration": 4000, "enabled": 0}
+                { "startTime": "12:45", "duration": 25},
+                { "startTime": "10:00", "duration": 10},
+                { "startTime": "16:45", "duration": 30}
             ]
         }
 

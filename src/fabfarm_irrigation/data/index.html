@@ -67,26 +67,40 @@
                 var relaySection = document.getElementById("relaySection");
                 for(var i = 0; i  < jsonData.relays.length; i++) {
                     var relay = jsonData.relays[i];
-                    console.log(relay);
-                    var html = `<hr/><span>${relay.name}</span>
-                                pin: ${relay.pin} / isRunning: ${relay.isRunning} 
+                    var html = `<hr/><div>Relay name:<b>${relay.name}</b> (pin ${relay.pin})</div>
+                                isRunning: [${relay.isRunning}]
                                 / Relay enabled: <span class="w3-hide-small">
                                     <label class="switch">
-                                     <input type="checkbox" onchange="toggleCheckbox(this)" id="output"/>
+                                     <input type="checkbox" ${relay.isEnabled ? "checked": ""} onchange="toggleCheckbox(this)" id="output"/>
                                       <span class="slider"/>
                                     </label>
                                 </span>
-                                <div>Schedules for relay:</div>`
+                                <div>Schedules for relay:</div>`;
+                    console.log(relay);
+                    for(var j = 0; j < relay.times.length; j++) {
+                        time = relay.times[j];
+                        console.log(time)
+                        var times = `<div style="width:100px;"></div> 
+                                    <label for="time"></label>
+                                        <div>
+                                            <span>Time ${j+1}</span>
+                                            <input type="time" style="width:100px;" 
+                                                    id="time" name="appt" 
+                                                    required value="${time.startTime}" />
+                                            <input type="range" onchange="updateSliderTimer(this)" 
+                                                id="timerSlider" 
+                                                min="0" max="60" value="${time.duration}" step="1" 
+                                                class="slider2">
+                                        </div>
+                        `;
+
+                        html += times;
+                    }
                     var div = document.createElement("div");
                     div.innerHTML = html;
                     relaySection.appendChild(div);
+                }                    
 
-                    var schedules = `<label for="time"></label></td>
-                        <td><input type="time" id="appt" name="appt" required value="08:30" /></td>
-                    <span class=""><input type="range" onchange="updateSliderTimer(this)" id="timerSlider" 
-                        min="0" max="3600" value="10" step="60" class="slider2"></span>
-                        <hr/>`;
-                }
             };
         }; 
         //r3.open("GET", "/getData", true);
