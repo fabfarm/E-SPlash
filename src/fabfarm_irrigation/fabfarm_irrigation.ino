@@ -70,15 +70,6 @@ AsyncWebServer server(80);
 // "the brains" - a json object
 DynamicJsonDocument doc(2048); // from arduinoJson
 
-// Set to true to define Relay as Normally Open (NO)
-#define RELAY_NO false
-
-//TODO: this will go into the json
-// Set number of relays, will be used in the array
-#define NUM_RELAYS 4
-// Assign each GPIO to a relay
-int relayGPIOs[NUM_RELAYS] = {26, 25, 33, 27};
-
 // Digital pin connected to the DHT sensor
 #define DHTPIN 32
 
@@ -90,9 +81,6 @@ int relayGPIOs[NUM_RELAYS] = {26, 25, 33, 27};
 //Send the pin and type of sensor
 DHT dht(DHTPIN, DHTTYPE);
 
-//
-const char *PARAM_INPUT_1 = "relay";
-const char *PARAM_INPUT_2 = "state";
 
 void setup()
 {
@@ -144,7 +132,7 @@ void setup()
   Serial.println(WiFi.localIP());
 
   configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
-  printShortFarmTime();
+  //printShortFarmTime();
   // Get time from time server
 
   // Route for root / web page
@@ -177,7 +165,7 @@ void setup()
 
     Serial.println("/getData");
     JsonObject data = doc["data"];
-    data["currentTime"] = printShortFarmTime(); // TODO: why aren't times working ?
+    data["currentTime"] = timeinfo.tm_hour; // TODO: why aren't times working ?
     data["temperature"] = readDHTTemperature(); // TODO: fix me
     data["humidity"] = readDHTHumidity();
 
@@ -337,9 +325,8 @@ String printShortFarmTime()
   Serial.println("Checking time - BEGIN");
   Serial.printf("Hour: %d\n", timeinfo.tm_hour);
   Serial.printf("Minute: %d\n", timeinfo.tm_min);
-  Serial.println(timeStringBuff);
   Serial.println("Checking time - COMPLETE");
-
+  
   //Construct to create the String object
   String timeAsAString(timeStringBuff);
   return timeAsAString;
@@ -379,11 +366,11 @@ void modifiedPrintLocalTime()
 
 // Set all relays to off when the program starts - if set to Normally Open (NO), the relay is off when you set the relay to HIGH
 // TODO: think about this
-void initializeRelays()
+/*void initializeRelays()
 {
   for (int i = 1; i <= NUM_RELAYS; i++)
   {
     pinMode(relayGPIOs[i - 1], OUTPUT);
     //digitalWrite(relayGPIOs[i - 1], RELAY_NO ? HIGH : LOW);
   }
-}
+}*/
