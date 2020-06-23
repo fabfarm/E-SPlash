@@ -2,272 +2,130 @@
 <html>
 
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- TODO: grab fontawesomes & server locally -->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-
-    <link rel="icon" href="data:,">
-    <style>
-        html {
-            font-family: Arial;
-            display: inline-block;
-            text-align: center;
-        }
-
-        h2 {
-            font-size: 2.4rem;
-        }
-
-        p {
-
-            font-size: 2.2rem;
-        }
-
-        body {
-            max-width: 600px;
-            margin: 0px auto;
-            padding-bottom: 25px;
-        }
-
-        table {
-            width: 100%;
-            max-width: 600px;
-        }
-
-        input {
-            border: 1px solid #ccc;
-            color: #888;
-            margin: 0.5em;
-            vertical-align: middle;
-            outline: 0;
-            padding: 0.5em 1em;
-            border-radius: 4px;
-            width: calc(100% - 3em - 2px);
-            font-family: sans-serif;
-        }
-
-        #output {
-            background: lightyellow;
-            padding: 10px;
-            border: 1px solid tan;
-            margin: 0 0 10px 0;
-        }
-
-        .switch {
-            vertical-align: middle;
-            display: inline-block;
-            position: relative;
-            width: 120px;
-            height: 47px
-        }
-
-        .switch input {
-            display: none
-        }
-
-        .slider {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            border-radius: 34px
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 30px;
-            width: 52px;
-            left: 8px;
-            bottom: 8px;
-            background-color: #fff;
-            -webkit-transition: .4s;
-            transition: .4s;
-            border-radius: 68px
-        }
-
-        .slider2 {
-            -webkit-appearance: none;
-            margin: 14px;
-            width: 300px;
-            height: 20px;
-            background: #ccc;
-            outline: none;
-            -webkit-transition: .2s;
-            transition: opacity .2s;
-        }
-
-        .slider2::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 30px;
-            height: 30px;
-            background: #2f4468;
-            cursor: pointer;
-        }
-
-        .slider2::-moz-range-thumb {
-            width: 30px;
-            height: 30px;
-            background: #2f4468;
-            cursor: pointer;
-        }
-
-        input:checked+.slider {
-            background-color: #2196F3
-        }
-
-        input:checked+.slider:before {
-            -webkit-transform: translateX(52px);
-            -ms-transform: translateX(52px);
-            transform: translateX(52px)
-        }
-
-        .units {
-            font-size: 1.2rem;
-        }
-
-        .dht-labels {
-            font-size: 1.5rem;
-            vertical-align: middle;
-            padding-bottom: 15px;
-        }
-
-    </style>
-    <script language="javascript" src="serverDate.js"></script>
+    <link rel="stylesheet" type="text/css" href="/style.css" />
 </head>
-<script language="javascript">
-    var localTime = new Date();
-    document.write("Local machine time is: " + localTime + "<br>");
-    document.write("Server time is: " + date);
-
-</script>
 
 <body>
-    <img src="logo">
-    <h2>FabFarm fabESPlash</h2>
+    <h2>Fab Farm Irrigation System</h2>
 
-    <p>
+    <img src="/logo.jpeg" style="height:400px;" /></p>
         <i class="fas fa-clock"></i>
-        <span class="dht-labels">Farm Time</span>
-        <br>
-        <span id="farmtimenow">%FARMTIMENOW%</span>
-    </p>
+        <span class="dht-labels">Farm Time:</span>
+        <span id="currentTime"></span>
+        <br/>
     <hr>
-    <p>Zone1</p>
-    <table class="datetime-tool">
-        <tr>
-            /
-            <form id="form1" action="submit" target="/update" method="GET">
-                <td><label for="time">Time of cycle start:</label></td>
-                <td><input type="time" id="appt" name="appt" required value="08:30" /></td>
-                <td><input type="submit" value="Submit start cycle time"></td>
-            </form>
-        </tr>
-    </table>
-    <div>
-        <span id="timerValue">%TIMERVALUE%</span>
-        <span class=""><input type="range" onchange="updateSliderTimer(this)" id="timerSlider" min="0" max="60" value="%TIMERVALUE%" step="1" class="slider2"></span>
-
-        %BUTTONPLACEHOLDER%
-    </div>
-    <hr>
-    <script>
-        /* this function gets invoked  on checkBox checked even.
-        The checkbox itself is generated (see fabfarm_irrigation.ino)
-        */
-        function toggleCheckbox(element) {
-
-            // TODO: get additional form fields to send to server
-            // NOTE: it's probably easier to to get *all* form fields here rather then just some one bit
-
-            // TODO: Build list of *all* form fields and submit them all at once
-            document.getElementById("form1").submit(); // that should be it !
-
-            /*
-                        // after the checkbox is checked, we retrieve the slider value
-                        var sliderValue = document.getElementById("timerSlider").value;
-
-                        // initialize a http request ... depending on IF the checkbox is checked
-                        var xhr = new XMLHttpRequest();
-                        var state = element.checked ? "1" : "0"; // if checked then state will be 1 otherwise state is 0
-                        //var url = "/update?relay=" + element.id + "&state=" + state + "&sliderValue=" + sliderValue;
-                        var url = "/udpate?duration1=x&duration2=y ...."
-
-                        xhr.open("GET", url, true); // "öpens" the http connection
-                        xhr.send();     //  sends the request
-            */
-        }
-
-        function updateSliderTimer(element) {
-            var sliderValue = document.getElementById("timerSlider").value;
-            document.getElementById("timerValue").innerHTML = sliderValue;
-            var xhr = new XMLHttpRequest();
-            xhr.open("GET", "/slider?value=" + sliderValue, true);
-            xhr.send();
-        }
-
-    </script>
-    <hr>
-    <p>
         <i class="fas fa-thermometer-half"></i>
-        <span class="dht-labels">Temperature</span>
-        <span id="temperature">%TEMPERATURE%</span>
+        <span id="temperature" class="dht-labels">Temperature</span>
         <sup class="units">&deg;C</sup>
-    </p>
     <hr>
-    <p>
         <i class="fas fa-tint"></i>
         <span class="dht-labels">Humidity</span>
-        <span id="humidity">%HUMIDITY%</span>
+        <span id="humidity"></span>
         <sup class="units">%</sup>
-    </p>
-
+    <hr/>
+    <div id="main"></div>
 </body>
-<script>
-    // pint the server every 10 seconds to get info 
-    setInterval(function() {
-        var xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) {
-                document.getElementById("farmtimenow").innerHTML = this.responseText;
-            }
-        };
-        xhttp.open("GET", "/farmtimenow", true);
-        xhttp.send();
-    }, 10000);
-
-    setInterval(function() {
-        var xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) {
-                document.getElementById("temperature").innerHTML = this.responseText;
-            }
-        };
-        xhttp.open("GET", "/temperature", true);
-        xhttp.send();
-    }, 10000);
-
-    setInterval(function() {
-        var xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) {
-                document.getElementById("humidity").innerHTML = this.responseText;
-            }
-        };
-        xhttp.open("GET", "/humidity", true);
-        xhttp.send();
-    }, 10000);
-
-</script>
 
 <script>
-    $("button").click(function() {
-        var value = $(this).parent().parent().find("input").val();
-        $("#output").html(value + "<br>&lt;time datetime='" + value + "'>&lt;/time>");
-        console.log(value);
-    });
+    // keep global json object - we'll update this on element change
+    var jsonData; 
+
+    // gets called anytime anything changes
+    function update(obj) {
+        jsonData.data.override = document.getElementById("jasonData.data.override").checked ? 1 : 0;
+        console.log(document.getElementById("jasonData.data.override"));
+        for(var i = 0; i < jsonData.relays.length; i++) { 
+            jsonData.relays[i].isEnabled = document.getElementById(`jsonData.relays[${i}].isEnabled`).checked ? 1 : 0;
+            for(j = 0; j < jsonData.relays[i].times.length; j++) {
+                jsonData.relays[i].times[j].duration  = document.getElementById(`jsonData.relays[${i}].times[${j}].duration`).value;
+                jsonData.relays[i].times[j].startTime = document.getElementById(`jsonData.relays[${i}].times[${j}].startTime`).value;
+            }
+        }
+
+        var json = JSON.stringify(jsonData);
+        var xmlhttp = new XMLHttpRequest();   
+        xmlhttp.open("POST", "/updateData");
+        xmlhttp.setRequestHeader("Content-Type", "application/json;");
+        xmlhttp.send(json);
+    }
+
+    /* Currently we load this once from the server & it's working well.
+    Once we start pinging the server for updates, we'll run into the issue where this keep running over and over
+    again and will keep adding elements to the page ! We need to fix this so we build the page based on the json
+    and either
+    a) rebuild it per ping (?)
+    b) only update the relevant elements if it's already built
+
+    Convention: the Id of html elements is the path to its value in the json. This lets us pull the values back out
+                on update
+    */
+    
+    //setInterval(function() {
+
+        var r3 = new XMLHttpRequest();
+        r3.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                jsonData = JSON.parse(this.responseText);
+                document.getElementById("currentTime").innerText = jsonData.data.currentTime;
+                document.getElementById("temperature").innerText = jsonData.data.temperature;
+                document.getElementById("humidity").innerText = jsonData.data.humidity;
+
+                var html = `Manual 
+                        <label class="switch">
+                            <input type="checkbox" ${jsonData.data.override ? "checked" : ""} 
+                             onChange="update(this);" id="jasonData.data.override"/>
+                            <span class="slider"></span> 
+                        </label> Automatic`;
+
+                // Build html for relays & their schedulesk
+                for(var i = 0; i  < jsonData.relays.length; i++) {
+                    var relay = jsonData.relays[i];
+                    html += `<hr/><div>Relay name:<b>${relay.name}</b> (pin ${relay.pin})</div>
+                                isRunning: [${relay.isRunning}]
+                                / Relay enabled: <span class="w3-hide-small">
+                                    <label class="switch">
+                                     <input id="jsonData.relays[${i}].isEnabled" type="checkbox" ${relay.isEnabled ? "checked": ""} 
+                                        onchange="update(this);"/>
+                                      <span class="slider"/>
+                                    </label>
+                                </span>
+                                <div>Schedules for relay:</div>`;
+
+                    // Build list of schedules for this relay
+                    for(var j = 0; j < relay.times.length; j++) {
+                        time = relay.times[j];
+                        var times = `<div style="width:100px;"></div> 
+                                    <label for="time"></label>
+                                        <div>
+                                            <span>Time ${j+1}</span>
+                                            <input id="jsonData.relays[${i}].times[${j}].startTime" type="time" style="width:100px;" 
+                                                    onChange="update(this);" 
+                                                    required value="${time.startTime}" />
+                                            <input id="jsonData.relays[${i}].times[${j}].duration" type="range" onChange="update(this);" 
+                                                    min="0" max="60" value="${time.duration}" step="1" class="slider2">
+                                        </div>
+                                        `;
+                        html += times;
+                    }
+                }                    
+
+                var main = document.getElementById("main");
+                main.innerHTML = html; //this will REBUILD the page per ping (?)
+
+            };
+        }; 
+
+        r3.open("GET", "/getData", true);
+        // for testing:
+        //r3.open("GET", "sample.json", true);
+        r3.send();
+
+
+    //}, 10000);
+
 
 </script>
 

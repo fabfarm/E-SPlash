@@ -1,6 +1,9 @@
 {
     "files.associations": {
         "*.cps": "javascript",
-        "functional": "cpp"
+        "functional": "cpp",
+        "iosfwd": "cpp",
+        "sstream": "cpp",
+        "fstream": "cpp"
     }
 }
