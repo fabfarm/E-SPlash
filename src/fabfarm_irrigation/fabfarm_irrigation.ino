@@ -1,63 +1,25 @@
-/****************************************************************************
- *                                  Aknowledments                           *
- *                                  by LucioPGN                             *
- ****************************************************************************/
-/*  So much I learned since started this journey in 07th of June 2020 I still 
- *  don't consider myself a programer.
- *  So I need to stand on top of giants sholders for my programing projects:
- *  A small Portion of this code was based on Rui Santos Code:
- *  https://randomnerdtutorials.com/esp32-web-server-spiffs-spi-flash-file-system/
- *  https://randomnerdtutorials.com/esp32-relay-module-ac-web-server/
- *  https://randomnerdtutorials.com/esp32-date-time-ntp-client-server-arduino/
- *  From Techtutorialsx.com
- *  https://techtutorialsx.com/2017/12/01/esp32-arduino-asynchronous-http-webserver/
- *  Probabilly unrecognisable but still Shakeels code for ESP8266 is somewhere here;
- *  Jeff joined the effort in the 20th and with food he coded until 5am introducing:
- *    -A new way to parse data with Json file.
- *    ...
- *    ...
- *    ...
- * 
- *  My contributions:
- *     -So far I made it work on platformio :), that took me quite a lot of time
- *     -That means:
- *        +created a new project;
- *        +created a folder named data under the main folder (fabfarm_irrigation)
- *        +linked the platformio.ini to the folder of the project + the data folder
- *        +linked the needed libraries to their github repo in the platformio.ini
- *        +found a conflict with time library and A
- *  Things I still want to program for my final project:
- *    -so far I ported Shakeels code into ESP32;
- *    -separate functions from shakeels code into files;
- *    -separated functions from Rui Santos code into files.
- *    -simplify the code creating more functions;
- *    -try to separate the HTML part for a cleaner code;
- *    -Improve the appearance/Interface of the code
- *    -Add readings to HTML
- *    -Add a log of occurrences like over current
- *    -Add more safety for the equipment
- *    -Add a phone interface (APP)
- *    -Add function to set current time
- *    -Add renaming function to each relay so one can relate the relay to the area of interest or at least rename relays to actual areas of the farm.
+
+/**
+ *  LucioPGN  
+ * Contributors:
+ *  Jeffrey Knight http://github.com/jknight
  *
- ****************************************************************************/
-//#include <Arduino.h>
+ */
+
 #include <fstream>
 #include <iostream>
 #include <sstream>
 #include <streambuf>
 #include <string>
 
-//Required Libraries
-#include "WiFi.h"
+#include "Adafruit_Sensor.h"
+#include "ArduinoJson.h"
+#include "AsyncJson.h"
+#include "AsyncTCP.h"
+#include "DHT.h"
 #include "ESPAsyncWebServer.h"
 #include "SPIFFS.h"
-#include "AsyncTCP.h"
-#include "Adafruit_Sensor.h"
-#include "DHT.h"
-
-#include "AsyncJson.h"
-#include "ArduinoJson.h"
+#include "WiFi.h"
 
 #include "printFarmTime.cpp"
 #include "modifiedPrintLocalTime.cpp"
@@ -70,17 +32,17 @@ const char *dataFile = "data.json";
 const char *ssid = "rato";
 const char *password = "imakestuff";
 
+
 // Specify the port of the Async server
 AsyncWebServer server(80);
 // Specifing the capacity of the json in bytes.
 
-int jasonSize = 4048;
+int jasonSize = 2048;
 DynamicJsonDocument doc(jasonSize); // from arduinoJson
 
-void setup()
-{
+void setup(){
   // Serial port for debugging purposes
-  Serial.begin(9600);
+  Serial.begin(9600);    
 
   // Initialize SPIFFS
   //That is the file system.
@@ -105,34 +67,39 @@ void setup()
   deserializeJson(doc, json);
   
   //
-  //test overri value in Jason
+  //test override value in Jason
   Serial.print("Printing override value in void setup after deserialisation: ");
   JsonArray data = doc["data"];
   int override = data["override"];
   Serial.println(override);
   delay(1000);
 
+  // TODO: proactively disable everything / consider if we want to have it start in stopped state
   // TODO: set OUTPUT for each relay
   // TODO: also set each to off initially
   //pinMode(relayGPIOs[i - 1], OUTPUT);
   //digitalWrite(relayGPIOs[i - 1], HIGH);
 
-  //Lucio TODO: proactively disable everything / consider if we want to have it start in stopped state
-
+  const char* ssid = doc["data"]["ssid"];
+  const char* password = doc["data"]["password"];
+  Serial.println("Reading ssid: %s / password: %s from json\n", ssid, password);
   WiFi.softAP("softap", "imakestuff");
+
   IPAddress IP = WiFi.softAPIP();
 
-  //here  start wifi sessions as a client.
+  //start wifi sessions as a client.
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED)
   {
     delay(1000);
     Serial.println("Connecting to WiFi..");
   }
-
+  
   // Print ESP32 Local IP Address
   Serial.println("The Fabfarm Irrigation system network IP is:");
   Serial.println(WiFi.localIP());
+
+  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
 
   // Route for root / web page
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
@@ -150,54 +117,58 @@ void setup()
   });
   server.on("/getData", HTTP_GET, [](AsyncWebServerRequest *request)
     {
-    /* 
-    1) start with our json object.
-    2) we get new data (temp/humidit/y/relay status)
-    3) update the json object
-    4) serialize ==> json
-    5) return json to html 
-    */
+  /* 
+  1) start with our json object.
+  2) we get new data (temp/humidit/y/relay status)
+  3) update the json object
+  4) serialize ==> json
+  5) return json to html 
+  */
 
-    Serial.println("/getData");
-    JsonObject data = doc["data"];
-    data["currentTime"] = printFarmTime(); // TODO: why aren't times working ?
-    data["temperature"] = readDHTTemperature(); // TODO: fix me
-    data["humidity"] = readDHTHumidity();
-    char json[1024];
-    Serial.println("Serialize json & return to caller - BEGIN");
-    serializeJson(doc, json);
-    Serial.println("Serialize json & return to caller - COMPLETE");
-    request->send(200, "application/json", json);
-    });
+  Serial.println("/getData");
+  JsonObject data = doc["data"];
+  data["currentTime"] = printFarmTime(); // TODO: why aren't times working ?
+  data["temperature"] = readDHTTemperature(); // TODO: fix me
+  data["humidity"] = readDHTHumidity();
+  char json[1024];
+  Serial.println("Serialize json & return to caller - BEGIN");
+  serializeJson(doc, json);
+  Serial.println("Serialize json & return to caller - COMPLETE");
+  request->send(200, "application/json", json);
+  });
+  
+  AsyncCallbackJsonWebHandler *handler = new AsyncCallbackJsonWebHandler("/updateData", [](AsyncWebServerRequest *request, JsonVariant &json) {
+  doc = json.as<JsonObject>();
+    
+  String jsonString;
+  serializeJson(doc, jsonString);
 
-    AsyncCallbackJsonWebHandler *handler = new AsyncCallbackJsonWebHandler("/updateData", [](AsyncWebServerRequest *request, JsonVariant &json) {
-    doc = json.as<JsonObject>();
-    String jsonString;
-    serializeJson(doc, jsonString);
+  //write this to disk
+  // Read json from the file ...
+  Serial.println("Saving to disk - BEGIN");
+  File f = SPIFFS.open("/data.json", "w");
+  if (!f)
+  {
+    Serial.println("Faile to open file for writing");
+  }
 
-    //write this to disk
-    // Read json from the file ...
-    Serial.println("Saving to disk - BEGIN");
-    File f = SPIFFS.open("/data.json", "w");
-    if (!f)
-    {
-      Serial.println("Faile to open file for writing");
-    }
+  int bytesWritten = f.print(jsonString);
+  f.close();
+  Serial.printf("Saving to disk - COMPLETE(%d bytes)\n", bytesWritten);
 
-    int bytesWritten = f.print(jsonString);
-    f.close();
-    Serial.printf("Saving to disk - COMPLETE(%d bytes)\n", bytesWritten);
-
-    request->send(200); // "application/json", jsonString);
-    Serial.println("-------------------");
-    Serial.println(jsonString);
-    Serial.println("-------------------");
+  request->send(200); // "application/json", jsonString);
+  Serial.println("-------------------");
+  Serial.println(jsonString);
+  Serial.println("-------------------");
   });
   
   server.addHandler(handler);
+
   // Start server here
   server.begin();
 }
+
+
 
 void loop()
 {
@@ -305,3 +276,11 @@ String readDHTHumidity()
     return String(h);
   }
 }
+
+
+
+
+
+
+
+

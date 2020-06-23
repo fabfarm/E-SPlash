@@ -15,33 +15,12 @@ Valve2  --- Microprocessor <==> Web Interface
 ValveN /
 ```
 
-
-| **Web Interface**                 | **Microprocessor** (ESP32)                   |
-|-----------------------------------|----------------------------------------------|
-| Set per zone:                     | Receives:                                    |
-| [ ] start times                   | start times                                  |
-| [ ] duration of cicle, max 1 hour | Duration or cicle                            |
-|                                   | Override button                              |
-| Displays                          |                                              |
-| [x] time of day                   |                                              |
-| [x] Humidity                      |                                              |
-| [x] Temperature                   |                                              |
-| [ ] current zone programs stored  |                                              |
-| [ ] override button               |                                              |
-| [ ] current zone state  (ON/OFF)  | Updates/sends current situation:             |
-|                                   | [x]Time of day;                              |
-|                                   | [ ]State of zone (ON/OFF)                    |
-|                                   | [x]sensor information (humidity/temperature) |
-
 ## Web server methods
 
-| **Endpoint**    | **Purpose**                             |
-|-----------------|-----------------------------------------|
-| index.html      | Serves up main index page               |
-| /stats          | returns temp/humidity/time/etc          |
-| /getSettings    | get settings                            |
-| /saveSettings   | save settings                           |
-| /stop?pin={pin} | stop (override) currently running valve |
+| **Endpoint** | **Purpose**       |
+|--------------|-------------------|
+| /getData     | returns json      |
+| /saveData    | gets updated json |
 
 ## Core Logic
 
@@ -52,67 +31,49 @@ When the microcontroller loses power, we lose state. We therefore need to persis
 - Settings are *saved* each time a user changes settings in the web ui
 - Settings are kept in memory and we check against them
 
-We first considered using a simple csv file to commit settings:
-
-```csv
-zonenumber,pin number, start hours, run seconds
-zone1, 1, , 1234
-zone2, 2, 20200101 00:00:00.0000, 123
-zone3, 3, 20200101 00:00:00.0000, 1234
-```
-
-but this limits our ability to introduce scheduling with one zone coming on and off multiple times per day.
-We therefore switched to a simple json conventions.
-
-Stats:
+## Data format
 
 ```json
-{
-  "temp": 55,
-  "humidity": 68,
-  "time": "20200101 10:20:00"
-}
-```
+"data": {
+        "currentTime": "Saturday, January 10th 10:45",
+        "temperature": 23,
+        "humidity": 45,
+        "override": 1        
+    },
+    "relays": [
+        {
+            "name": "Sauna",
+            "pin": 25,
+            "isRunning": 1,
+            "isEnabled": 1,
+            "times": [
+                { "startTime": "10:00", "duration": 5}
+            ]},
+        {
+            "name": "Garden",
+            "pin": 26,
+            "isRunning": 1,
+            "isEnabled": 0,
+            "status": 1,
+            "times": [
+                { "startTime": "12:45", "duration": 15},
+                { "startTime": "16:45", "duration": 20}
+            ]
+        },
+        {
+            "name": "Hot Tub",
+            "pin": 33,
+            "isRunning": 1,
+            "isEnabled": 1,
+            "status": 1,
+            "times": [
+                { "startTime": "12:45", "duration": 25},
+                { "startTime": "10:00", "duration": 10},
+                { "startTime": "16:45", "duration": 30}
+            ]
+        }
 
-Settings: 
-
-```json
-{
-    "zones": [
-        { "name": "zone1", "pin": "1", "start": "00:01:00", "runSeconds": 3000 }, 
-        { "name": "zone2", "pin": "2", "start": "00:02:00", "runSeconds": 4000 }, 
-        { "name": "zone3", "pin": "3", "start": "00:03:00", "runSeconds": 5000 }
     ]
 }
-```
-
-TODO: it might be better to combine these:
-
-```json
-
-{
-    "stats": { "temp": 55, "humidity": 68, "time": "20200101 10:20:00" },
-    "zones": [
-        { "name": "zone1", "pin": "1", "start": "00:01:00", "runSeconds": 3000, "state": "on" }, 
-        { "name": "zone2", "pin": "2", "start": "00:02:00", "runSeconds": 4000, "state": "off" }, 
-        { "name": "zone3", "pin": "3", "start": "00:03:00", "runSeconds": 5000, "state": "on" }
-    ]
-}
 
 ```
-
-
-## Startup Logic Flow
-
-- Read from csv file 
-- Keep info in memory while checking times in a loop ("should I be running now?") 
-
-
-## TODO
-
-- since we need to return zone state (on/off) in the server polling, we might want to have one single
-    json format for both zones & stats 
-- update js to load settings from json 
-- update js to save settings back to server (need to fix the form submission / json constrution via JSON.stringify))
-- fix server logic / endpoints to speak json
-
