@@ -34,46 +34,68 @@ When the microcontroller loses power, we lose state. We therefore need to persis
 ## Data format
 
 ```json
-"data": {
-        "currentTime": "Saturday, January 10th 10:45",
-        "temperature": 23,
-        "humidity": 45,
-        "override": 1        
+{
+    "data": {
+        "currentTime": "Tuesday, June 23 2020 11:54:16",
+        "temperature": "29.90",
+        "humidity": "51.00",
+        "override": 0,
+        "ssid": "rato",
+        "pass": "imakestuff"
     },
     "relays": [
         {
-            "name": "Sauna",
+            "name": "Fruit Tree",
             "pin": 25,
             "isRunning": 1,
-            "isEnabled": 1,
+            "isEnabled": 0,
             "times": [
-                { "startTime": "10:00", "duration": 5}
-            ]},
+                {
+                    "startTime": "03:00",
+                    "duration": "0"
+                }
+            ]
+        },
         {
-            "name": "Garden",
+            "name": "Vegie Garden",
             "pin": 26,
             "isRunning": 1,
             "isEnabled": 0,
             "status": 1,
             "times": [
-                { "startTime": "12:45", "duration": 15},
-                { "startTime": "16:45", "duration": 20}
+                {
+                    "startTime": "12:00",
+                    "duration": "0"
+                },
+                {
+                    "startTime": "12:30",
+                    "duration": "0"
+                }
             ]
         },
         {
-            "name": "Hot Tub",
+            "name": "Cypress Hill",
             "pin": 33,
             "isRunning": 1,
-            "isEnabled": 1,
+            "isEnabled": 0,
             "status": 1,
             "times": [
-                { "startTime": "12:45", "duration": 25},
-                { "startTime": "10:00", "duration": 10},
-                { "startTime": "16:45", "duration": 30}
+                {
+                    "startTime": "12:45",
+                    "duration": "0"
+                },
+                {
+                    "startTime": "10:00",
+                    "duration": "0"
+                },
+                {
+                    "startTime": "16:45",
+                    "duration": "0"
+                }
             ]
         }
-
     ]
 }
+
 
 ```
