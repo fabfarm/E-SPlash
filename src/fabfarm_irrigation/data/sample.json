@@ -3,7 +3,9 @@
         "currentTime": "Saturday, January 10th 10:45",
         "temperature": 23,
         "humidity": 45,
-        "override": 1        
+        "override": 1,        
+        "ssid": "hello",
+        "password": "password"
     },
     "relays": [
         {
