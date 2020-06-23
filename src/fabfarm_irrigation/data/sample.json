@@ -1,8 +1,8 @@
 {
     "data": {
-        "currentTime": "Tuesday, June 23 2020 11:06:08",
-        "temperature": "Failed to read temperator from sensor",
-        "humidity": "Failed to read humidity from sensor",
+        "currentTime": "Tuesday, June 23 2020 11:54:16",
+        "temperature": "29.90",
+        "humidity": "51.00",
         "override": 0,
         "ssid": "rato",
         "pass": "imakestuff"

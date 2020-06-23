@@ -2,16 +2,19 @@
  *                                  Aknowledments                           *
  *                                  by LucioPGN                             *
  ****************************************************************************/
-/*  Up to this date: 07th of June 2020 I don't consider myself a programer
- *  so I need to stand on top of giants sholders for my programing projects:
- *  A Portion of this code was based on Rui Santos Code;
- *  Codes from Rui Santos mixed toghether:
+/*  So much I learned since started this journey in 07th of June 2020 I still 
+ *  don't consider myself a programer.
+ *  So I need to stand on top of giants sholders for my programing projects:
+ *  A small Portion of this code was based on Rui Santos Code:
  *  https://randomnerdtutorials.com/esp32-web-server-spiffs-spi-flash-file-system/
  *  https://randomnerdtutorials.com/esp32-relay-module-ac-web-server/
  *  https://randomnerdtutorials.com/esp32-date-time-ntp-client-server-arduino/
  *  From Techtutorialsx.com
  *  https://techtutorialsx.com/2017/12/01/esp32-arduino-asynchronous-http-webserver/
- *  A Portion of this code was based on Shakeels code for ESP8266 ;
+ *  Probabilly unrecognisable but still Shakeels code for ESP8266 is somewhere here;
+ *  Jeff joined the effort in the 20th and with food he coded until 5am introducing:
+ *    -A new way to parse data with Json file.
+ * 
  *  My contributions:
  *     -So far I made it work on platformio :), that took me quite a lot of time
  *     -That means:
@@ -60,6 +63,7 @@
 const char *dataFile = "data.json";
 
 // Network Credentials
+// TODO get this credentials from jason file
 const char *ssid = "rato";
 const char *password = "imakestuff";
 
@@ -146,21 +150,15 @@ void setup()
     5) return json to html 
     */
 
-
-
     Serial.println("/getData");
     JsonObject data = doc["data"];
     data["currentTime"] = printFarmTime(); // TODO: why aren't times working ?
     data["temperature"] = readDHTTemperature(); // TODO: fix me
     data["humidity"] = readDHTHumidity();
-
     char json[1024];
     Serial.println("Serialize json & return to caller - BEGIN");
-
     serializeJson(doc, json);
-
     Serial.println("Serialize json & return to caller - COMPLETE");
-
     request->send(200, "application/json", json);
   });
 
@@ -188,9 +186,8 @@ void setup()
     Serial.println(jsonString);
     Serial.println("-------------------");
   });
-
+  
   server.addHandler(handler);
-
   // Start server here
   server.begin();
 }
