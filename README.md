@@ -77,4 +77,3 @@ When the microcontroller loses power, we lose state. We therefore need to persis
 }
 
 ```
-
