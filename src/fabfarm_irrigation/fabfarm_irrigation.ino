@@ -14,6 +14,9 @@
  *  Probabilly unrecognisable but still Shakeels code for ESP8266 is somewhere here;
  *  Jeff joined the effort in the 20th and with food he coded until 5am introducing:
  *    -A new way to parse data with Json file.
+ *    ...
+ *    ...
+ *    ...
  * 
  *  My contributions:
  *     -So far I made it work on platformio :), that took me quite a lot of time
