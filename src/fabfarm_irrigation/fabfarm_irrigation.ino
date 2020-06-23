@@ -82,6 +82,12 @@ void setup(){
 
   const char* ssid = doc["data"]["ssid"];
   const char* password = doc["data"]["password"];
+  Serial.print("SSID: (");
+  Serial.print(ssid);
+  Serial.print(") and password: (");
+  Serial.print(password);
+  Serial.println(") from Json.");
+
 
   //Serial.println("Reading ssid: %s / password: %s from json\n", ssid, password);
   WiFi.softAP("softap", "imakestuff");
