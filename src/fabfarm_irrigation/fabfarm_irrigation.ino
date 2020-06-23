@@ -35,10 +35,9 @@
  *    -Add renaming function to each relay so one can relate the relay to the area of interest or at least rename relays to actual areas of the farm.
  *
  ****************************************************************************/
-
+//#include <Arduino.h>
 #include <fstream>
 #include <iostream>
-#include <fstream>
 #include <sstream>
 #include <streambuf>
 #include <string>
@@ -54,11 +53,11 @@
 #include "AsyncJson.h"
 #include "ArduinoJson.h"
 
+#include "printFarmTime.cpp"
+#include "modifiedPrintLocalTime.cpp"
+
 // read / write json to save state
 const char *dataFile = "data.json";
-const char *ntpServer = "us.pool.ntp.org";
-const long gmtOffset_sec = 0;
-const int daylightOffset_sec = 3600;
 
 // Network Credentials
 const char *ssid = "rato";
@@ -69,30 +68,6 @@ AsyncWebServer server(80);
 
 // "the brains" - a json object
 DynamicJsonDocument doc(2048); // from arduinoJson
-
-// Set to true to define Relay as Normally Open (NO)
-#define RELAY_NO false
-
-//TODO: this will go into the json
-// Set number of relays, will be used in the array
-#define NUM_RELAYS 4
-// Assign each GPIO to a relay
-int relayGPIOs[NUM_RELAYS] = {26, 25, 33, 27};
-
-// Digital pin connected to the DHT sensor
-#define DHTPIN 32
-
-// Uncomment the type of sensor in use:
-#define DHTTYPE DHT11 // DHT 11
-//#define DHTTYPE    DHT22     // DHT 22 (AM2302)
-//#define DHTTYPE    DHT21     // DHT 21 (AM2301)
-
-//Send the pin and type of sensor
-DHT dht(DHTPIN, DHTTYPE);
-
-//
-const char *PARAM_INPUT_1 = "relay";
-const char *PARAM_INPUT_2 = "state";
 
 void setup()
 {
@@ -143,8 +118,7 @@ void setup()
   Serial.println("The Fabfarm Irrigation system network IP is:");
   Serial.println(WiFi.localIP());
 
-  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
-  printShortFarmTime();
+  //printShortFarmTime();
   // Get time from time server
 
   // Route for root / web page
@@ -172,12 +146,11 @@ void setup()
     5) return json to html 
     */
 
-    struct tm timeinfo;
-    getLocalTime(&timeinfo);
+
 
     Serial.println("/getData");
     JsonObject data = doc["data"];
-    data["currentTime"] = printShortFarmTime(); // TODO: why aren't times working ?
+    data["currentTime"] = printFarmTime(); // TODO: why aren't times working ?
     data["temperature"] = readDHTTemperature(); // TODO: fix me
     data["humidity"] = readDHTHumidity();
 
@@ -222,57 +195,71 @@ void setup()
   server.begin();
 }
 
-// turn things on and off
 void loop()
 {
-  //sleep for a sec
-  //delay(500);
-
   JsonArray data = doc["data"];
   int override = data["override"];
-  // if(override) { .... }
+  Serial.print("Printing override value inside void loop: ");
+  Serial.println(override);
+  delay(1000);
+
+  /*if (override == 1){
+    Serial.println(override);
+    manualMode();
+  }
+  else{
+    Serial.println(override);
+    scheduleMode();
+  }*/
+
+  //*****end of loop*****
+}
+
+void scheduleMode(){
+  //Serial.println("Schedule Mode");
+  delay(1000);
+}
+
+void manualMode()
+{
+  //Serial.println("Manual Mode");
+  delay(1000);
 
   JsonArray relays = doc["relays"];
-
   for (int i = 0; i < relays.size(); i++)
   {
+
     const char *relayName = relays[i]["name"]; // "relay1"
     int pin = relays[i]["pin"];                // 123
     int isEnabled = relays[i]["isEnabled"];    // 1
     int duration = relays[i]["duration"];      // 1000
-    /* 
-    for (int j = 0; j < relays[i]["times"].size(); j++)
-    {
-      JsonObject times = relays[i][j].createNestedObject();
-      const char *startTime = times["startTime"]; // = "12:45";
-      int duration = times["duration"];           // = 25;
-      ---> turn on and off in here <---
-    }
-    */
-
     pinMode(pin, OUTPUT);
     digitalWrite(pin, isEnabled ? HIGH : LOW);
+    }
+  /* 
+  for (int j = 0; j < relays[i]["times"].size(); j++)
+  {
+    JsonObject times = relays[i][j].createNestedObject();
+    const char *startTime = times["startTime"]; // = "12:45";
+    int duration = times["duration"];           // = 25;
+    ---> turn on and off in here <---
   }
-
+  */
   //      Serial.println("looping ...");
   //turns things on and off: digitalWrite(relayGPIOs[i - 1], RELAY_NO ? HIGH : LOW);
   //if (digitalRead(relayGPIOs[valveRelayNum - 1]))
-
-  /*
-if override is manual
-  for each relay
-    if enabled turn on
-    else turn off
-else
-    for each relay
-      if time frame maches turn on
-      else turn off
-
-*/
 }
 
 String readDHTTemperature()
 {
+  // Digital pin connected to the DHT sensor
+  #define DHTPIN 32
+  // Uncomment the type of sensor in use:
+  #define DHTTYPE DHT11 // DHT 11
+  //#define DHTTYPE    DHT22     // DHT 22 (AM2302)
+  //#define DHTTYPE    DHT21     // DHT 21 (AM2301)
+  //Send the pin and type of sensor
+  DHT dht(DHTPIN, DHTTYPE);
   // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
   // Read temperature as Celsius (the default)
   float t = dht.readTemperature();
@@ -293,6 +280,14 @@ String readDHTTemperature()
 
 String readDHTHumidity()
 {
+  // Digital pin connected to the DHT sensor
+  #define DHTPIN 32
+  // Uncomment the type of sensor in use:
+  #define DHTTYPE DHT11 // DHT 11
+  //#define DHTTYPE    DHT22     // DHT 22 (AM2302)
+  //#define DHTTYPE    DHT21     // DHT 21 (AM2301)
+  //Send the pin and type of sensor
+  DHT dht(DHTPIN, DHTTYPE);
   // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
   float h = dht.readHumidity();
   if (isnan(h))
@@ -304,86 +299,5 @@ String readDHTHumidity()
   {
     Serial.println(h);
     return String(h);
-  }
-}
-
-//this function was found here https://arduino.stackexchange.com/questions/52676/how-do-you-convert-a-formatted-print-statement-into-a-string-variable
-//I did a minor change so instead of a void function it now returns a string to be used to show time in the webinterface
-String printFarmTime()
-{
-  time_t rawtime;
-  struct tm timeinfo;
-  getLocalTime(&timeinfo);
-  char timeStringBuff[50]; //50 chars should be enough
-  strftime(timeStringBuff, sizeof(timeStringBuff), "A,BdYH:M:S", &timeinfo);
-  //print like "const char*"
-  Serial.println(timeStringBuff);
-
-  //Construct to create the String object
-  String timeAsAString(timeStringBuff);
-  return timeAsAString;
-}
-
-String printShortFarmTime()
-{
-  time_t rawtime;
-  struct tm timeinfo;
-
-  getLocalTime(&timeinfo);
-  char timeStringBuff[50]; //50 chars should be enough
-  strftime(timeStringBuff, sizeof(timeStringBuff), "H:M:S", &timeinfo);
-
-  //print like "const char*"
-  Serial.println("Checking time - BEGIN");
-  Serial.printf("Hour: %d\n", timeinfo.tm_hour);
-  Serial.printf("Minute: %d\n", timeinfo.tm_min);
-  Serial.println(timeStringBuff);
-  Serial.println("Checking time - COMPLETE");
-
-  //Construct to create the String object
-  String timeAsAString(timeStringBuff);
-  return timeAsAString;
-}
-
-void modifiedPrintLocalTime()
-// Function based on post in the https://forum.arduino.cc/index.php?topic=536464.0 Arduino Forum by user Abhay
-{
-  int onlyYear;
-  int onlyMonth;
-  int onlyDay;
-  int onlyHour;
-  int onlyMin;
-  int onlySec;
-
-  struct tm timeinfo;
-  if (!getLocalTime(&timeinfo))
-  {
-    Serial.println("Failed to obtain time");
-    return;
-  }
-  //Serial.println(&timeinfo, "mdY /H:M:S");
-  //scanf(&timeinfo, "mdY /H:M:S")
-  onlyHour = timeinfo.tm_hour;
-  onlyMin = timeinfo.tm_min;
-  onlySec = timeinfo.tm_sec;
-  onlyDay = timeinfo.tm_mday;
-  onlyMonth = timeinfo.tm_mon + 1;
-  onlyYear = timeinfo.tm_year + 1900;
-
-  //test
-  Serial.print("Print only Hour and Minutes...");
-  Serial.print(onlyHour);
-  Serial.print(":");
-  Serial.print(onlyMin);
-}
-
-// Set all relays to off when the program starts - if set to Normally Open (NO), the relay is off when you set the relay to HIGH
-// TODO: think about this
-void initializeRelays()
-{
-  for (int i = 1; i <= NUM_RELAYS; i++)
-  {
-    pinMode(relayGPIOs[i - 1], OUTPUT);
-    //digitalWrite(relayGPIOs[i - 1], RELAY_NO ? HIGH : LOW);
   }
 }
