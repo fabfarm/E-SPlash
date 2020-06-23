@@ -1,40 +1,9 @@
-/****************************************************************************
- *                                  Aknowledments                           *
- *                                  by LucioPGN                             *
- ****************************************************************************/
-/*  Up to this date: 07th of June 2020 I don't consider myself a programer
- *  so I need to stand on top of giants sholders for my programing projects:
- *  A Portion of this code was based on Rui Santos Code;
- *  Codes from Rui Santos mixed toghether:
- *  https://randomnerdtutorials.com/esp32-web-server-spiffs-spi-flash-file-system/
- *  https://randomnerdtutorials.com/esp32-relay-module-ac-web-server/
- *  https://randomnerdtutorials.com/esp32-date-time-ntp-client-server-arduino/
- *  From Techtutorialsx.com
- *  https://techtutorialsx.com/2017/12/01/esp32-arduino-asynchronous-http-webserver/
- *  A Portion of this code was based on Shakeels code for ESP8266 ;
- *  My contributions:
- *     -So far I made it work on platformio :), that took me quite a lot of time
- *     -That means:
- *        +created a new project;
- *        +created a folder named data under the main folder (fabfarm_irrigation)
- *        +linked the platformio.ini to the folder of the project + the data folder
- *        +linked the needed libraries to their github repo in the platformio.ini
- *        +found a conflict with time library and A
- *  Things I still want to program for my final project:
- *    -so far I ported Shakeels code into ESP32;
- *    -separate functions from shakeels code into files;
- *    -separated functions from Rui Santos code into files.
- *    -simplify the code creating more functions;
- *    -try to separate the HTML part for a cleaner code;
- *    -Improve the appearance/Interface of the code
- *    -Add readings to HTML
- *    -Add a log of occurrences like over current
- *    -Add more safety for the equipment
- *    -Add a phone interface (APP)
- *    -Add function to set current time
- *    -Add renaming function to each relay so one can relate the relay to the area of interest or at least rename relays to actual areas of the farm.
+/**
+ *  LucioPGN  
+ * Contributors:
+ *  Jeffrey Knight http://github.com/jknight
  *
- ****************************************************************************/
+ */
 
 #include <fstream>
 #include <iostream>
@@ -43,16 +12,14 @@
 #include <streambuf>
 #include <string>
 
-//Required Libraries
-#include "WiFi.h"
+#include "Adafruit_Sensor.h"
+#include "ArduinoJson.h"
+#include "AsyncJson.h"
+#include "AsyncTCP.h"
+#include "DHT.h"
 #include "ESPAsyncWebServer.h"
 #include "SPIFFS.h"
-#include "AsyncTCP.h"
-#include "Adafruit_Sensor.h"
-#include "DHT.h"
-
-#include "AsyncJson.h"
-#include "ArduinoJson.h"
+#include "WiFi.h"
 
 // read / write json to save state
 const char *dataFile = "data.json";
@@ -98,7 +65,7 @@ void setup()
   // we always read the data.json from disk on startup (always!)
   // Read json from the file ...
 
-  File f = SPIFFS.open("/data.json", "r");
+  File f = SPIFFS.open(dataFile, "r");
   String json = f.readString();
   Serial.println("read file - BEGIN");
   Serial.println(json);
@@ -188,9 +155,15 @@ void setup()
     //write this to disk
     // Read json from the file ...
     Serial.println("Saving to disk - BEGIN");
+<<<<<<< Updated upstream
     File f = SPIFFS.open("/data.json", "w");
     if (!f)
     {
+=======
+    //NOTE: we've had some issues with files not saving (permissions?)
+    File file = SPIFFS.open(dataFile, "w");
+    if (!file {
+>>>>>>> Stashed changes
       Serial.println("Faile to open file for writing");
     }
 
