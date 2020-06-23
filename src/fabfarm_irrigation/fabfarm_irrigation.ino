@@ -82,11 +82,13 @@ void setup(){
 
   const char* ssid = doc["data"]["ssid"];
   const char* password = doc["data"]["password"];
-  Serial.println("Reading ssid: %s / password: %s from json\n", ssid, password);
-  WiFi.softAP("softap", "imakestuff");
 
+  //Serial.println("Reading ssid: %s / password: %s from json\n", ssid, password);
+  WiFi.softAP("softap", "imakestuff");
   IPAddress IP = WiFi.softAPIP();
 
+  ssid = "rato";
+  password = "imakestuff";
   //start wifi sessions as a client.
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED)
@@ -98,8 +100,6 @@ void setup(){
   // Print ESP32 Local IP Address
   Serial.println("The Fabfarm Irrigation system network IP is:");
   Serial.println(WiFi.localIP());
-
-  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
 
   // Route for root / web page
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
@@ -167,8 +167,6 @@ void setup(){
   // Start server here
   server.begin();
 }
-
-
 
 void loop()
 {

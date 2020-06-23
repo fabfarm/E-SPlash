@@ -64,10 +64,11 @@
     */
     
     //setInterval(function() {
-
+        //TODO: change the above to make *1* request and get json back
         var r3 = new XMLHttpRequest();
         r3.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
+                //document.getElementById("getData").innerHTML = this.responseText;
                 jsonData = JSON.parse(this.responseText);
                 document.getElementById("currentTime").innerText = jsonData.data.currentTime;
                 document.getElementById("temperature").innerText = jsonData.data.temperature;
