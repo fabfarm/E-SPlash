@@ -70,11 +70,12 @@ const char *dataFile = "data.json";
 const char *ssid = "rato";
 const char *password = "imakestuff";
 
-//Start the Async Web Server listening on port 80
+// Specify the port of the Async server
 AsyncWebServer server(80);
+// Specifing the capacity of the json in bytes.
 
-// "the brains" - a json object
-DynamicJsonDocument doc(2048); // from arduinoJson
+int jasonSize = 4048;
+DynamicJsonDocument doc(jasonSize); // from arduinoJson
 
 void setup()
 {
@@ -90,8 +91,8 @@ void setup()
   }
 
   // we always read the data.json from disk on startup (always!)
+  // If freshlly burned we have to send the sample json... we should make this automatic?
   // Read json from the file ...
-
   File f = SPIFFS.open("/data.json", "r");
   String json = f.readString();
   Serial.println("read file - BEGIN");
@@ -102,6 +103,14 @@ void setup()
   // we take json from disk & create json object
   Serial.println("json deserialize test - BEGIN");
   deserializeJson(doc, json);
+  
+  //
+  //test overri value in Jason
+  Serial.print("Printing override value in void setup after deserialisation: ");
+  JsonArray data = doc["data"];
+  int override = data["override"];
+  Serial.println(override);
+  delay(1000);
 
   // TODO: set OUTPUT for each relay
   // TODO: also set each to off initially
@@ -125,14 +134,10 @@ void setup()
   Serial.println("The Fabfarm Irrigation system network IP is:");
   Serial.println(WiFi.localIP());
 
-  //printShortFarmTime();
-  // Get time from time server
-
   // Route for root / web page
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(SPIFFS, "/index.html", String(), false);
   });
-
   // Route to load style.css file
   server.on("/style.css", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(SPIFFS, "/style.css", "text/css");
@@ -143,8 +148,8 @@ void setup()
   server.on("/logo.jpeg", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(SPIFFS, "/logo.jpeg", "image/jpeg");
   });
-
-  server.on("/getData", HTTP_GET, [](AsyncWebServerRequest *request) {
+  server.on("/getData", HTTP_GET, [](AsyncWebServerRequest *request)
+    {
     /* 
     1) start with our json object.
     2) we get new data (temp/humidit/y/relay status)
@@ -163,11 +168,10 @@ void setup()
     serializeJson(doc, json);
     Serial.println("Serialize json & return to caller - COMPLETE");
     request->send(200, "application/json", json);
-  });
+    });
 
-  AsyncCallbackJsonWebHandler *handler = new AsyncCallbackJsonWebHandler("/updateData", [](AsyncWebServerRequest *request, JsonVariant &json) {
+    AsyncCallbackJsonWebHandler *handler = new AsyncCallbackJsonWebHandler("/updateData", [](AsyncWebServerRequest *request, JsonVariant &json) {
     doc = json.as<JsonObject>();
-
     String jsonString;
     serializeJson(doc, jsonString);
 
@@ -199,9 +203,9 @@ void loop()
 {
   JsonArray data = doc["data"];
   int override = data["override"];
-  Serial.print("Printing override value inside void loop: ");
-  Serial.println(override);
-  delay(1000);
+  //Serial.print("Printing override value inside void loop: ");
+  //Serial.println(override);
+  //delay(1000);
 
   /*if (override == 1){
     Serial.println(override);
