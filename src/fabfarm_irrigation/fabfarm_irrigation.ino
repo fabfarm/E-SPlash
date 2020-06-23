@@ -27,12 +27,6 @@
 // read / write json to save state
 const char *dataFile = "data.json";
 
-// Network Credentials
-// TODO get this credentials from jason file
-const char *ssid = "rato";
-const char *password = "imakestuff";
-
-
 // Specify the port of the Async server
 AsyncWebServer server(80);
 // Specifing the capacity of the json in bytes.
@@ -45,7 +39,7 @@ void setup(){
   Serial.begin(9600);    
 
   // Initialize SPIFFS
-  //That is the file system.
+  // That is the file system.
   if (!SPIFFS.begin(true))
   {
     Serial.println("An Error has occurred while mounting SPIFFS");
@@ -53,26 +47,28 @@ void setup(){
   }
 
   // we always read the data.json from disk on startup (always!)
-  // If freshlly burned we have to send the sample json... we should make this automatic?
-  // Read json from the file ...
+  // If freshlly burned we have to send the sample json... TODO: generate json if not existent
+  // open the json file with the name "data.json" from SPIFFS ...
   File f = SPIFFS.open("/data.json", "r");
+  // Declares a String named json from the data contained in f????
   String json = f.readString();
   Serial.println("read file - BEGIN");
   Serial.println(json);
   Serial.println("read file - COMPLETE");
+  //closes the file
   f.close();
 
-  // we take json from disk & create json object
+  // we take json from memory & create json object
   Serial.println("json deserialize test - BEGIN");
   deserializeJson(doc, json);
-  
+
   //
   //test override value in Jason
-  Serial.print("Printing override value in void setup after deserialisation: ");
-  JsonArray data = doc["data"];
-  int override = data["override"];
-  Serial.println(override);
-  delay(1000);
+  //Serial.print("Printing override value in void setup after deserialisation: ");
+  //JsonArray data = doc["data"];
+  //int override = data["data"]["override"];
+  //Serial.println(override);
+  //delay(1000);
 
   // TODO: proactively disable everything / consider if we want to have it start in stopped state
   // TODO: set OUTPUT for each relay
@@ -80,16 +76,15 @@ void setup(){
   //pinMode(relayGPIOs[i - 1], OUTPUT);
   //digitalWrite(relayGPIOs[i - 1], HIGH);
 
-  const char* ssid = doc["data"]["ssid"];
-  const char* password = doc["data"]["password"];
-
   //Serial.println("Reading ssid: %s / password: %s from json\n", ssid, password);
+  
+  //Soft Wifi Access point setup
   WiFi.softAP("softap", "imakestuff");
   IPAddress IP = WiFi.softAPIP();
-
-  ssid = "rato";
-  password = "imakestuff";
   //start wifi sessions as a client.
+  //Wifi client setup
+  const char* ssid = doc["data"]["ssid"];
+  const char* password = doc["data"]["pass"];
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED)
   {
@@ -130,7 +125,7 @@ void setup(){
   data["currentTime"] = printFarmTime(); // TODO: why aren't times working ?
   data["temperature"] = readDHTTemperature(); // TODO: fix me
   data["humidity"] = readDHTHumidity();
-  char json[1024];
+  char json[2048];
   Serial.println("Serialize json & return to caller - BEGIN");
   serializeJson(doc, json);
   Serial.println("Serialize json & return to caller - COMPLETE");
@@ -170,20 +165,22 @@ void setup(){
 
 void loop()
 {
-  JsonArray data = doc["data"];
-  int override = data["override"];
-  //Serial.print("Printing override value inside void loop: ");
-  //Serial.println(override);
-  //delay(1000);
+  File f = SPIFFS.open("/data.json", "r");
+  // Declares a String named json from the data contained in f????
+  String json = f.readString();
+  deserializeJson(doc, json);
+  JsonObject data = doc["data"];
+  boolean data_override = data["override"];
+  f.close();
 
-  /*if (override == 1){
-    Serial.println(override);
+  if (data_override == 0){
+    Serial.println("Manual Mode");
     manualMode();
   }
   else{
-    Serial.println(override);
+    Serial.println("Schedule Mode");
     scheduleMode();
-  }*/
+  }
 
   //*****end of loop*****
 }
