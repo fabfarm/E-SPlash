@@ -159,10 +159,10 @@ void setup() {
 
         Serial.printf("Saving to disk - COMPLETE(%d bytes)\n", bytesWritten);
 
-        request->send(200); // "application/json", jsonString);
         Serial.println("-------------------");
         Serial.println(jsonString);
-        jjSerial.println("-------------------");
+        Serial.println("-------------------");
+        request->send(200); // "application/json", jsonString);
     });
 
     server.addHandler(handler);
