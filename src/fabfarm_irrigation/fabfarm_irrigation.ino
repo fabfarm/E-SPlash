@@ -206,15 +206,15 @@ void scheduleMode(){
     //the 3 in the test bellow needs to be replaced by the size of times in each pin
     for (int tM = 0; tM < 3; tM++) {
       int pin = relays[p]["pin"];
-      int relaysStartTime = relays[p]["times"][tM]["startTime"]; // "12:00"
+      String relaysStartTime = relays[p]["times"][tM]["startTime"]; // "12:00"
       int relaysDuration = relays[p]["times"][tM]["duration"]; // "0"
       //int  relaysDuration = times["duration"];
       //int  startTime = times["startTime"];
 
       //TODO need to split time properly from the Json into hours and minutes
-      int minTime = (relaysStartTime*60+relaysDuration);
-      Serial.print("Print Start Time in Minutes");
-      Serial.println(minTime);
+      //int minTime = (relaysStartTime*60+relaysDuration);
+      //Serial.print("Print Start Time in Minutes");
+      //Serial.println(minTime);
 
       delay(1000);
 
