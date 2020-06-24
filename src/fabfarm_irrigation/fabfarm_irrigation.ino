@@ -206,7 +206,7 @@ void scheduleMode(){
     //the 3 in the test bellow needs to be replaced by the size of times in each pin
     for (int tM = 0; tM < 3; tM++) {
       int pin = relays[p]["pin"];
-      String relaysStartTime = relays[p]["times"][tM]["startTime"]; // "12:00"
+      const char relaysStartTime = relays[p]["times"][tM]["startTime"]; // "12:00"
       int relaysDuration = relays[p]["times"][tM]["duration"]; // "0"
       //int  relaysDuration = times["duration"];
       //int  startTime = times["startTime"];
@@ -215,6 +215,21 @@ void scheduleMode(){
       //int minTime = (relaysStartTime*60+relaysDuration);
       //Serial.print("Print Start Time in Minutes");
       //Serial.println(minTime);
+
+      //char input[] = relaysStartTime;
+      //char separator[] = ":";
+      //char *token;
+
+      /* get the first token */
+      //token = strtok(input, separator);
+      // Find any more?
+      //while(token != NULL)
+      //{
+      //  Serial.println(token );   
+      //  token = strtok(NULL, separator);
+      //}
+      //Serial.println(input);  // Proof that original string is chopped up
+
 
       delay(1000);
 
