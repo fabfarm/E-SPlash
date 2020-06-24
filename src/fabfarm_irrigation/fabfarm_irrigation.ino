@@ -37,7 +37,7 @@ DynamicJsonDocument doc(jasonSize); // from arduinoJson
 void setup(){
   
   //put all relays in LOW at startup
-  allrelaysdisabled();
+  allRelaysdisable();
 
   // Serial port for debugging purposes
   Serial.begin(9600);    
@@ -189,7 +189,7 @@ void loop()
 
 void scheduleMode(){
   Serial.println("now Schedule Mode");
-  //delay(1000);
+  delay(1000);
 
   //for this we will need a binary counter
   //for (int j = 0; j < relays[j]["times"].size(); j++)
@@ -203,23 +203,34 @@ void scheduleMode(){
     Serial.print("Print value of P: ");
     Serial.println(p);
     //the 3 in the test bellow needs to be replaced by the size of times in each pin
-    for (int t = 0; t < 3; t++) {
+    for (int tM = 0; tM < 3; tM++) {
       int pin = relays[p]["pin"];
-      const char* relaysStartTime = relays[p]["times"][t]["startTime"]; // "12:00"
-      const char* relaysDuration = relays[p]["times"][t]["duration"]; // "0"
+      int relaysStartTime = relays[p]["times"][tM]["startTime"]; // "12:00"
+      int relaysDuration = relays[p]["times"][tM]["duration"]; // "0"
       //int  relaysDuration = times["duration"];
       //int  startTime = times["startTime"];
 
       Serial.print("Print value of P: ");
       Serial.println(p);
       Serial.print("Print value of T: ");
-      Serial.println(t);
+      Serial.println(tM);
       Serial.print("Print value of pin: ");
       Serial.println(pin);
       Serial.print("Print value of Start Time: ");
       Serial.println(relaysStartTime);
       Serial.print("Print value of duration: ");
       Serial.println(relaysDuration);
+      /*
+      int currentTime = 12;
+      int timer=0;
+      if(currentTime == relaysStartTime){
+      timer=millis();
+      digitalWrite (pin, HIGH);
+      if((millis() - timer) >= relaysDuration) {
+        digitalWrite (pin, LOW);  
+      }
+      */
+
       //int farmtempo = 4;
 /*
       if (farm time is different than time windows)
@@ -238,7 +249,7 @@ void scheduleMode(){
 void manualMode()
 {
   Serial.println("now Manual Mode");
-  //delay(1000);
+  delay(1000);
 
   JsonArray relays = doc["relays"];
   for (int i = 0; i < relays.size(); i++)
@@ -251,7 +262,7 @@ void manualMode()
     }
 }
 
-void allrelaysdisabled(){
+void allRelaysdisable(){
   File f = SPIFFS.open("/data.json", "r");
   // Declares a String named json from the data contained in f????
   String json = f.readString();
@@ -266,6 +277,13 @@ void allrelaysdisabled(){
     digitalWrite(pin,LOW);
   }
 }
+
+
+void checkTime()
+{
+ 
+}
+
 
 String readDHTTemperature()
 {
@@ -317,6 +335,20 @@ String readDHTHumidity()
     Serial.println(h);
     return String(h);
   }
+}
+
+void activateValveThanPump(){
+
+//If valveRelay "armed" AND the current time minus the start time is greater than x millisecons (pumpRelay, ditalwrite, HIGH);
+//If pumpRelay "armed" AND current reading is outside threshold, reset "armed"
+
+}
+
+void activatePumpThanValve(){
+
+//when pumpRelay disarmed --> "LOW" AND the current time minus the stop time is greater than x millisecons (valveRelay, ditalwrite, LOW);
+
+
 }
 
 
