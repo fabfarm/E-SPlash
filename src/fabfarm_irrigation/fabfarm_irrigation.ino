@@ -37,6 +37,7 @@ DynamicJsonDocument doc(jasonSize); // from arduinoJson
 void setup(){
   
   //put all relays in LOW at startup
+  //TODO write to Json as well otherwise it reactivates
   allRelaysdisable();
 
   // Serial port for debugging purposes
@@ -126,8 +127,8 @@ void setup(){
 
   Serial.println("/getData");
   JsonObject data = doc["data"];
-  data["currentTime"] = printFarmTime(); // TODO: why aren't times working ?
-  data["temperature"] = readDHTTemperature(); // TODO: fix me
+  data["currentTime"] = printFarmTime();
+  data["temperature"] = readDHTTemperature();
   data["humidity"] = readDHTHumidity();
   char json[2048];
   Serial.println("Serialize json & return to caller - BEGIN");
@@ -210,6 +211,13 @@ void scheduleMode(){
       //int  relaysDuration = times["duration"];
       //int  startTime = times["startTime"];
 
+      //TODO need to split time properly from the Json into hours and minutes
+      int minTime = (relaysStartTime*60+relaysDuration);
+      Serial.print("Print Start Time in Minutes");
+      Serial.println(minTime);
+
+      delay(1000);
+
       Serial.print("Print value of P: ");
       Serial.println(p);
       Serial.print("Print value of T: ");
@@ -262,6 +270,8 @@ void manualMode()
     }
 }
 
+//function to deactivate all pins usefull for safe startup
+//write to json
 void allRelaysdisable(){
   File f = SPIFFS.open("/data.json", "r");
   // Declares a String named json from the data contained in f????
@@ -349,6 +359,12 @@ void activatePumpThanValve(){
 //when pumpRelay disarmed --> "LOW" AND the current time minus the stop time is greater than x millisecons (valveRelay, ditalwrite, LOW);
 
 
+}
+
+void checktime () {
+/*
+
+        */
 }
 
 
