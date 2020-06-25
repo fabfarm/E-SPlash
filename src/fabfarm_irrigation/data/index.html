@@ -7,11 +7,9 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="/style.css" />
 </head>
-
 <body>
-    <h2>Fab Farm Irrigation System</h2>
-
-    <img src="/logo.jpeg" style="height:400px;" /></p>
+    <img src="/logo.png" style="height:400px;" />
+    <hr>
         <i class="fas fa-clock"></i>
         <span class="dht-labels">Farm Time:</span>
         <span id="currentTime"></span>
@@ -20,15 +18,14 @@
         <i class="fas fa-thermometer-half"></i>
         <span id="temperature" class="dht-labels">Temperature</span>
         <sup class="units">&deg;C</sup>
-    <hr>
         <i class="fas fa-tint"></i>
         <span class="dht-labels">Humidity</span>
         <span id="humidity"></span>
         <sup class="units">%</sup>
     <hr/>
+    <h3>Irrigation System</h3>
     <div id="main"></div>
 </body>
-
 <script>
     // keep global json object - we'll update this on element change
     var jsonData; 
@@ -40,8 +37,19 @@
         for(var i = 0; i < jsonData.relays.length; i++) { 
             jsonData.relays[i].isEnabled = document.getElementById(`jsonData.relays[${i}].isEnabled`).checked ? 1 : 0;
             for(j = 0; j < jsonData.relays[i].times.length; j++) {
-                jsonData.relays[i].times[j].duration  = document.getElementById(`jsonData.relays[${i}].times[${j}].duration`).value;
+                //first part of code parses value to the json    // second part reads from?????????
+                jsonData.relays[i].times[j].duration  = parseInt(document.getElementById(`jsonData.relays[${i}].times[${j}].duration`).value);
                 jsonData.relays[i].times[j].startTime = document.getElementById(`jsonData.relays[${i}].times[${j}].startTime`).value;
+                //here I hack my way into separating hours and minutes into a int to the jason!
+                var time = document.getElementById(`jsonData.relays[${i}].times[${j}].startTime`).value;
+                timex = (new Date(" Jan 01 2020 " + time));
+                console.log(timex);
+                var hour = timex.getHours();
+                var min = timex.getMinutes();
+                console.log(hour)
+                console.log(min)
+                jsonData.relays[i].times[j].hour = hour;
+                jsonData.relays[i].times[j].min = min;
             }
         }
 
@@ -84,17 +92,15 @@
                 // Build html for relays & their schedulesk
                 for(var i = 0; i  < jsonData.relays.length; i++) {
                     var relay = jsonData.relays[i];
-                    html += `<hr/><div>Relay name:<b>${relay.name}</b> (pin ${relay.pin})</div>
-                                isRunning: [${relay.isRunning}]
-                                / Relay enabled: <span class="w3-hide-small">
+                    html += `<hr/><div>Zone:<b>${relay.name}</b> (pin ${relay.pin})</div>
+                    <br>
+                                <span class="w3-hide-small">
                                     <label class="switch">
                                      <input id="jsonData.relays[${i}].isEnabled" type="checkbox" ${relay.isEnabled ? "checked": ""} 
                                         onchange="update(this);"/>
                                       <span class="slider"/>
                                     </label>
-                                </span>
-                                <div>Schedules for relay:</div>`;
-
+                                </span> On (1) / Off (0) = ${relay.isRunning}`;
                     // Build list of schedules for this relay
                     for(var j = 0; j < relay.times.length; j++) {
                         time = relay.times[j];

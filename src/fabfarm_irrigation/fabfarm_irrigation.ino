@@ -23,6 +23,18 @@
 
 #include "printFarmTime.cpp"
 #include "modifiedPrintLocalTime.cpp"
+#define cout Serial
+//#define endl '\n'
+//#include <String.h>
+
+//#include <Time.h>
+//#include <SPI.h>
+//#include <DS3234RTC.h>
+//#include <avr/pgmspace.h>
+//#include <MemoryFree.h>
+//#define lcloffset (3600UL)*4 //summer offset from UCT
+//#include <Streaming.h>
+
 
 // read / write json to save state
 const char *dataFile = "data.json";
@@ -86,10 +98,13 @@ void setup(){
   //Soft Wifi Access point setup
   WiFi.softAP("softap", "imakestuff");
   IPAddress IP = WiFi.softAPIP();
+  tcpip_adapter_set_hostname(TCPIP_ADAPTER_IF_AP, "irrigation");
   //start wifi sessions as a client.
   //Wifi client setup
   const char* ssid = doc["data"]["ssid"];
   const char* password = doc["data"]["pass"];
+  ssid = "rato";
+  password = "imakestuff";
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED)
   {
@@ -112,8 +127,8 @@ void setup(){
   server.on("/all.css", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(SPIFFS, "/all.css", "text/css");
   });
-  server.on("/logo.jpeg", HTTP_GET, [](AsyncWebServerRequest *request) {
-    request->send(SPIFFS, "/logo.jpeg", "image/jpeg");
+  server.on("/logo.png", HTTP_GET, [](AsyncWebServerRequest *request) {
+    request->send(SPIFFS, "/logo.png", "image/png");
   });
   server.on("/getData", HTTP_GET, [](AsyncWebServerRequest *request)
     {
@@ -182,7 +197,7 @@ void loop()
     manualMode();
   }
   else{
-    scheduleMode();
+    //scheduleMode();
   }
 
 //*****end of loop*****
@@ -192,21 +207,17 @@ void scheduleMode(){
   Serial.println("now Schedule Mode");
   delay(1000);
 
-  //for this we will need a binary counter
-  //for (int j = 0; j < relays[j]["times"].size(); j++)
-
-  // initialize the pixel matrix:
+  //logic with 2 position
   JsonArray relays = doc["relays"];
   JsonObject times = relays.createNestedObject();
   for (int p = 0; p < relays.size(); p++) 
   {
-    //JsonArray times = relays[p].createNestedArray("times");
     Serial.print("Print value of P: ");
     Serial.println(p);
     //the 3 in the test bellow needs to be replaced by the size of times in each pin
     for (int tM = 0; tM < 3; tM++) {
       int pin = relays[p]["pin"];
-      const char relaysStartTime = relays[p]["times"][tM]["startTime"]; // "12:00"
+      const char* relaysStartTime = relays[p]["times"][tM]["startTime"]; // "12:00"
       int relaysDuration = relays[p]["times"][tM]["duration"]; // "0"
       //int  relaysDuration = times["duration"];
       //int  startTime = times["startTime"];
@@ -232,6 +243,15 @@ void scheduleMode(){
 
 
       delay(1000);
+      const char* s = "relaysStartTime";
+      char c[2];                 // Swap space
+      c[0] = s[0]; c[1] = s[1];  // add numbers
+      int hour = atoi(c);        //get int
+      c[0] = s[3]; c[1] = s[4]; // repeat
+      int min = atoi(c);
+      //Serial.prints << "hour:" << hour << "\n";
+      //Serial.prints << "minute:" << min << "\n";
+      Serial.println("**********************");
 
       Serial.print("Print value of P: ");
       Serial.println(p);
@@ -241,8 +261,13 @@ void scheduleMode(){
       Serial.println(pin);
       Serial.print("Print value of Start Time: ");
       Serial.println(relaysStartTime);
+      Serial.print("Print only hour: ");
+      Serial.println(hour);
+      Serial.print("Print only Min: ");
+      Serial.println(min);
       Serial.print("Print value of duration: ");
       Serial.println(relaysDuration);
+      Serial.println("**********************");
       /*
       int currentTime = 12;
       int timer=0;
