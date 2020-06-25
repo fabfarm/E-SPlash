@@ -187,7 +187,7 @@ void loop()
 void scheduleMode(){
   //matrix logic test
   JsonArray relays = doc["relays"];
-  JsonObject times = relays.createNestedObject();
+  //JsonObject times = relays.createNestedObject();
   for (int i = 0; i < relays.size(); i++) 
   {
     for (int j = 0; j < relays[i]["times"].size(); j++) {
