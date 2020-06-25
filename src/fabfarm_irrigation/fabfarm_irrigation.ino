@@ -204,7 +204,7 @@ void loop()
 }
 
 void scheduleMode(){
-  Serial.println("now Schedule Mode");
+  //Serial.println("now Schedule Mode");
   delay(1000);
 
   //matrix logic test
@@ -213,55 +213,25 @@ void scheduleMode(){
   for (int i = 0; i < relays.size(); i++) 
   {
     delay(2000);
-    Serial.print("Print value of P: ");
-    Serial.println(i);
+    //Serial.print("Print value of P: ");
+    //Serial.println(i);
     //the 3 in the test bellow needs to be replaced by the size of times in each pin
     for (int j = 0; j < relays[i]["times"].size(); j++) {
       int pin = relays[i]["pin"];
       const char* relaysStartTime = relays[i]["times"][j]["startTime"]; // "12:00"
       int hOurs = relays[i]["times"][j]["hour"];;
       int mIns = relays[i]["times"][j]["min"];;
-      int relaysDuration = relays[i]["times"][j]["duration"]; // "0"
-
-      Serial.println("**********************");
-      Serial.print("Print value of P: ");
-      Serial.println(i);
-      Serial.print("Print value of T: ");
-      Serial.println(j);
-      Serial.print("Print value of pin: ");
-      Serial.println(pin);
-      Serial.print("Print value of Start Time: ");
-      Serial.println(relaysStartTime);
-      Serial.print("Print only hour: ");
-      Serial.println(hOurs);
-      Serial.print("Print only Min: ");
-      Serial.println(mIns);
-      Serial.print("Print value of duration: ");
-      Serial.println(relaysDuration);
-      Serial.println("**********************");
-      /*
-      int StartTimeMinutes = (hOurs*60+mIns);
-      int timeNow = 120;
-      int timer=0;
-      if(timeNow == relaysStartTime){
-      timer=millis();
-      digitalWrite (pin, HIGH);
-      if((millis() - timer) >= relaysDuration) {
-        digitalWrite (pin, LOW);  
+      int cycleDuration = relays[i]["times"][j]["duration"]; // "0"
+      int isEnabled = isEnabledFunc(hOurs*60+mIns, cycleDuration);
+      if (isEnabled == 1){
+        Serial.print("Zone ");
+        String zoneName = relays[i]["name"];
+        Serial.print(zoneName);
+        Serial.println(" is Enabled!");
+        digitalWrite(pin, isEnabled );
       }
-      */
-
-      //int farmtempo = 4;
-/*
-      if (farm time is different than time windows)
-      {
-        digitalWrite(pin[p], HIGH);
-      }
-      else
-      {
-        digitalWrite(pin[p], LOW);
-      }
-      */
+      pinMode(pin, OUTPUT);
+      digitalWrite(pin, isEnabled ? HIGH : LOW);
     }
   }
 }
@@ -301,10 +271,6 @@ void allRelaysdisable(){
 }
 
 
-void checkTime()
-{
- 
-}
 
 
 String readDHTTemperature()
@@ -373,12 +339,34 @@ void activatePumpThanValve(){
 
 }
 
-void checktime () {
-/*
+int isEnabledFunc (int startTimeInMinutes, int duration)
+{
 
-        */
+  const char *ntpServer = "us.pool.ntp.org";
+  const long gmtOffset_sec = 0;
+  const int daylightOffset_sec = 3600;
+  int onlyHour;
+  int onlyMin;
+  int onlySec;
+  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+  struct tm timeinfo;
+  getLocalTime(&timeinfo);
+  onlyHour = timeinfo.tm_hour;
+  onlyMin = timeinfo.tm_min;
+  onlySec = timeinfo.tm_sec;
+  int presentTimeInMinutes = onlyHour*60+onlyMin;
+  int isEnabled;
+    if (startTimeInMinutes <= presentTimeInMinutes && presentTimeInMinutes <= startTimeInMinutes+duration){
+    isEnabled = 1;
+    //Serial.println("time to start the pump!");
+  }
+    else
+    {
+      isEnabled = 0;
+      Serial.println("time to turn OFF the pump!");
+    }
+  return isEnabled;
 }
-
 
 
 
