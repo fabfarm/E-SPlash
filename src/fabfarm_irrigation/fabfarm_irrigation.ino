@@ -197,7 +197,7 @@ void loop()
     manualMode();
   }
   else{
-    //scheduleMode();
+    scheduleMode();
   }
 
 //*****end of loop*****
@@ -207,71 +207,43 @@ void scheduleMode(){
   Serial.println("now Schedule Mode");
   delay(1000);
 
-  //logic with 2 position
+  //matrix logic test
   JsonArray relays = doc["relays"];
   JsonObject times = relays.createNestedObject();
-  for (int p = 0; p < relays.size(); p++) 
+  for (int i = 0; i < relays.size(); i++) 
   {
+    delay(2000);
     Serial.print("Print value of P: ");
-    Serial.println(p);
+    Serial.println(i);
     //the 3 in the test bellow needs to be replaced by the size of times in each pin
-    for (int tM = 0; tM < 3; tM++) {
-      int pin = relays[p]["pin"];
-      const char* relaysStartTime = relays[p]["times"][tM]["startTime"]; // "12:00"
-      int relaysDuration = relays[p]["times"][tM]["duration"]; // "0"
-      //int  relaysDuration = times["duration"];
-      //int  startTime = times["startTime"];
+    for (int j = 0; j < relays[i]["times"].size(); j++) {
+      int pin = relays[i]["pin"];
+      const char* relaysStartTime = relays[i]["times"][j]["startTime"]; // "12:00"
+      int hOurs = relays[i]["times"][j]["hour"];;
+      int mIns = relays[i]["times"][j]["min"];;
+      int relaysDuration = relays[i]["times"][j]["duration"]; // "0"
 
-      //TODO need to split time properly from the Json into hours and minutes
-      //int minTime = (relaysStartTime*60+relaysDuration);
-      //Serial.print("Print Start Time in Minutes");
-      //Serial.println(minTime);
-
-      //char input[] = relaysStartTime;
-      //char separator[] = ":";
-      //char *token;
-
-      /* get the first token */
-      //token = strtok(input, separator);
-      // Find any more?
-      //while(token != NULL)
-      //{
-      //  Serial.println(token );   
-      //  token = strtok(NULL, separator);
-      //}
-      //Serial.println(input);  // Proof that original string is chopped up
-
-
-      delay(1000);
-      const char* s = "relaysStartTime";
-      char c[2];                 // Swap space
-      c[0] = s[0]; c[1] = s[1];  // add numbers
-      int hour = atoi(c);        //get int
-      c[0] = s[3]; c[1] = s[4]; // repeat
-      int min = atoi(c);
-      //Serial.prints << "hour:" << hour << "\n";
-      //Serial.prints << "minute:" << min << "\n";
       Serial.println("**********************");
-
       Serial.print("Print value of P: ");
-      Serial.println(p);
+      Serial.println(i);
       Serial.print("Print value of T: ");
-      Serial.println(tM);
+      Serial.println(j);
       Serial.print("Print value of pin: ");
       Serial.println(pin);
       Serial.print("Print value of Start Time: ");
       Serial.println(relaysStartTime);
       Serial.print("Print only hour: ");
-      Serial.println(hour);
+      Serial.println(hOurs);
       Serial.print("Print only Min: ");
-      Serial.println(min);
+      Serial.println(mIns);
       Serial.print("Print value of duration: ");
       Serial.println(relaysDuration);
       Serial.println("**********************");
       /*
-      int currentTime = 12;
+      int StartTimeMinutes = (hOurs*60+mIns);
+      int timeNow = 120;
       int timer=0;
-      if(currentTime == relaysStartTime){
+      if(timeNow == relaysStartTime){
       timer=millis();
       digitalWrite (pin, HIGH);
       if((millis() - timer) >= relaysDuration) {
