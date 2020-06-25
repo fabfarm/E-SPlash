@@ -77,22 +77,12 @@ void setup(){
   Serial.println("json deserialize test - BEGIN");
   deserializeJson(doc, json);
 
-  //
-  //test override value in Jason
-  //Serial.print("Printing override value in void setup after deserialisation: ");
-  //JsonArray data = doc["data"];
-  //int override = data["data"]["override"];
-  //Serial.println(override);
-  //delay(1000);
-
   // TODO: proactively disable everything / consider if we want to have it start in stopped state
   // TODO: set OUTPUT for each relay
   // TODO: also set each to off initially
   //pinMode(relayGPIOs[i - 1], OUTPUT);
   //digitalWrite(relayGPIOs[i - 1], HIGH);
 
-  //Serial.println("Reading ssid: %s / password: %s from json\n", ssid, password);
-  
   //Soft Wifi Access point setup
   WiFi.softAP("softap", "imakestuff");
   IPAddress IP = WiFi.softAPIP();
@@ -268,7 +258,7 @@ String readDHTTemperature()
   // Read temperature as Celsius (the default)
   float t = dht.readTemperature();
   // Read temperature as Fahrenheit (isFahrenheit = true)
-  //float t = dht.readTemperature(true);
+  // float t = dht.readTemperature(true);
   // Check if any reads failed and exit early (to try again).
   if (isnan(t))
   {
@@ -334,10 +324,3 @@ int isEnabledFunc (int startTimeInMinutes, int duration)
     }
   return isEnabled;
 }
-
-
-
-
-
-
-
