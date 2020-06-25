@@ -1,9 +1,19 @@
 
 /**
- *  LucioPGN  
+ * This code is part of a Irrigation Sytem developed as my final project,
+ * in the Fabacademy course, full documentation can be viewed on the link:
+ * http://fabacademy.org/2020/labs/algarve/students/lucio/index.html
+ * 
+ * The begining of the code was based on the works of Rui Santos. With the 
+ * contributions of Jeff and my obssession in learning to code its significantly 
+ * different a Special thanks to Jeffrey Knight who without I would be probabily
+ * struglyng with the most advanced parts of the project.
+ * 
+ * Project page: http://github.com/fabfarm/esplash
+ * 
  * Contributors:
+ *  Lucio PGN http://github.com/lpgn
  *  Jeffrey Knight http://github.com/jknight
- *
  */
 
 #include <fstream>
@@ -23,18 +33,6 @@
 
 #include "printFarmTime.cpp"
 #include "modifiedPrintLocalTime.cpp"
-#define cout Serial
-//#define endl '\n'
-//#include <String.h>
-
-//#include <Time.h>
-//#include <SPI.h>
-//#include <DS3234RTC.h>
-//#include <avr/pgmspace.h>
-//#include <MemoryFree.h>
-//#define lcloffset (3600UL)*4 //summer offset from UCT
-//#include <Streaming.h>
-
 
 // read / write json to save state
 const char *dataFile = "data.json";
@@ -132,13 +130,6 @@ void setup(){
   });
   server.on("/getData", HTTP_GET, [](AsyncWebServerRequest *request)
     {
-  /* 
-  1) start with our json object.
-  2) we get new data (temp/humidit/y/relay status)
-  3) update the json object
-  4) serialize ==> json
-  5) return json to html 
-  */
 
   Serial.println("/getData");
   JsonObject data = doc["data"];
@@ -204,24 +195,17 @@ void loop()
 }
 
 void scheduleMode(){
-  //Serial.println("now Schedule Mode");
-  delay(1000);
-
   //matrix logic test
   JsonArray relays = doc["relays"];
   JsonObject times = relays.createNestedObject();
   for (int i = 0; i < relays.size(); i++) 
   {
-    delay(2000);
-    //Serial.print("Print value of P: ");
-    //Serial.println(i);
-    //the 3 in the test bellow needs to be replaced by the size of times in each pin
     for (int j = 0; j < relays[i]["times"].size(); j++) {
       int pin = relays[i]["pin"];
-      const char* relaysStartTime = relays[i]["times"][j]["startTime"]; // "12:00"
+      const char* relaysStartTime = relays[i]["times"][j]["startTime"];
       int hOurs = relays[i]["times"][j]["hour"];;
       int mIns = relays[i]["times"][j]["min"];;
-      int cycleDuration = relays[i]["times"][j]["duration"]; // "0"
+      int cycleDuration = relays[i]["times"][j]["duration"];
       int isEnabled = isEnabledFunc(hOurs*60+mIns, cycleDuration);
       if (isEnabled == 1){
         Serial.print("Zone ");
@@ -244,15 +228,15 @@ void manualMode()
   JsonArray relays = doc["relays"];
   for (int i = 0; i < relays.size(); i++)
   {
-    const char *relayName = relays[i]["name"]; // "relay1"
-    int pin = relays[i]["pin"];                // 123
-    int isEnabled = relays[i]["isEnabled"];    // 1
+    const char *relayName = relays[i]["name"];
+    int pin = relays[i]["pin"];
+    int isEnabled = relays[i]["isEnabled"];
     pinMode(pin, OUTPUT);
     digitalWrite(pin, isEnabled ? HIGH : LOW);
     }
 }
 
-//function to deactivate all pins usefull for safe startup
+//function to deactivate all pins usefull for safe startup not finished yet
 //write to json
 void allRelaysdisable(){
   File f = SPIFFS.open("/data.json", "r");
@@ -269,9 +253,6 @@ void allRelaysdisable(){
     digitalWrite(pin,LOW);
   }
 }
-
-
-
 
 String readDHTTemperature()
 {
@@ -323,20 +304,6 @@ String readDHTHumidity()
     Serial.println(h);
     return String(h);
   }
-}
-
-void activateValveThanPump(){
-
-//If valveRelay "armed" AND the current time minus the start time is greater than x millisecons (pumpRelay, ditalwrite, HIGH);
-//If pumpRelay "armed" AND current reading is outside threshold, reset "armed"
-
-}
-
-void activatePumpThanValve(){
-
-//when pumpRelay disarmed --> "LOW" AND the current time minus the stop time is greater than x millisecons (valveRelay, ditalwrite, LOW);
-
-
 }
 
 int isEnabledFunc (int startTimeInMinutes, int duration)
