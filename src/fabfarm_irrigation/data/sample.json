@@ -1,8 +1,8 @@
 {
     "data": {
-        "currentTime": "Wednesday, June 24 2020 23:49:23",
-        "temperature": "22.30",
-        "humidity": "74.00",
+        "currentTime": "Friday, June 26 2020 23:32:10",
+        "temperature": "21.30",
+        "humidity": "85.00",
         "override": 0,
         "ssid": "rato",
         "pass": "imakestuff"
@@ -10,7 +10,7 @@
     "relays": [
         {
             "name": "Fruit Tree",
-            "pin": 25,
+            "pin": 27,
             "isRunning": 1,
             "isEnabled": 0,
             "times": [
@@ -34,28 +34,16 @@
                     "duration": 32,
                     "hour": 2,
                     "min": 2
-                },
-                {
-                    "startTime": "02:02",
-                    "duration": 32,
-                    "hour": 2,
-                    "min": 2
                 }
             ]
         },
         {
             "name": "Cypress Hill",
-            "pin": 33,
+            "pin": 25,
             "isRunning": 1,
             "isEnabled": 0,
             "status": 1,
             "times": [
-                {
-                    "startTime": "03:03",
-                    "duration": 60,
-                    "hour": 3,
-                    "min": 3
-                },
                 {
                     "startTime": "03:03",
                     "duration": 60,

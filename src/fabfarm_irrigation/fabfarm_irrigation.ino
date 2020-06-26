@@ -178,10 +178,7 @@ void loop()
     Serial.print("The Fabfarm Irrigation system network IP is:");
     Serial.println(WiFi.localIP());
   }
-  
-  
-
-
+  delay(3000);
   File f = SPIFFS.open("/data.json", "r");
   // Declares a String named json from the data contained in f????
   String json = f.readString();
@@ -194,14 +191,7 @@ void loop()
     manualMode();
   }
   else{
-    boolean flagEnableRelay;
-    boolean flagEnableRelay1;
-    boolean flagEnableRelay2;
-    boolean flagEnableRelay3;
-    boolean flagEnableRelay4;
     scheduleMode();
-    Serial.print("");
-    Serial.println(flagEnableRelay);
   }
 
 //*****end of loop*****
@@ -258,6 +248,7 @@ void manualMode()
 //function to deactivate all pins usefull for safe startup not finished yet
 //write to json
 void allRelaysdisable(){
+  delay(3000);
   File f = SPIFFS.open("/data.json", "r");
   // Declares a String named json from the data contained in f????
   String json = f.readString();
