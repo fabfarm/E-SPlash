@@ -3,6 +3,7 @@
 
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset="UTF-8" />
     <!-- TODO: grab fontawesomes & server locally -->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="/style.css" />
@@ -42,12 +43,12 @@
                 jsonData.relays[i].times[j].startTime = document.getElementById(`jsonData.relays[${i}].times[${j}].startTime`).value;
                 //here I hack my way into separating hours and minutes into a int to the jason!
                 var time = document.getElementById(`jsonData.relays[${i}].times[${j}].startTime`).value;
-                timex = (new Date(" Jan 01 2020 " + time));
-                console.log(timex);
+                var timex = (new Date(" Jan 01 2020 " + time));
+                //console.log(timex);
                 var hour = timex.getHours();
                 var min = timex.getMinutes();
-                console.log(hour)
-                console.log(min)
+                //console.log(hour)
+                //console.log(min)
                 jsonData.relays[i].times[j].hour = hour;
                 jsonData.relays[i].times[j].min = min;
             }
@@ -73,6 +74,7 @@
     
     //setInterval(function() {
         //TODO: change the above to make *1* request and get json back
+    function refresh() {
         var r3 = new XMLHttpRequest();
         r3.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
@@ -126,12 +128,20 @@
         }; 
 
         r3.open("GET", "/getData", true);
+        r3.timeout = 2000;
+        r3.ontimeout = function(e) {
+            // retry
+            refresh();
+        };
         // for testing:
         //r3.open("GET", "sample.json", true);
         r3.send();
+    }
 
+    refresh();
 
     //}, 10000);
+
 
 
 </script>

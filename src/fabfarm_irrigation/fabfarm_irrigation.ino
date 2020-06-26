@@ -86,7 +86,7 @@ void setup(){
   //Soft Wifi Access point setup
   WiFi.softAP("softap", "imakestuff");
   IPAddress IP = WiFi.softAPIP();
-  tcpip_adapter_set_hostname(TCPIP_ADAPTER_IF_AP, "irrigation");
+  //tcpip_adapter_set_hostname(TCPIP_ADAPTER_IF_AP, "irrigation");
   //start wifi sessions as a client.
   //Wifi client setup
   const char* ssid = doc["data"]["ssid"];
@@ -94,16 +94,6 @@ void setup(){
   ssid = "rato";
   password = "imakestuff";
   WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED)
-  {
-    delay(1000);
-    Serial.println("Connecting to WiFi..");
-  }
-  
-  // Print ESP32 Local IP Address
-  Serial.println("The Fabfarm Irrigation system network IP is:");
-  Serial.println(WiFi.localIP());
-
   // Route for root / web page
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(SPIFFS, "/index.html", String(), false);
@@ -166,6 +156,32 @@ void setup(){
 
 void loop()
 {
+  if  (WiFi.status() != WL_CONNECTED)
+  {
+    //WiFi.begin(ssid, password);
+    #if !defined(ssid)
+    const char* ssid = doc["data"]["ssid"];
+    #endif // MACRO
+    #if !defined(password)
+    const char* password = doc["data"]["pass"];
+    #endif // MACRO
+    ssid = "rato";
+    password = "imakestuff";
+    delay(1000);
+    Serial.println("Connecting to WiFi..");
+    WiFi.begin(ssid, password);
+  }
+  else
+  {
+    Serial.println("Connected to WiFi!");
+    // Print ESP32 Local IP Address
+    Serial.print("The Fabfarm Irrigation system network IP is:");
+    Serial.println(WiFi.localIP());
+  }
+  
+  
+
+
   File f = SPIFFS.open("/data.json", "r");
   // Declares a String named json from the data contained in f????
   String json = f.readString();
@@ -185,6 +201,7 @@ void loop()
 }
 
 void scheduleMode(){
+  delay(3000);
   //matrix logic test
   JsonArray relays = doc["relays"];
   //JsonObject times = relays.createNestedObject();
@@ -204,6 +221,14 @@ void scheduleMode(){
         Serial.println(" is Enabled!");
         digitalWrite(pin, isEnabled );
       }
+      else
+      {
+      Serial.print("Zone ");
+      String zoneName = relays[i]["name"];
+      Serial.print(zoneName);
+      Serial.println(" is off");
+      }
+      
       pinMode(pin, OUTPUT);
       digitalWrite(pin, isEnabled ? HIGH : LOW);
     }
@@ -213,7 +238,7 @@ void scheduleMode(){
 void manualMode()
 {
   Serial.println("now Manual Mode");
-  delay(1000);
+  delay(3000);
 
   JsonArray relays = doc["relays"];
   for (int i = 0; i < relays.size(); i++)
@@ -320,7 +345,6 @@ int isEnabledFunc (int startTimeInMinutes, int duration)
     else
     {
       isEnabled = 0;
-      Serial.println("time to turn OFF the pump!");
     }
   return isEnabled;
 }
