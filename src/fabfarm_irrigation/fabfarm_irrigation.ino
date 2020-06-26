@@ -228,7 +228,7 @@ void scheduleMode(){
         ++flagEnableRelay[i];
       }
     }
-    if (flagEnableRelay[i] >= 0)
+    if (flagEnableRelay[i] >= 1)
     {
       digitalWrite(relays[i]["pin"], 1);
     }
