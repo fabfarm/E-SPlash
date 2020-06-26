@@ -194,7 +194,14 @@ void loop()
     manualMode();
   }
   else{
+    boolean flagEnableRelay;
+    boolean flagEnableRelay1;
+    boolean flagEnableRelay2;
+    boolean flagEnableRelay3;
+    boolean flagEnableRelay4;
     scheduleMode();
+    Serial.print("");
+    Serial.println(flagEnableRelay);
   }
 
 //*****end of loop*****
@@ -204,33 +211,30 @@ void scheduleMode(){
   delay(3000);
   //matrix logic test
   JsonArray relays = doc["relays"];
-  //JsonObject times = relays.createNestedObject();
-  for (int i = 0; i < relays.size(); i++) 
-  {
+  for (int i = 0; i < relays.size(); i++){
+    int flagEnableRelay[i];
+    flagEnableRelay[i] = 0;
     for (int j = 0; j < relays[i]["times"].size(); j++) {
       int pin = relays[i]["pin"];
-      const char* relaysStartTime = relays[i]["times"][j]["startTime"];
-      int hOurs = relays[i]["times"][j]["hour"];;
-      int mIns = relays[i]["times"][j]["min"];;
-      int cycleDuration = relays[i]["times"][j]["duration"];
-      int isEnabled = isEnabledFunc(hOurs*60+mIns, cycleDuration);
-      if (isEnabled == 1){
-        Serial.print("Zone ");
-        String zoneName = relays[i]["name"];
-        Serial.print(zoneName);
-        Serial.println(" is Enabled!");
-        digitalWrite(pin, isEnabled );
-      }
-      else
-      {
-      Serial.print("Zone ");
-      String zoneName = relays[i]["name"];
-      Serial.print(zoneName);
-      Serial.println(" is off");
-      }
-      
+      //aparentelly there is no problem to set digital write several times as it only dows write a different value, need to check that. https://forum.arduino.cc/index.php?topic=52806.0
       pinMode(pin, OUTPUT);
-      digitalWrite(pin, isEnabled ? HIGH : LOW);
+      const char* relaysStartTime = relays[i]["times"][j]["startTime"];
+      int hOurs = relays[i]["times"][j]["hour"];
+      int mIns = relays[i]["times"][j]["min"];
+      int cycleDuration = relays[i]["times"][j]["duration"];
+      //Probabilly should learn about bitwise... https://playground.arduino.cc/Code/BitMath/
+      if (isEnabledFunc(hOurs*60+mIns, cycleDuration) == 1)
+      {
+        ++flagEnableRelay[i];
+      }
+    }
+    if (flagEnableRelay[i] >= 0)
+    {
+      digitalWrite(relays[i]["pin"], 1);
+    }
+    else
+    {
+      digitalWrite(relays[i]["pin"], 0);
     }
   }
 }
