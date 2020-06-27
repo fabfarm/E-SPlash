@@ -3,9 +3,11 @@
         "currentTime": "Friday, June 26 2020 23:32:10",
         "temperature": "21.30",
         "humidity": "85.00",
+        "batLevel": "91.00",
         "isScheduleMode": 0,
         "ssid": "rato",
         "pass": "imakestuff"
+
     },
     "relays": [
         {

@@ -46,9 +46,10 @@ DynamicJsonDocument doc(jasonSize); // from arduinoJson
 
 //Defining pump pin number
 int pumpPin = 33;
-
+int batVolt = 35;
 void setup(){
-  
+
+
   //defining behaviour of pumpPin and its startup state
   pinMode (pumpPin, OUTPUT);
   digitalWrite (pumpPin, LOW);
@@ -372,4 +373,13 @@ int isEnabledFunc (int startTimeInMinutes, int duration)
       isEnabled = 0;
     }
   return isEnabled;
+}
+float batLevel(){
+  analogRead(batVolt);
+  float batteryLevel = map(analogRead(batVolt), 0.0f, 4095.0f, 0, 100);
+  Serial.print("Batery Level: ");
+  Serial.print(batteryLevel);
+  Serial.println("%");
+  delay(3000);
+  return batteryLevel;
 }
