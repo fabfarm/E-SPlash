@@ -124,6 +124,7 @@ void setup(){
   data["currentTime"] = printFarmTime();
   data["temperature"] = readDHTTemperature();
   data["humidity"] = readDHTHumidity();
+  data["batLevel"] = batLevel();
   char json[2048];
   Serial.println("Serialize json & return to caller - BEGIN");
   serializeJson(doc, json);
