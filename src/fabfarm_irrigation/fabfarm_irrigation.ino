@@ -44,7 +44,14 @@ AsyncWebServer server(80);
 int jasonSize = 2048;
 DynamicJsonDocument doc(jasonSize); // from arduinoJson
 
+//Defining pump pin number
+int pumpPin = 33;
+
 void setup(){
+  
+  //defining behaviour of pumpPin and its startup state
+  pinMode (pumpPin, OUTPUT);
+  digitalWrite (pumpPin, LOW);
   
   //put all relays in LOW at startup
   //TODO write to Json as well otherwise it reactivates
@@ -178,16 +185,16 @@ void loop()
     Serial.print("The Fabfarm Irrigation system network IP is:");
     Serial.println(WiFi.localIP());
   }
-  delay(3000);
+  delay(1000);
   File f = SPIFFS.open("/data.json", "r");
   // Declares a String named json from the data contained in f????
   String json = f.readString();
   deserializeJson(doc, json);
   JsonObject data = doc["data"];
-  boolean data_override = data["override"];
+  boolean data_isScheduleMode = data["isScheduleMode"];
   f.close();
 
-  if (data_override == 0){
+  if (data_isScheduleMode == 0){
     manualMode();
   }
   else{
@@ -198,7 +205,7 @@ void loop()
 }
 
 void scheduleMode(){
-  delay(3000);
+  delay(1000);
   //matrix logic test
   JsonArray relays = doc["relays"];
   for (int i = 0; i < relays.size(); i++){
@@ -221,10 +228,22 @@ void scheduleMode(){
     if (flagEnableRelay[i] >= 1)
     {
       digitalWrite(relays[i]["pin"], 1);
+      delay(500);
+      digitalWrite(pumpPin, 1);
+      Serial.print("Zone ");
+      String zoneName = relays[i]["name"];
+      Serial.print(zoneName);
+      Serial.println(" is Enabled!");
     }
     else
-    {
+    { 
+      digitalWrite(pumpPin, 0);
+      delay(500);
       digitalWrite(relays[i]["pin"], 0);
+      Serial.print("Zone ");
+      String zoneName = relays[i]["name"];
+      Serial.print(zoneName);
+      Serial.println(" is off");
     }
   }
 }
@@ -232,7 +251,7 @@ void scheduleMode(){
 void manualMode()
 {
   Serial.println("now Manual Mode");
-  delay(3000);
+  delay(1000);
 
   JsonArray relays = doc["relays"];
   for (int i = 0; i < relays.size(); i++)
@@ -241,14 +260,25 @@ void manualMode()
     int pin = relays[i]["pin"];
     int isEnabled = relays[i]["isEnabled"];
     pinMode(pin, OUTPUT);
-    digitalWrite(pin, isEnabled ? HIGH : LOW);
+    if (isEnabled == 1)
+    {
+      digitalWrite(pin, 1);
+      delay(500);
+      digitalWrite(pumpPin, 1);
     }
+    else
+    { 
+      digitalWrite(pumpPin, 0);
+      delay(500);
+      digitalWrite(pin, 0);
+    }
+  }
 }
 
 //function to deactivate all pins usefull for safe startup not finished yet
 //write to json
 void allRelaysdisable(){
-  delay(3000);
+  delay(1000);
   File f = SPIFFS.open("/data.json", "r");
   // Declares a String named json from the data contained in f????
   String json = f.readString();

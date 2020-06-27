@@ -32,8 +32,8 @@
 
     // gets called anytime anything changes
     function update(obj) {
-        jsonData.data.override = document.getElementById("jasonData.data.override").checked ? 1 : 0;
-        console.log(document.getElementById("jasonData.data.override"));
+        jsonData.data.isScheduleMode = document.getElementById("jasonData.data.isScheduleMode").checked ? 1 : 0;
+        console.log(document.getElementById("jasonData.data.isScheduleMode"));
         for(var i = 0; i < jsonData.relays.length; i++) { 
             jsonData.relays[i].isEnabled = document.getElementById(`jsonData.relays[${i}].isEnabled`).checked ? 1 : 0;
             for(j = 0; j < jsonData.relays[i].times.length; j++) {
@@ -84,8 +84,8 @@
 
                 var html = `Manual 
                         <label class="switch">
-                            <input type="checkbox" ${jsonData.data.override ? "checked" : ""} 
-                             onChange="update(this);" id="jasonData.data.override"/>
+                            <input type="checkbox" ${jsonData.data.isScheduleMode ? "checked" : ""} 
+                             onChange="update(this);" id="jasonData.data.isScheduleMode"/>
                             <span class="slider"></span> 
                         </label> Automatic`;
 
