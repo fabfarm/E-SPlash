@@ -24,6 +24,12 @@ ValveN /
 
 ## Core Logic
 
+1) start with our json object.
+2) we get new data (temp/humidit/y/relay status)
+3) update the json object
+4) serialize ==> json
+5) return json to html
+
 **State Problem**  
 When the microcontroller loses power, we lose state. We therefore need to persist settings to disk.
 

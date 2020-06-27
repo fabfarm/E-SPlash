@@ -38,4 +38,6 @@ void modifiedPrintLocalTime()
   Serial.print(onlyMin);
   Serial.print(":");
   Serial.println(onlySec);
+  
+  Serial.println(&timeinfo, " %d %B %Y %H:%M:%S ");
 }
