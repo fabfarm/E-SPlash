@@ -186,7 +186,6 @@ void loop()
     Serial.println(WiFi.localIP());
   }
   delay(1000);
-  deserializeJson(doc, json);
   JsonObject data = doc["data"];
   boolean data_isScheduleMode = data["isScheduleMode"];
 
