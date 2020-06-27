@@ -188,13 +188,8 @@ void loop()
     Serial.println(WiFi.localIP());
   }
   delay(1000);
-  File f = SPIFFS.open("/data.json", "r");
-  // Declares a String named json from the data contained in f????
-  String json = f.readString();
-  deserializeJson(doc, json);
   JsonObject data = doc["data"];
   boolean data_isScheduleMode = data["isScheduleMode"];
-  f.close();
 
   if (data_isScheduleMode == 0){
     manualMode();
@@ -278,15 +273,9 @@ void manualMode()
 }
 
 //function to deactivate all pins usefull for safe startup not finished yet
-//write to json
 void allRelaysdisable(){
   delay(1000);
-  File f = SPIFFS.open("/data.json", "r");
-  // Declares a String named json from the data contained in f????
-  String json = f.readString();
-  deserializeJson(doc, json);
   JsonObject data = doc["data"];
-  f.close();
     JsonArray relays = doc["relays"];
     for (int p = 0; p < relays.size(); p++)
   {
