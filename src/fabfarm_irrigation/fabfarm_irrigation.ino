@@ -46,9 +46,10 @@ DynamicJsonDocument doc(jasonSize); // from arduinoJson
 
 //Defining pump pin number
 int pumpPin = 33;
-
+int batVolt = 35;
 void setup(){
-  
+
+
   //defining behaviour of pumpPin and its startup state
   pinMode (pumpPin, OUTPUT);
   digitalWrite (pumpPin, LOW);
@@ -123,6 +124,7 @@ void setup(){
   data["currentTime"] = printFarmTime();
   data["temperature"] = readDHTTemperature();
   data["humidity"] = readDHTHumidity();
+  data["batLevel"] = batLevel();
   char json[2048];
   Serial.println("Serialize json & return to caller - BEGIN");
   serializeJson(doc, json);
@@ -174,7 +176,7 @@ void loop()
     #endif // MACRO
     ssid = "rato";
     password = "imakestuff";
-    delay(1000);
+    delay(100);
     Serial.println("Connecting to WiFi..");
     WiFi.begin(ssid, password);
   }
@@ -185,7 +187,7 @@ void loop()
     Serial.print("The Fabfarm Irrigation system network IP is:");
     Serial.println(WiFi.localIP());
   }
-  delay(1000);
+  delay(100);
   JsonObject data = doc["data"];
   boolean data_isScheduleMode = data["isScheduleMode"];
 
@@ -200,16 +202,15 @@ void loop()
 }
 
 void scheduleMode(){
-  delay(1000);
+  delay(100);
   //matrix logic test
+
   JsonArray relays = doc["relays"];
   for (int i = 0; i < relays.size(); i++){
-    int flagEnableRelay[i];
-    flagEnableRelay[i] = 0;
+    int flagEnableRelay = 0;
     for (int j = 0; j < relays[i]["times"].size(); j++) {
-      int pin = relays[i]["pin"];
       //aparentelly there is no problem to set digital write several times as it only dows write a different value, need to check that. https://forum.arduino.cc/index.php?topic=52806.0
-      pinMode(pin, OUTPUT);
+      pinMode(relays[i]["pin"], OUTPUT);
       const char* relaysStartTime = relays[i]["times"][j]["startTime"];
       int hOurs = relays[i]["times"][j]["hour"];
       int mIns = relays[i]["times"][j]["min"];
@@ -217,10 +218,10 @@ void scheduleMode(){
       //Probabilly should learn about bitwise... https://playground.arduino.cc/Code/BitMath/
       if (isEnabledFunc(hOurs*60+mIns, cycleDuration) == 1)
       {
-        ++flagEnableRelay[i];
+        ++flagEnableRelay;
       }
     }
-    if (flagEnableRelay[i] >= 1)
+    if (flagEnableRelay >= 1)
     {
       digitalWrite(relays[i]["pin"], 1);
       delay(500);
@@ -231,8 +232,19 @@ void scheduleMode(){
       Serial.println(" is Enabled!");
     }
     else
-    { 
-      digitalWrite(pumpPin, 0);
+    {   
+      int valveFlag = 0;
+      for (int y = 0; y < relays.size(); y++)
+      {
+        if (digitalRead (relays[y]["pin"]) == HIGH)
+        {
+          ++valveFlag;
+        }
+      }
+      if (valveFlag == 0)
+        {
+          digitalWrite(pumpPin, 0);
+        }
       delay(500);
       digitalWrite(relays[i]["pin"], 0);
       Serial.print("Zone ");
@@ -246,33 +258,44 @@ void scheduleMode(){
 void manualMode()
 {
   Serial.println("now Manual Mode");
-  delay(1000);
-
+  delay(100);
   JsonArray relays = doc["relays"];
   for (int i = 0; i < relays.size(); i++)
   {
-    const char *relayName = relays[i]["name"];
-    int pin = relays[i]["pin"];
-    int isEnabled = relays[i]["isEnabled"];
-    pinMode(pin, OUTPUT);
-    if (isEnabled == 1)
+    pinMode(relays[i]["pin"], OUTPUT);
+    if (relays[i]["isEnabled"] == 1)
     {
-      digitalWrite(pin, 1);
+      digitalWrite(relays[i]["pin"], 1);
       delay(500);
       digitalWrite(pumpPin, 1);
     }
     else
-    { 
-      digitalWrite(pumpPin, 0);
+    {   
+      int valveFlag = 0;
+      for (int y = 0; y < relays.size(); y++)
+      {
+        if (digitalRead (relays[y]["pin"]) == HIGH)
+        {
+          ++valveFlag;
+        }
+      }
+      if (valveFlag == 0)
+        {
+          digitalWrite(pumpPin, 0);
+        }
       delay(500);
-      digitalWrite(pin, 0);
+      digitalWrite(relays[i]["pin"], 0);
+      Serial.print("Zone ");
+      String zoneName = relays[i]["name"];
+      Serial.print(zoneName);
+      Serial.println(" is off");
     }
   }
 }
 
 //function to deactivate all pins usefull for safe startup not finished yet
 void allRelaysdisable(){
-  delay(1000);
+  delay(100);
   JsonObject data = doc["data"];
     JsonArray relays = doc["relays"];
     for (int p = 0; p < relays.size(); p++)
@@ -361,4 +384,12 @@ int isEnabledFunc (int startTimeInMinutes, int duration)
       isEnabled = 0;
     }
   return isEnabled;
+}
+float batLevel(){
+  analogRead(batVolt);
+  float batteryLevel = map(analogRead(batVolt), 0.0f, 4095.0f, 0, 100);
+  Serial.print("Batery Level: ");
+  Serial.print(batteryLevel);
+  Serial.println("%");
+  return batteryLevel;
 }
