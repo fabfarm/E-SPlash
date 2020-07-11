@@ -45,7 +45,7 @@ int jasonSize = 2048;
 DynamicJsonDocument doc(jasonSize); // from arduinoJson
 
 //Defining pump pin number
-int pumpPin = 33;
+int pumpPin = 13;
 int batVolt = 35;
 void setup(){
 
@@ -174,8 +174,8 @@ void loop()
     #if !defined(password)
     const char* password = doc["data"]["pass"];
     #endif // MACRO
-    ssid = "rato";
-    password = "imakestuff";
+    ssid = "xyz";
+    password = "xyz";
           delay(50);
 
     Serial.println("Connecting to WiFi..");
@@ -315,7 +315,7 @@ void allRelaysdisable(){
 String readDHTTemperature()
 {
   // Digital pin connected to the DHT sensor
-  #define DHTPIN 32
+  #define DHTPIN 34
   // Uncomment the type of sensor in use:
   #define DHTTYPE DHT11 // DHT 11
   //#define DHTTYPE    DHT22     // DHT 22 (AM2302)
