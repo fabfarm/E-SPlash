@@ -99,7 +99,7 @@ void setup(){
   //Wifi client setup
   const char* ssid = doc["data"]["ssid"];
   const char* password = doc["data"]["pass"];
-  ssid = "rato";
+  ssid = "novo";
   password = "imakestuff";
   WiFi.begin(ssid, password);
   // Route for root / web page
