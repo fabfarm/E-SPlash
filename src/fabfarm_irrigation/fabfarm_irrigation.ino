@@ -38,7 +38,7 @@
 const char *dataFile = "data.json";
 
 // Specify the port of the Async server
-AsyncWebServer server(80);
+AsyncWebServer server(81);
 // Specifing the capacity of the json in bytes.
 
 int jasonSize = 2048;
@@ -99,7 +99,7 @@ void setup(){
   //Wifi client setup
   const char* ssid = doc["data"]["ssid"];
   const char* password = doc["data"]["pass"];
-  ssid = "novo";
+  ssid = "rato";
   password = "imakestuff";
   WiFi.begin(ssid, password);
   // Route for root / web page
@@ -174,8 +174,8 @@ void loop()
     #if !defined(password)
     const char* password = doc["data"]["pass"];
     #endif // MACRO
-    ssid = "xyz";
-    password = "xyz";
+    ssid = "rato";
+    password = "imakestuff";
           delay(50);
 
     Serial.println("Connecting to WiFi..");
@@ -317,7 +317,7 @@ String readDHTTemperature()
   // Digital pin connected to the DHT sensor
   #define DHTPIN 34
   // Uncomment the type of sensor in use:
-  #define DHTTYPE DHT11 // DHT 11
+  #define DHTTYPE DHT22 // DHT 11
   //#define DHTTYPE    DHT22     // DHT 22 (AM2302)
   //#define DHTTYPE    DHT21     // DHT 21 (AM2301)
   //Send the pin and type of sensor
@@ -343,9 +343,9 @@ String readDHTTemperature()
 String readDHTHumidity()
 {
   // Digital pin connected to the DHT sensor
-  #define DHTPIN 32
+  #define DHTPIN 34
   // Uncomment the type of sensor in use:
-  #define DHTTYPE DHT11 // DHT 11
+  #define DHTTYPE DHT22 // DHT 11
   //#define DHTTYPE    DHT22     // DHT 22 (AM2302)
   //#define DHTTYPE    DHT21     // DHT 21 (AM2301)
   //Send the pin and type of sensor

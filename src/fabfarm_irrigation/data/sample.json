@@ -1,13 +1,12 @@
 {
     "data": {
-        "currentTime": "Friday, June 26 2020 23:32:10",
-        "temperature": "21.30",
-        "humidity": "85.00",
-        "batLevel": "91.00",
+        "currentTime": "Sunday, July 12 2020 02:30:58",
+        "temperature": "Failed to read temperator from sensor",
+        "humidity": "Failed to read humidity from sensor",
         "isScheduleMode": 0,
         "ssid": "rato",
-        "pass": "imakestuff"
-
+        "pass": "imakestuff",
+        "batLevel": 0
     },
     "relays": [
         {
@@ -27,6 +26,36 @@
         {
             "name": "Vegie Garden",
             "pin": 26,
+            "isRunning": 1,
+            "isEnabled": 0,
+            "status": 1,
+            "times": [
+                {
+                    "startTime": "02:02",
+                    "duration": 32,
+                    "hour": 2,
+                    "min": 2
+                }
+            ]
+        },
+        {
+            "name": "Led1",
+            "pin": 2,
+            "isRunning": 1,
+            "isEnabled": 0,
+            "status": 1,
+            "times": [
+                {
+                    "startTime": "02:02",
+                    "duration": 32,
+                    "hour": 2,
+                    "min": 2
+                }
+            ]
+        },
+        {
+            "name": "Led2",
+            "pin": 4,
             "isRunning": 1,
             "isEnabled": 0,
             "status": 1,

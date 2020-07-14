@@ -14589,12 +14589,22 @@
 <rectangle x1="93.077728125" y1="54.129875" x2="93.276728125" y2="54.13555625" layer="1"/>
 <rectangle x1="93.094828125" y1="54.13555625" x2="93.253928125" y2="54.14124375" layer="1"/>
 <rectangle x1="93.123228125" y1="54.141246875" x2="93.231228125" y2="54.146921875" layer="1"/>
-<wire x1="27.4017" y1="70.5" x2="100.5" y2="70.5" width="1" layer="46"/>
-<wire x1="100.5" y1="70.5" x2="100.5" y2="-0.52" width="1" layer="46"/>
-<wire x1="100.5" y1="-0.52" x2="-0.51" y2="-0.52" width="1" layer="46"/>
-<wire x1="-0.51" y1="-0.52" x2="-0.51" y2="70.5" width="1" layer="46"/>
-<wire x1="-0.51" y1="70.5" x2="27.4017" y2="70.5" width="1" layer="46"/>
+<wire x1="27.4017" y1="70.5" x2="98.794184375" y2="70.5" width="1" layer="46"/>
+<wire x1="98.794184375" y1="70.5" x2="100.5" y2="68.794184375" width="1" layer="46"/>
+<wire x1="100.5" y1="68.794184375" x2="100.5" y2="1.19441875" width="1" layer="46"/>
+<wire x1="100.5" y1="1.19441875" x2="98.78558125" y2="-0.52" width="1" layer="46"/>
+<wire x1="98.78558125" y1="-0.52" x2="1.24199375" y2="-0.52" width="1" layer="46"/>
+<wire x1="1.24199375" y1="-0.52" x2="-0.51" y2="1.23199375" width="1" layer="46"/>
+<wire x1="-0.51" y1="1.23199375" x2="-0.51" y2="68.761725" width="1" layer="46"/>
+<wire x1="-0.51" y1="68.761725" x2="1.228275" y2="70.5" width="1" layer="46"/>
+<wire x1="1.228275" y1="70.5" x2="27.4017" y2="70.5" width="1" layer="46"/>
 <wire x1="27.4017" y1="70.5" x2="31.870109375" y2="70.5" width="1" layer="46"/>
+<wire x1="-21.062925" y1="90.135675" x2="-21.062925" y2="85.877609375" width="1" layer="26"/>
+<wire x1="-21.062925" y1="85.877609375" x2="-21.062925" y2="-13.155090625" width="1" layer="26"/>
+<wire x1="-21.062925" y1="-13.155090625" x2="121.340640625" y2="-13.155090625" width="1" layer="26"/>
+<wire x1="121.340640625" y1="-13.155090625" x2="121.340640625" y2="94.38805625" width="1" layer="26"/>
+<wire x1="121.340640625" y1="94.38805625" x2="-21.062925" y2="94.38805625" width="1" layer="26"/>
+<wire x1="-21.062925" y1="94.38805625" x2="-21.062925" y2="90.135675" width="1" layer="26"/>
 </plain>
 <libraries>
 <library name="con-wago-500" urn="urn:adsk.eagle:library:195">
@@ -15594,10 +15604,10 @@ design rules under a new name.</description>
 <attribute name="MF" value="Microchip Technology" x="23.283403125" y="48.045640625" size="1.778" layer="27" rot="R45" display="off"/>
 <attribute name="MOUSER-PURCHASE-URL" value="https://snapeda.com/shop?store=Mouser&amp;id=4791194" x="23.283403125" y="48.045640625" size="1.778" layer="27" rot="R45" display="off"/>
 <attribute name="MP" value="MCP1700T-3302E/TT" x="23.283403125" y="48.045640625" size="1.778" layer="27" rot="R45" display="off"/>
-<attribute name="NAME" x="22.1803875" y="49.37068125" size="1.016" layer="25" ratio="10" rot="SR135"/>
+<attribute name="NAME" x="23.72670625" y="46.545234375" size="1.016" layer="25" ratio="10" rot="SR135"/>
 <attribute name="PACKAGE" value="None" x="23.283403125" y="48.045640625" size="1.778" layer="27" rot="R45" display="off"/>
 <attribute name="PRICE" value="None" x="23.283403125" y="48.045640625" size="1.778" layer="27" rot="R45" display="off"/>
-<attribute name="VALUE" x="23.28694375" y="49.948315625" size="1.016" layer="27" ratio="10" rot="SR135"/>
+<attribute name="VALUE" x="21.035684375" y="50.636203125" size="1.016" layer="27" ratio="10" rot="SR135"/>
 </element>
 <element name="C1" library="fab" package="C1206FAB" value="100nF" x="20.589328125" y="45.3515625" smashed="yes" rot="R315">
 <attribute name="NAME" x="20.2301125" y="47.50681875" size="1.016" layer="25" ratio="15" rot="R315"/>
@@ -15612,7 +15622,7 @@ design rules under a new name.</description>
 <attribute name="VALUE" x="26.97049375" y="51.589784375" size="1.016" layer="27" ratio="15" rot="R225"/>
 </element>
 <element name="R9" library="fab" package="R1206FAB" value="1.5Mohm" x="24.42225" y="51.868009375" smashed="yes" rot="R45">
-<attribute name="NAME" x="22.266990625" y="51.508796875" size="1.016" layer="25" ratio="15" rot="R45"/>
+<attribute name="NAME" x="23.2107" y="52.94141875" size="1.016" layer="25" ratio="15" rot="R45"/>
 <attribute name="VALUE" x="24.781459375" y="48.994328125" size="1.016" layer="27" ratio="15" rot="R45"/>
 </element>
 <element name="R13" library="fab" package="R1206" value="100ohm" x="13.975484375" y="38.30598125" smashed="yes" rot="R45">
