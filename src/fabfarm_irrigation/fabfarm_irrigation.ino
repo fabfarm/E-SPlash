@@ -393,9 +393,15 @@ int isEnabledFunc (int startTimeInMinutes, int duration)
 }
 float batLevel(){
   analogRead(batVolt);
-  float batteryLevel = map(analogRead(batVolt), 0.0f, 4095.0f, 0, 100);
-  Serial.print("Batery Level: ");
-  Serial.print(batteryLevel);
-  Serial.println("%");
-  return batteryLevel;
+  float batteryLevel = map(analogRead(batVolt), 0.0f, 1866.0f, 0, 100);
+  if (batteryLevel >= 100) {
+    return 100.11;
+  }
+  else
+  {
+    Serial.print("Batery Level: ");
+    Serial.print(batteryLevel);
+    Serial.println("%");
+    return batteryLevel;
+  }  
 }
