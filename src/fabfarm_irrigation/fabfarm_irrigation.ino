@@ -315,7 +315,7 @@ void allRelaysdisable(){
 String readDHTTemperature()
 {
   // Digital pin connected to the DHT sensor
-  #define DHTPIN 34
+  #define DHTPIN 14
   // Uncomment the type of sensor in use:
   #define DHTTYPE DHT22 // DHT 11
   //#define DHTTYPE    DHT22     // DHT 22 (AM2302)
@@ -343,7 +343,7 @@ String readDHTTemperature()
 String readDHTHumidity()
 {
   // Digital pin connected to the DHT sensor
-  #define DHTPIN 34
+  #define DHTPIN 14
   // Uncomment the type of sensor in use:
   #define DHTTYPE DHT22 // DHT 11
   //#define DHTTYPE    DHT22     // DHT 22 (AM2302)
@@ -395,7 +395,7 @@ float batLevel(){
   analogRead(batVolt);
   float batteryLevel = map(analogRead(batVolt), 0.0f, 1866.0f, 0, 100);
   if (batteryLevel >= 100) {
-    return 100.11;
+    return 100;
   }
   else
   {
