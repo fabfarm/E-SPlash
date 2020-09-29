@@ -8,6 +8,7 @@ String printFarmTime()
   const long gmtOffset_sec = 0;
   const int daylightOffset_sec = 3600;
   configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+  
 
   //time_t rawtime;
   struct tm timeinfo;
@@ -16,7 +17,7 @@ String printFarmTime()
   strftime(timeStringBuff, sizeof(timeStringBuff), "%A, %B %d %Y %H:%M:%S", &timeinfo);
   //print like "const char*"
   Serial.println(timeStringBuff);
-
+  
   //Construct to create the String object
   String timeAsAString(timeStringBuff);
   return timeAsAString;

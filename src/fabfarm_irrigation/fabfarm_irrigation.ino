@@ -38,14 +38,14 @@
 const char *dataFile = "data.json";
 
 // Specify the port of the Async server
-AsyncWebServer server(80);
+AsyncWebServer server(81);
 // Specifing the capacity of the json in bytes.
 
 int jasonSize = 2048;
 DynamicJsonDocument doc(jasonSize); // from arduinoJson
 
 //Defining pump pin number
-int pumpPin = 33;
+int pumpPin = 13;
 int batVolt = 35;
 void setup(){
 
@@ -176,7 +176,8 @@ void loop()
     #endif // MACRO
     ssid = "rato";
     password = "imakestuff";
-    delay(100);
+          delay(50);
+
     Serial.println("Connecting to WiFi..");
     WiFi.begin(ssid, password);
   }
@@ -187,7 +188,8 @@ void loop()
     Serial.print("The Fabfarm Irrigation system network IP is:");
     Serial.println(WiFi.localIP());
   }
-  delay(100);
+        delay(50);
+
   JsonObject data = doc["data"];
   boolean data_isScheduleMode = data["isScheduleMode"];
 
@@ -202,7 +204,8 @@ void loop()
 }
 
 void scheduleMode(){
-  delay(100);
+        delay(50);
+
   //matrix logic test
 
   JsonArray relays = doc["relays"];
@@ -224,7 +227,7 @@ void scheduleMode(){
     if (flagEnableRelay >= 1)
     {
       digitalWrite(relays[i]["pin"], 1);
-      delay(500);
+      delay(50);
       digitalWrite(pumpPin, 1);
       Serial.print("Zone ");
       String zoneName = relays[i]["name"];
@@ -245,7 +248,7 @@ void scheduleMode(){
         {
           digitalWrite(pumpPin, 0);
         }
-      delay(500);
+      delay(50);
       digitalWrite(relays[i]["pin"], 0);
       Serial.print("Zone ");
       String zoneName = relays[i]["name"];
@@ -258,7 +261,7 @@ void scheduleMode(){
 void manualMode()
 {
   Serial.println("now Manual Mode");
-  delay(100);
+      delay(50);
   JsonArray relays = doc["relays"];
   for (int i = 0; i < relays.size(); i++)
   {
@@ -266,7 +269,8 @@ void manualMode()
     if (relays[i]["isEnabled"] == 1)
     {
       digitalWrite(relays[i]["pin"], 1);
-      delay(500);
+            delay(50);
+
       digitalWrite(pumpPin, 1);
     }
     else
@@ -283,7 +287,8 @@ void manualMode()
         {
           digitalWrite(pumpPin, 0);
         }
-      delay(500);
+            delay(50);
+
       digitalWrite(relays[i]["pin"], 0);
       Serial.print("Zone ");
       String zoneName = relays[i]["name"];
@@ -295,7 +300,8 @@ void manualMode()
 
 //function to deactivate all pins usefull for safe startup not finished yet
 void allRelaysdisable(){
-  delay(100);
+        delay(50);
+
   JsonObject data = doc["data"];
     JsonArray relays = doc["relays"];
     for (int p = 0; p < relays.size(); p++)
@@ -309,9 +315,9 @@ void allRelaysdisable(){
 String readDHTTemperature()
 {
   // Digital pin connected to the DHT sensor
-  #define DHTPIN 32
+  #define DHTPIN 14
   // Uncomment the type of sensor in use:
-  #define DHTTYPE DHT11 // DHT 11
+  #define DHTTYPE DHT22 // DHT 11
   //#define DHTTYPE    DHT22     // DHT 22 (AM2302)
   //#define DHTTYPE    DHT21     // DHT 21 (AM2301)
   //Send the pin and type of sensor
@@ -337,9 +343,9 @@ String readDHTTemperature()
 String readDHTHumidity()
 {
   // Digital pin connected to the DHT sensor
-  #define DHTPIN 32
+  #define DHTPIN 14
   // Uncomment the type of sensor in use:
-  #define DHTTYPE DHT11 // DHT 11
+  #define DHTTYPE DHT22 // DHT 11
   //#define DHTTYPE    DHT22     // DHT 22 (AM2302)
   //#define DHTTYPE    DHT21     // DHT 21 (AM2301)
   //Send the pin and type of sensor
@@ -387,9 +393,15 @@ int isEnabledFunc (int startTimeInMinutes, int duration)
 }
 float batLevel(){
   analogRead(batVolt);
-  float batteryLevel = map(analogRead(batVolt), 0.0f, 4095.0f, 0, 100);
-  Serial.print("Batery Level: ");
-  Serial.print(batteryLevel);
-  Serial.println("%");
-  return batteryLevel;
+  float batteryLevel = map(analogRead(batVolt), 0.0f, 1866.0f, 0, 100);
+  if (batteryLevel >= 100) {
+    return 100;
+  }
+  else
+  {
+    Serial.print("Batery Level: ");
+    Serial.print(batteryLevel);
+    Serial.println("%");
+    return batteryLevel;
+  }  
 }
