@@ -1996,10 +1996,10 @@ Comments, suggestions and bug reports please send to: &lt;b&gt;&lt;a href="mailt
 <part name="U$7" library="fab" deviceset="LED" device=""/>
 <part name="GND16" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="GND" device=""/>
 <part name="R2" library="fab" deviceset="RES-US" device="1206FAB" value="1K"/>
-<part name="R17" library="fab" deviceset="RES-US" device="1206FAB" value="220omh"/>
-<part name="R18" library="fab" deviceset="RES-US" device="1206FAB" value="220omh"/>
-<part name="R19" library="fab" deviceset="RES-US" device="1206FAB" value="220omh"/>
-<part name="R20" library="fab" deviceset="RES-US" device="1206FAB" value="220omh"/>
+<part name="R17" library="fab" deviceset="RES-US" device="1206FAB" value="120omh"/>
+<part name="R18" library="fab" deviceset="RES-US" device="1206FAB" value="120omh"/>
+<part name="R19" library="fab" deviceset="RES-US" device="1206FAB" value="120omh"/>
+<part name="R20" library="fab" deviceset="RES-US" device="1206FAB" value="120omh"/>
 </parts>
 <sheets>
 <sheet>

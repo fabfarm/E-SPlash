@@ -99,7 +99,7 @@ void setup(){
   //Wifi client setup
   const char* ssid = doc["data"]["ssid"];
   const char* password = doc["data"]["pass"];
-  ssid = "rato";
+  ssid = "fabfarm-ele-container";
   password = "imakestuff";
   WiFi.begin(ssid, password);
   // Route for root / web page
@@ -174,7 +174,7 @@ void loop()
     #if !defined(password)
     const char* password = doc["data"]["pass"];
     #endif // MACRO
-    ssid = "rato";
+    ssid = "fabfarm-ele-container";
     password = "imakestuff";
           delay(50);
 

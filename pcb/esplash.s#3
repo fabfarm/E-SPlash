@@ -2713,11 +2713,11 @@ Comments, suggestions and bug reports please send to: &lt;b&gt;&lt;a href="mailt
 <net name="N$52" class="0">
 <segment>
 <wire x1="147.32" y1="106.68" x2="147.32" y2="-60.96" width="0.1524" layer="91"/>
-<wire x1="147.32" y1="-60.96" x2="274.32" y2="-60.96" width="0.1524" layer="91"/>
-<wire x1="274.32" y1="-60.96" x2="274.32" y2="106.68" width="0.1524" layer="91"/>
-<wire x1="274.32" y1="106.68" x2="274.32" y2="114.3" width="0.1524" layer="91"/>
-<wire x1="274.32" y1="114.3" x2="147.32" y2="114.3" width="0.1524" layer="91"/>
-<wire x1="274.32" y1="106.68" x2="147.32" y2="106.68" width="0.1524" layer="91"/>
+<wire x1="147.32" y1="-60.96" x2="284.48" y2="-60.96" width="0.1524" layer="91"/>
+<wire x1="284.48" y1="-60.96" x2="284.48" y2="106.68" width="0.1524" layer="91"/>
+<wire x1="284.48" y1="106.68" x2="284.48" y2="114.3" width="0.1524" layer="91"/>
+<wire x1="284.48" y1="114.3" x2="147.32" y2="114.3" width="0.1524" layer="91"/>
+<wire x1="284.48" y1="106.68" x2="147.32" y2="106.68" width="0.1524" layer="91"/>
 <wire x1="147.32" y1="114.3" x2="147.32" y2="106.68" width="0.1524" layer="91"/>
 </segment>
 </net>
@@ -2847,24 +2847,24 @@ Comments, suggestions and bug reports please send to: &lt;b&gt;&lt;a href="mailt
 </net>
 <net name="N$9" class="0">
 <segment>
-<wire x1="27.94" y1="66.04" x2="-78.74" y2="66.04" width="0.1524" layer="91"/>
+<wire x1="30.48" y1="66.04" x2="-78.74" y2="66.04" width="0.1524" layer="91"/>
 <wire x1="-78.74" y1="66.04" x2="-78.74" y2="58.42" width="0.1524" layer="91"/>
 <wire x1="-78.74" y1="58.42" x2="-78.74" y2="33.02" width="0.1524" layer="91"/>
-<wire x1="-78.74" y1="33.02" x2="27.94" y2="33.02" width="0.1524" layer="91"/>
-<wire x1="27.94" y1="33.02" x2="27.94" y2="58.42" width="0.1524" layer="91"/>
-<wire x1="27.94" y1="58.42" x2="27.94" y2="66.04" width="0.1524" layer="91"/>
-<wire x1="27.94" y1="58.42" x2="-78.74" y2="58.42" width="0.1524" layer="91"/>
+<wire x1="-78.74" y1="33.02" x2="30.48" y2="33.02" width="0.1524" layer="91"/>
+<wire x1="30.48" y1="33.02" x2="30.48" y2="58.42" width="0.1524" layer="91"/>
+<wire x1="30.48" y1="58.42" x2="30.48" y2="66.04" width="0.1524" layer="91"/>
+<wire x1="30.48" y1="58.42" x2="-78.74" y2="58.42" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$11" class="0">
 <segment>
-<wire x1="27.94" y1="27.94" x2="27.94" y2="20.32" width="0.1524" layer="91"/>
-<wire x1="27.94" y1="20.32" x2="27.94" y2="-60.96" width="0.1524" layer="91"/>
-<wire x1="27.94" y1="-60.96" x2="-78.74" y2="-60.96" width="0.1524" layer="91"/>
+<wire x1="30.48" y1="27.94" x2="30.48" y2="20.32" width="0.1524" layer="91"/>
+<wire x1="30.48" y1="20.32" x2="30.48" y2="-60.96" width="0.1524" layer="91"/>
+<wire x1="30.48" y1="-60.96" x2="-78.74" y2="-60.96" width="0.1524" layer="91"/>
 <wire x1="-78.74" y1="-60.96" x2="-78.74" y2="20.32" width="0.1524" layer="91"/>
 <wire x1="-78.74" y1="20.32" x2="-78.74" y2="27.94" width="0.1524" layer="91"/>
-<wire x1="-78.74" y1="27.94" x2="27.94" y2="27.94" width="0.1524" layer="91"/>
-<wire x1="27.94" y1="20.32" x2="-78.74" y2="20.32" width="0.1524" layer="91"/>
+<wire x1="-78.74" y1="27.94" x2="30.48" y2="27.94" width="0.1524" layer="91"/>
+<wire x1="30.48" y1="20.32" x2="-78.74" y2="20.32" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="GPIO3/RXD0" class="0">
@@ -3288,7 +3288,7 @@ Comments, suggestions and bug reports please send to: &lt;b&gt;&lt;a href="mailt
 </sheets>
 <errors>
 <approved hash="104,1,76.2,-38.1,U$6,VDD,3V3,,,"/>
-<approved hash="113,1,-48.26,47.9654,S1,,,,,"/>
+<approved hash="113,1,262.064,49.53,VALVESOLENOID_01,,,,,"/>
 </errors>
 </schematic>
 </drawing>
