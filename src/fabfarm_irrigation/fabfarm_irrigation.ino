@@ -1,4 +1,3 @@
-
 /**
  * This code is part of a Irrigation Sytem developed as my final project,
  * in the Fabacademy course, full documentation can be viewed on the link:
@@ -99,6 +98,8 @@ void setup(){
   //Wifi client setup
   const char* ssid = doc["data"]["ssid"];
   const char* password = doc["data"]["pass"];
+
+  // CARLOS - question - why is this being overwritten?
   ssid = "rato";
   password = "imakestuff";
   WiFi.begin(ssid, password);
@@ -116,46 +117,54 @@ void setup(){
   server.on("/logo.png", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(SPIFFS, "/logo.png", "image/png");
   });
-  server.on("/getData", HTTP_GET, [](AsyncWebServerRequest *request)
-    {
 
-  Serial.println("/getData");
-  JsonObject data = doc["data"];
-  data["currentTime"] = printFarmTime();
-  data["temperature"] = readDHTTemperature();
-  data["humidity"] = readDHTHumidity();
-  data["batLevel"] = batLevel();
-  char json[2048];
-  Serial.println("Serialize json & return to caller - BEGIN");
-  serializeJson(doc, json);
-  Serial.println("Serialize json & return to caller - COMPLETE");
-  request->send(200, "application/json", json);
+  server.on("/getData", HTTP_GET, [](AsyncWebServerRequest *request)
+  {
+
+    Serial.println("/getData");
+    JsonObject data = doc["data"];
+    data["currentTime"] = printFarmTime();
+    data["temperature"] = readDHTTemperature();
+    data["humidity"] = readDHTHumidity();
+    data["batLevel"] = batLevel();
+
+
+    char json[2048];
+    Serial.println("Serialize json & return to caller - BEGIN");
+    serializeJson(doc, json);
+    Serial.println("Serialize json & return to caller - COMPLETE");
+    request->send(200, "application/json", json);
+
   });
   
-  AsyncCallbackJsonWebHandler *handler = new AsyncCallbackJsonWebHandler("/updateData", [](AsyncWebServerRequest *request, JsonVariant &json) {
-  doc = json.as<JsonObject>();
-    
-  String jsonString;
-  serializeJson(doc, jsonString);
+  AsyncCallbackJsonWebHandler *handler = new AsyncCallbackJsonWebHandler("/updateData", 
+    [](AsyncWebServerRequest *request, JsonVariant &json) {
+        doc = json.as<JsonObject>();
+          
 
-  //write this to disk
-  // Read json from the file ...
-  Serial.println("Saving to disk - BEGIN");
-  File f = SPIFFS.open("/data.json", "w");
-  if (!f)
-  {
-    Serial.println("Faile to open file for writing");
-  }
+        // CARLOS - before you used char * , and here you use String, why?
+        String jsonString;
+        serializeJson(doc, jsonString);
 
-  int bytesWritten = f.print(jsonString);
-  f.close();
-  Serial.printf("Saving to disk - COMPLETE(%d bytes)\n", bytesWritten);
+        //write this to disk
+        // Read json from the file ...
+        
+        Serial.println("Saving to disk - BEGIN");
+        File f = SPIFFS.open("/data.json", "w");
+        if (!f)
+        {
+          Serial.println("Faile to open file for writing");
+        }
 
-  request->send(200); // "application/json", jsonString);
-  Serial.println("-------------------");
-  Serial.println(jsonString);
-  Serial.println("-------------------");
-  });
+        int bytesWritten = f.print(jsonString);
+        f.close();
+        Serial.printf("Saving to disk - COMPLETE(%d bytes)\n", bytesWritten);
+
+        request->send(200); // "application/json", jsonString);
+        Serial.println("-------------------");
+        Serial.println(jsonString);
+        Serial.println("-------------------");
+    });
   
   server.addHandler(handler);
 
@@ -169,14 +178,18 @@ void loop()
   {
     //WiFi.begin(ssid, password);
     #if !defined(ssid)
-    const char* ssid = doc["data"]["ssid"];
+      const char* ssid = doc["data"]["ssid"];
     #endif // MACRO
     #if !defined(password)
-    const char* password = doc["data"]["pass"];
+      const char* password = doc["data"]["pass"];
     #endif // MACRO
+    
     ssid = "rato";
     password = "imakestuff";
-          delay(50);
+
+
+    // CARLOS - What is this delay for? so you can get the json data from setup?
+    delay(50);
 
     Serial.println("Connecting to WiFi..");
     WiFi.begin(ssid, password);
@@ -188,7 +201,8 @@ void loop()
     Serial.print("The Fabfarm Irrigation system network IP is:");
     Serial.println(WiFi.localIP());
   }
-        delay(50);
+  
+  delay(50);
 
   JsonObject data = doc["data"];
   boolean data_isScheduleMode = data["isScheduleMode"];
@@ -204,7 +218,8 @@ void loop()
 }
 
 void scheduleMode(){
-        delay(50);
+  
+  delay(50);
 
   //matrix logic test
 
@@ -214,10 +229,13 @@ void scheduleMode(){
     for (int j = 0; j < relays[i]["times"].size(); j++) {
       //aparentelly there is no problem to set digital write several times as it only dows write a different value, need to check that. https://forum.arduino.cc/index.php?topic=52806.0
       pinMode(relays[i]["pin"], OUTPUT);
-      const char* relaysStartTime = relays[i]["times"][j]["startTime"];
-      int hOurs = relays[i]["times"][j]["hour"];
-      int mIns = relays[i]["times"][j]["min"];
-      int cycleDuration = relays[i]["times"][j]["duration"];
+      
+      JsonObject timedRelay = relays[i]["times"][j];
+
+      const char* relaysStartTime = timedRelay["startTime"];
+      int hOurs = timedRelay["hour"];
+      int mIns = timedRelay["min"];
+      int cycleDuration = timedRelay["duration"];
       //Probabilly should learn about bitwise... https://playground.arduino.cc/Code/BitMath/
       if (isEnabledFunc(hOurs*60+mIns, cycleDuration) == 1)
       {
@@ -233,35 +251,37 @@ void scheduleMode(){
       String zoneName = relays[i]["name"];
       Serial.print(zoneName);
       Serial.println(" is Enabled!");
+
+      return;
     }
-    else
-    {   
-      int valveFlag = 0;
-      for (int y = 0; y < relays.size(); y++)
+    
+    
+    int valveFlag = 0;
+    for (int y = 0; y < relays.size(); y++)
+    {
+      if (digitalRead (relays[y]["pin"]) == HIGH)
       {
-        if (digitalRead (relays[y]["pin"]) == HIGH)
-        {
-          ++valveFlag;
-        }
+        ++valveFlag;
       }
-      if (valveFlag == 0)
-        {
-          digitalWrite(pumpPin, 0);
-        }
-      delay(50);
-      digitalWrite(relays[i]["pin"], 0);
-      Serial.print("Zone ");
-      String zoneName = relays[i]["name"];
-      Serial.print(zoneName);
-      Serial.println(" is off");
     }
+    if (valveFlag == 0)
+      {
+        digitalWrite(pumpPin, 0);
+      }
+    delay(50);
+    digitalWrite(relays[i]["pin"], 0);
+    Serial.print("Zone ");
+    String zoneName = relays[i]["name"];
+    Serial.print(zoneName);
+    Serial.println(" is off");
   }
 }
 
 void manualMode()
 {
+
   Serial.println("now Manual Mode");
-      delay(50);
+  delay(50);
   JsonArray relays = doc["relays"];
   for (int i = 0; i < relays.size(); i++)
   {
@@ -269,42 +289,43 @@ void manualMode()
     if (relays[i]["isEnabled"] == 1)
     {
       digitalWrite(relays[i]["pin"], 1);
-            delay(50);
+      delay(50);
 
       digitalWrite(pumpPin, 1);
+      continue;
     }
-    else
-    {   
-      int valveFlag = 0;
-      for (int y = 0; y < relays.size(); y++)
+    
+    int valveFlag = 0;
+    for (int y = 0; y < relays.size(); y++)
+    {
+      if (digitalRead (relays[y]["pin"]) == HIGH)
       {
-        if (digitalRead (relays[y]["pin"]) == HIGH)
-        {
-          ++valveFlag;
-        }
+        ++valveFlag;
       }
-      if (valveFlag == 0)
-        {
-          digitalWrite(pumpPin, 0);
-        }
-            delay(50);
-
-      digitalWrite(relays[i]["pin"], 0);
-      Serial.print("Zone ");
-      String zoneName = relays[i]["name"];
-      Serial.print(zoneName);
-      Serial.println(" is off");
     }
+    if (valveFlag == 0)
+      {
+        digitalWrite(pumpPin, 0);
+      }
+    delay(50);
+
+    digitalWrite(relays[i]["pin"], 0);
+    Serial.print("Zone ");
+    String zoneName = relays[i]["name"];
+    Serial.print(zoneName);
+    Serial.println(" is off");
+    
   }
 }
 
 //function to deactivate all pins usefull for safe startup not finished yet
 void allRelaysdisable(){
-        delay(50);
+  
+  delay(50);
 
   JsonObject data = doc["data"];
-    JsonArray relays = doc["relays"];
-    for (int p = 0; p < relays.size(); p++)
+  JsonArray relays = doc["relays"];
+  for (int p = 0; p < relays.size(); p++)
   {
     int pin = relays[p]["pin"];
     pinMode(pin, OUTPUT);
@@ -333,11 +354,11 @@ String readDHTTemperature()
     Serial.println("Failed to read from DHT sensor!");
     return "Failed to read temperator from sensor";
   }
-  else
-  {
-    Serial.println(t);
-    return String(t);
-  }
+  
+
+  Serial.println(t);
+  return String(t);
+  
 }
 
 String readDHTHumidity()
@@ -357,13 +378,14 @@ String readDHTHumidity()
     Serial.println("Failed to read from DHT sensor!");
     return "Failed to read humidity from sensor";
   }
-  else
-  {
-    Serial.println(h);
-    return String(h);
-  }
+
+  Serial.println(h);
+  return String(h);
 }
 
+/**
+  Depending on the fetched current time we either enable/disable some relay
+*/
 int isEnabledFunc (int startTimeInMinutes, int duration)
 {
 
@@ -381,7 +403,8 @@ int isEnabledFunc (int startTimeInMinutes, int duration)
   onlySec = timeinfo.tm_sec;
   int presentTimeInMinutes = onlyHour*60+onlyMin;
   int isEnabled;
-    if (startTimeInMinutes <= presentTimeInMinutes && presentTimeInMinutes <= startTimeInMinutes+duration){
+  
+  if (startTimeInMinutes <= presentTimeInMinutes && presentTimeInMinutes <= startTimeInMinutes+duration){
     isEnabled = 1;
     //Serial.println("time to start the pump!");
   }
@@ -391,6 +414,8 @@ int isEnabledFunc (int startTimeInMinutes, int duration)
     }
   return isEnabled;
 }
+
+
 float batLevel(){
   analogRead(batVolt);
   float batteryLevel = map(analogRead(batVolt), 0.0f, 1866.0f, 0, 100);
