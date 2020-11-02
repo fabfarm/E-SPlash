@@ -38,10 +38,10 @@
 const char *dataFile = "data.json";
 
 // Specify the port of the Async server
-AsyncWebServer server(81);
+AsyncWebServer server(80);
 // Specifing the capacity of the json in bytes.
 
-int jasonSize = 2048;
+int jasonSize = 1520;
 DynamicJsonDocument doc(jasonSize); // from arduinoJson
 
 //Defining pump pin number
@@ -120,6 +120,7 @@ void setup(){
     {
 
   Serial.println("/getData");
+  
   JsonObject data = doc["data"];
   data["currentTime"] = printFarmTime();
   data["temperature"] = readDHTTemperature();
@@ -176,7 +177,7 @@ void loop()
     #endif // MACRO
     ssid = "fabfarm-ele-container";
     password = "imakestuff";
-          delay(50);
+         // delay(50);
 
     Serial.println("Connecting to WiFi..");
     WiFi.begin(ssid, password);
@@ -188,7 +189,7 @@ void loop()
     Serial.print("The Fabfarm Irrigation system network IP is:");
     Serial.println(WiFi.localIP());
   }
-        delay(50);
+       // delay(50);
 
   JsonObject data = doc["data"];
   boolean data_isScheduleMode = data["isScheduleMode"];
@@ -204,7 +205,7 @@ void loop()
 }
 
 void scheduleMode(){
-        delay(50);
+       // delay(50);
 
   //matrix logic test
 
@@ -227,7 +228,7 @@ void scheduleMode(){
     if (flagEnableRelay >= 1)
     {
       digitalWrite(relays[i]["pin"], 1);
-      delay(50);
+      //delay(50);
       digitalWrite(pumpPin, 1);
       Serial.print("Zone ");
       String zoneName = relays[i]["name"];
@@ -248,7 +249,7 @@ void scheduleMode(){
         {
           digitalWrite(pumpPin, 0);
         }
-      delay(50);
+      //delay(50);
       digitalWrite(relays[i]["pin"], 0);
       Serial.print("Zone ");
       String zoneName = relays[i]["name"];
@@ -261,7 +262,7 @@ void scheduleMode(){
 void manualMode()
 {
   Serial.println("now Manual Mode");
-      delay(50);
+      //delay(50);
   JsonArray relays = doc["relays"];
   for (int i = 0; i < relays.size(); i++)
   {
@@ -269,7 +270,7 @@ void manualMode()
     if (relays[i]["isEnabled"] == 1)
     {
       digitalWrite(relays[i]["pin"], 1);
-            delay(50);
+            //delay(50);
 
       digitalWrite(pumpPin, 1);
     }
@@ -287,7 +288,7 @@ void manualMode()
         {
           digitalWrite(pumpPin, 0);
         }
-            delay(50);
+            //delay(50);
 
       digitalWrite(relays[i]["pin"], 0);
       Serial.print("Zone ");
@@ -300,7 +301,7 @@ void manualMode()
 
 //function to deactivate all pins usefull for safe startup not finished yet
 void allRelaysdisable(){
-        delay(50);
+        //delay(50);
 
   JsonObject data = doc["data"];
     JsonArray relays = doc["relays"];
