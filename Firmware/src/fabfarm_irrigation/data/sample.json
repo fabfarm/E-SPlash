@@ -1,0 +1,93 @@
+{
+    "data": {
+        "currentTime": "Sunday, July 12 2020 02:30:58",
+        "temperature": "Failed to read temperator from sensor",
+        "humidity": "Failed to read humidity from sensor",
+        "isScheduleMode": 0,
+        "ssid": "rato",
+        "pass": "imakestuff",
+        "batLevel": 0
+    },
+    "relays": [
+        {
+            "name": "Fruit Tree",
+            "pin": 27,
+            "isRunning": 1,
+            "isEnabled": 0,
+            "times": [
+                {
+                    "startTime": "01:01",
+                    "duration": 0,
+                    "hour": 1,
+                    "min": 1
+                }
+            ]
+        },
+        {
+            "name": "Vegie Garden",
+            "pin": 26,
+            "isRunning": 1,
+            "isEnabled": 0,
+            "status": 1,
+            "times": [
+                {
+                    "startTime": "02:02",
+                    "duration": 32,
+                    "hour": 2,
+                    "min": 2
+                }
+            ]
+        },
+        {
+            "name": "Led1",
+            "pin": 2,
+            "isRunning": 1,
+            "isEnabled": 0,
+            "status": 1,
+            "times": [
+                {
+                    "startTime": "02:02",
+                    "duration": 32,
+                    "hour": 2,
+                    "min": 2
+                }
+            ]
+        },
+        {
+            "name": "Led2",
+            "pin": 4,
+            "isRunning": 1,
+            "isEnabled": 0,
+            "status": 1,
+            "times": [
+                {
+                    "startTime": "02:02",
+                    "duration": 32,
+                    "hour": 2,
+                    "min": 2
+                }
+            ]
+        },
+        {
+            "name": "Cypress Hill",
+            "pin": 25,
+            "isRunning": 1,
+            "isEnabled": 0,
+            "status": 1,
+            "times": [
+                {
+                    "startTime": "03:03",
+                    "duration": 60,
+                    "hour": 3,
+                    "min": 3
+                },
+                {
+                    "startTime": "03:03",
+                    "duration": 60,
+                    "hour": 3,
+                    "min": 3
+                }
+            ]
+        }
+    ]
+}
