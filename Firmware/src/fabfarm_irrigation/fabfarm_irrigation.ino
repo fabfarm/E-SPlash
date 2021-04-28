@@ -31,8 +31,14 @@
 #include "SPIFFS.h"
 #include "WiFi.h"
 
-#include "printFarmTime.cpp"
+// #include "printFarmTime.cpp"
 #include "modifiedPrintLocalTime.cpp"
+
+#include <ESP32Time.h>
+ESP32Time rtc;
+const char* ntpServer = "pool.ntp.org";
+const long  gmtOffset_sec = 0;
+const int   daylightOffset_sec = 0;
 
 // read / write json to save state
 const char *dataFile = "data.json";
@@ -41,14 +47,19 @@ const char *dataFile = "data.json";
 AsyncWebServer server(80);
 // Specifing the capacity of the json in bytes.
 
-int jasonSize = 1520;
+int jasonSize = 2048;
 DynamicJsonDocument doc(jasonSize); // from arduinoJson
 
 //Defining pump pin number
 int pumpPin = 13;
 int batVolt = 35;
+const char* ssid = "fabfarm_ele_container";
+const char* password = "imakestuff";
+
 void setup(){
 
+// const char* ssid = "fabfarm_ele_container";
+// const char* password = "imakestuff";
 
   //defining behaviour of pumpPin and its startup state
   pinMode (pumpPin, OUTPUT);
@@ -56,13 +67,31 @@ void setup(){
   
   //put all relays in LOW at startup
   //TODO write to Json as well otherwise it reactivates
+
+
+
   allRelaysdisable();
 
   // Serial port for debugging purposes
   Serial.begin(9600);    
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(1000);
+    Serial.println("Connecting to WiFi..");
+  }
+  // Print ESP32 Local IP Address
+  Serial.println("Connected to WiFi!1");
+  // Print ESP32 Local IP Address
+  Serial.print("The Fabfarm Irrigation system network IP is:");
+  Serial.println(WiFi.localIP());
 
-  // Initialize SPIFFS
-  // That is the file system.
+  // Init and get the time
+  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+  AssignLocalTimeAnas();
+  Serial.println(rtc.getTime("%A, %B %d %Y %H:%M:%S"));
+
+  //Initialize SPIFFS
+  //That is the file system.
   if (!SPIFFS.begin(true))
   {
     Serial.println("An Error has occurred while mounting SPIFFS");
@@ -92,17 +121,16 @@ void setup(){
   //digitalWrite(relayGPIOs[i - 1], HIGH);
 
   //Soft Wifi Access point setup
-  WiFi.softAP("softap", "imakestuff");
-  IPAddress IP = WiFi.softAPIP();
-  //tcpip_adapter_set_hostname(TCPIP_ADAPTER_IF_AP, "irrigation");
-  //start wifi sessions as a client.
-  //Wifi client setup
-  const char* ssid = doc["data"]["ssid"];
-  const char* password = doc["data"]["pass"];
-  ssid = "fabfarm-ele-container";
-  password = "imakestuff";
-  WiFi.begin(ssid, password);
-  // Route for root / web page
+  // WiFi.softAP("softap", "imakestuff");
+  // IPAddress IP = WiFi.softAPIP();
+  // //tcpip_adapter_set_hostname(TCPIP_ADAPTER_IF_AP, "irrigation");
+  // //start wifi sessions as a client.
+  // //Wifi client setup
+  // const char* ssid = doc["data"]["ssid"];
+  // const char* password = doc["data"]["pass"];
+  
+  // WiFi.begin(ssid, password);
+  //Route for root / web page
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(SPIFFS, "/index.html", String(), false);
   });
@@ -120,9 +148,8 @@ void setup(){
     {
 
   Serial.println("/getData");
-  
   JsonObject data = doc["data"];
-  data["currentTime"] = printFarmTime();
+  data["currentTime"] = rtc.getTime("%A, %B %d %Y %H:%M:%S");
   data["temperature"] = readDHTTemperature();
   data["humidity"] = readDHTHumidity();
   data["batLevel"] = batLevel();
@@ -175,9 +202,9 @@ void loop()
     #if !defined(password)
     const char* password = doc["data"]["pass"];
     #endif // MACRO
-    ssid = "fabfarm-ele-container";
-    password = "imakestuff";
-         // delay(50);
+    ssid = "fabfarm_ele_container";
+    password = "imakestuff"; 
+          delay(50);
 
     Serial.println("Connecting to WiFi..");
     WiFi.begin(ssid, password);
@@ -189,8 +216,8 @@ void loop()
     Serial.print("The Fabfarm Irrigation system network IP is:");
     Serial.println(WiFi.localIP());
   }
-       // delay(50);
-
+        delay(50);
+  Serial.println(rtc.getTime("%A, %B %d %Y %H:%M:%S"));
   JsonObject data = doc["data"];
   boolean data_isScheduleMode = data["isScheduleMode"];
 
@@ -205,7 +232,7 @@ void loop()
 }
 
 void scheduleMode(){
-       // delay(50);
+        delay(50);
 
   //matrix logic test
 
@@ -228,7 +255,7 @@ void scheduleMode(){
     if (flagEnableRelay >= 1)
     {
       digitalWrite(relays[i]["pin"], 1);
-      //delay(50);
+      delay(50);
       digitalWrite(pumpPin, 1);
       Serial.print("Zone ");
       String zoneName = relays[i]["name"];
@@ -249,7 +276,7 @@ void scheduleMode(){
         {
           digitalWrite(pumpPin, 0);
         }
-      //delay(50);
+      delay(50);
       digitalWrite(relays[i]["pin"], 0);
       Serial.print("Zone ");
       String zoneName = relays[i]["name"];
@@ -262,7 +289,7 @@ void scheduleMode(){
 void manualMode()
 {
   Serial.println("now Manual Mode");
-      //delay(50);
+      delay(50);
   JsonArray relays = doc["relays"];
   for (int i = 0; i < relays.size(); i++)
   {
@@ -270,7 +297,7 @@ void manualMode()
     if (relays[i]["isEnabled"] == 1)
     {
       digitalWrite(relays[i]["pin"], 1);
-            //delay(50);
+            delay(50);
 
       digitalWrite(pumpPin, 1);
     }
@@ -288,7 +315,7 @@ void manualMode()
         {
           digitalWrite(pumpPin, 0);
         }
-            //delay(50);
+            delay(50);
 
       digitalWrite(relays[i]["pin"], 0);
       Serial.print("Zone ");
@@ -301,7 +328,7 @@ void manualMode()
 
 //function to deactivate all pins usefull for safe startup not finished yet
 void allRelaysdisable(){
-        //delay(50);
+        delay(50);
 
   JsonObject data = doc["data"];
     JsonArray relays = doc["relays"];
@@ -368,18 +395,23 @@ String readDHTHumidity()
 int isEnabledFunc (int startTimeInMinutes, int duration)
 {
 
-  const char *ntpServer = "us.pool.ntp.org";
-  const long gmtOffset_sec = 0;
-  const int daylightOffset_sec = 3600;
+  // const char *ntpServer = "us.pool.ntp.org";
+  // const long gmtOffset_sec = 0;
+  // const int daylightOffset_sec = 3600;
   int onlyHour;
   int onlyMin;
   int onlySec;
-  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
-  struct tm timeinfo;
-  getLocalTime(&timeinfo);
-  onlyHour = timeinfo.tm_hour;
-  onlyMin = timeinfo.tm_min;
-  onlySec = timeinfo.tm_sec;
+  // configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+  // struct tm timeinfo;
+  // getLocalTime(&timeinfo);
+  // onlyHour = timeinfo.tm_hour;
+  // onlyMin = timeinfo.tm_min;
+  // onlySec = timeinfo.tm_sec;
+
+  onlyHour =rtc.getHour(true);
+  onlyMin = rtc.getMinute();
+  onlySec = rtc.getSecond();
+
   int presentTimeInMinutes = onlyHour*60+onlyMin;
   int isEnabled;
     if (startTimeInMinutes <= presentTimeInMinutes && presentTimeInMinutes <= startTimeInMinutes+duration){
@@ -406,3 +438,27 @@ float batLevel(){
     return batteryLevel;
   }  
 }
+
+void AssignLocalTimeAnas(){
+  struct tm timeinfo;
+  getLocalTime(&timeinfo);
+  int THour; 
+  int TMin; 
+  int TSec; 
+  // char Mintime[3];
+  // strftime(Mintime,3, "%M", &timeinfo);
+  int TYear;
+  int TMonth;
+  int TDay;
+  TYear = timeinfo.tm_year;
+  TMonth = timeinfo.tm_mon;
+  TDay = timeinfo.tm_mday;
+  THour = timeinfo.tm_hour;
+  TMin = timeinfo.tm_min;
+  TSec = timeinfo.tm_sec;
+  Serial.println(TMonth);
+  Serial.println(TYear);
+  // rtc.setTime(TSec,TMin,THour,TDay,TMonth,TYear);
+  rtc.setTime(TSec,TMin,THour,TDay,4,2021);
+  return ;
+  }

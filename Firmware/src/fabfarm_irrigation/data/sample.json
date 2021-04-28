@@ -3,7 +3,7 @@
         "currentTime": "Sunday, July 12 2020 02:30:58",
         "temperature": "Failed to read temperator from sensor",
         "humidity": "Failed to read humidity from sensor",
-        "isScheduleMode": 0,
+        "isScheduleMode": 1,
         "ssid": "rato",
         "pass": "imakestuff",
         "batLevel": 0
@@ -69,7 +69,7 @@
             ]
         },
         {
-            "name": "Cypress Hill",
+            "name": "Cypress Hills",
             "pin": 25,
             "isRunning": 1,
             "isEnabled": 0,
