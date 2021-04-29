@@ -39,16 +39,27 @@ const char *dataFile = "data.json";
 
 // Specify the port of the Async server
 AsyncWebServer server(80);
-// Specifing the capacity of the json in bytes.
 
+// Specifing the capacity of the json in bytes.
 int jasonSize = 1520;
 DynamicJsonDocument doc(jasonSize); // from arduinoJson
 
 //Defining pump pin number
 int pumpPin = 13;
 int batVolt = 35;
+
+const char* ssid = "ratinho_do_malandro";
+const char* password = "gerryforever2018";
+
 void setup(){
 
+  //Soft Wifi Access point setup
+  //WiFi.softAP("softap", "imakestuff");
+  //IPAddress IP = WiFi.softAPIP();
+
+  //start wifi sessions as a client.
+  //Wifi client setup
+  WiFi.begin(ssid, password);
 
   //defining behaviour of pumpPin and its startup state
   pinMode (pumpPin, OUTPUT);
@@ -85,23 +96,6 @@ void setup(){
   Serial.println("json deserialize test - BEGIN");
   deserializeJson(doc, json);
 
-  // TODO: proactively disable everything / consider if we want to have it start in stopped state
-  // TODO: set OUTPUT for each relay
-  // TODO: also set each to off initially
-  //pinMode(relayGPIOs[i - 1], OUTPUT);
-  //digitalWrite(relayGPIOs[i - 1], HIGH);
-
-  //Soft Wifi Access point setup
-  WiFi.softAP("softap", "imakestuff");
-  IPAddress IP = WiFi.softAPIP();
-  //tcpip_adapter_set_hostname(TCPIP_ADAPTER_IF_AP, "irrigation");
-  //start wifi sessions as a client.
-  //Wifi client setup
-  const char* ssid = doc["data"]["ssid"];
-  const char* password = doc["data"]["pass"];
-  ssid = "fabfarm-ele-container";
-  password = "imakestuff";
-  WiFi.begin(ssid, password);
   // Route for root / web page
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(SPIFFS, "/index.html", String(), false);
@@ -168,19 +162,7 @@ void loop()
 {
   if  (WiFi.status() != WL_CONNECTED)
   {
-    //WiFi.begin(ssid, password);
-    #if !defined(ssid)
-    const char* ssid = doc["data"]["ssid"];
-    #endif // MACRO
-    #if !defined(password)
-    const char* password = doc["data"]["pass"];
-    #endif // MACRO
-    ssid = "fabfarm-ele-container";
-    password = "imakestuff";
-         // delay(50);
-
     Serial.println("Connecting to WiFi..");
-    WiFi.begin(ssid, password);
   }
   else
   {
@@ -189,7 +171,6 @@ void loop()
     Serial.print("The Fabfarm Irrigation system network IP is:");
     Serial.println(WiFi.localIP());
   }
-       // delay(50);
 
   JsonObject data = doc["data"];
   boolean data_isScheduleMode = data["isScheduleMode"];
@@ -205,10 +186,8 @@ void loop()
 }
 
 void scheduleMode(){
-       // delay(50);
 
   //matrix logic test
-
   JsonArray relays = doc["relays"];
   for (int i = 0; i < relays.size(); i++){
     int flagEnableRelay = 0;
@@ -228,7 +207,6 @@ void scheduleMode(){
     if (flagEnableRelay >= 1)
     {
       digitalWrite(relays[i]["pin"], 1);
-      //delay(50);
       digitalWrite(pumpPin, 1);
       Serial.print("Zone ");
       String zoneName = relays[i]["name"];
@@ -249,7 +227,6 @@ void scheduleMode(){
         {
           digitalWrite(pumpPin, 0);
         }
-      //delay(50);
       digitalWrite(relays[i]["pin"], 0);
       Serial.print("Zone ");
       String zoneName = relays[i]["name"];
@@ -262,7 +239,6 @@ void scheduleMode(){
 void manualMode()
 {
   Serial.println("now Manual Mode");
-      //delay(50);
   JsonArray relays = doc["relays"];
   for (int i = 0; i < relays.size(); i++)
   {
@@ -270,8 +246,6 @@ void manualMode()
     if (relays[i]["isEnabled"] == 1)
     {
       digitalWrite(relays[i]["pin"], 1);
-            //delay(50);
-
       digitalWrite(pumpPin, 1);
     }
     else
@@ -288,8 +262,6 @@ void manualMode()
         {
           digitalWrite(pumpPin, 0);
         }
-            //delay(50);
-
       digitalWrite(relays[i]["pin"], 0);
       Serial.print("Zone ");
       String zoneName = relays[i]["name"];
@@ -301,8 +273,6 @@ void manualMode()
 
 //function to deactivate all pins usefull for safe startup not finished yet
 void allRelaysdisable(){
-        //delay(50);
-
   JsonObject data = doc["data"];
     JsonArray relays = doc["relays"];
     for (int p = 0; p < relays.size(); p++)
