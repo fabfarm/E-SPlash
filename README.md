@@ -20,7 +20,7 @@ ValveN /
 | **Endpoint** | **Purpose**       |
 |--------------|-------------------|
 | /getData     | returns json      |
-| /saveData    | gets updated json |
+| /updateData  | gets updated json |
 
 ## Core Logic
 
@@ -44,14 +44,14 @@ Startup:
   - init wifi
   - init http server
 
-/get 
+/getData
   - serialize doc obj to Json
   - return Json to caller
   - no logic
 
-/update 
+/updateData 
   - take incoming Json and save it to disk
-  - aduinoJson magically serializes incoming request to our doc object for free
+  - arduinoJson magically serializes incoming request to our doc object for free
   - no logic 
 
 Loop (no disk i/o):
