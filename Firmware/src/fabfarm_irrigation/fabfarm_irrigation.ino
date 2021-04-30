@@ -32,7 +32,7 @@
 #include "WiFi.h"
 
 // #include "printFarmTime.cpp"
-#include "modifiedPrintLocalTime.cpp"
+//#include "modifiedPrintLocalTime.cpp"
 
 #include <ESP32Time.h>
 ESP32Time rtc;
@@ -50,14 +50,16 @@ DynamicJsonDocument doc(jasonSize); // from arduinoJson
 //Defining pump pin number
 int pumpPin = 13;
 int batVolt = 35;
-const char* ssid = "fabfarm_ele_container";
+
+//Declaring wifi credentials
+const char* ssid = "fabfarm1";
 const char* password = "imakestuff";
 
 void setup(){
 
   //Soft Wifi Access point setup
-  //WiFi.softAP("softap", "imakestuff");
-  //IPAddress IP = WiFi.softAPIP();
+  WiFi.softAP("softap", "imakestuff");
+  IPAddress IP = WiFi.softAPIP();
 
   //start wifi sessions as a client.
   //Wifi client setup
@@ -69,30 +71,26 @@ void setup(){
   
   //put all relays in LOW at startup
   //TODO write to Json as well otherwise it reactivates
-
   allRelaysdisable();
+
   // Configure a random time in the rtc of the ESP32
   rtc.setTime(1,1,1,1,1,2021);
+
   // Print the random time in the rtc
   Serial.println(rtc.getTime("%A, %B %d %Y %H:%M:%S"));
 
 
   // Serial port for debugging purposes
   Serial.begin(9600);    
-  WiFi.begin(ssid, password);
-  delay(2000);
   if (WiFi.status() != WL_CONNECTED) {
-    delay(1000);
     Serial.println("Connecting to WiFi..");
   }
-  // Print ESP32 Local IP Address
-  Serial.println("Connected to WiFi!1");
   // Print ESP32 Local IP Address
   Serial.print("The Fabfarm Irrigation system network IP is:");
   Serial.println(WiFi.localIP());
 
   // Assign the time from the ntp server to the esp32 RTC
-  AssignLocalTimeAnas();
+  AssignLocalTime();
   // Print the updated time in the rtc
   Serial.println(rtc.getTime("%A, %B %d %Y %H:%M:%S"));
 
@@ -162,9 +160,8 @@ void setup(){
   File f = SPIFFS.open("/data.json", "w");
   if (!f)
   {
-    Serial.println("Faile to open file for writing");
+    Serial.println("Failed to open file for writing");
   }
-
   int bytesWritten = f.print(jsonString);
   f.close();
   Serial.printf("Saving to disk - COMPLETE(%d bytes)\n", bytesWritten);
@@ -405,7 +402,7 @@ float batLevel(){
   }  
 }
 
-void AssignLocalTimeAnas(){
+void AssignLocalTime(){
   int THour; 
   int TMin; 
   int TSec; 
