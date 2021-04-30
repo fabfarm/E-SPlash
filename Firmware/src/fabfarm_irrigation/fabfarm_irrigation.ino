@@ -36,9 +36,6 @@
 
 #include <ESP32Time.h>
 ESP32Time rtc;
-const char* ntpServer = "pool.ntp.org";
-const long  gmtOffset_sec = 0;
-const int   daylightOffset_sec = 0;
 
 // read / write json to save state
 const char *dataFile = "data.json";
@@ -68,14 +65,18 @@ void setup(){
   //put all relays in LOW at startup
   //TODO write to Json as well otherwise it reactivates
 
-
-
   allRelaysdisable();
+  // Configure a random time in the rtc of the ESP32
+  rtc.setTime(1,1,1,1,1,2021);
+  // Print the random time in the rtc
+  Serial.println(rtc.getTime("%A, %B %d %Y %H:%M:%S"));
+
 
   // Serial port for debugging purposes
   Serial.begin(9600);    
   WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) {
+  delay(2000);
+  if (WiFi.status() != WL_CONNECTED) {
     delay(1000);
     Serial.println("Connecting to WiFi..");
   }
@@ -85,9 +86,9 @@ void setup(){
   Serial.print("The Fabfarm Irrigation system network IP is:");
   Serial.println(WiFi.localIP());
 
-  // Init and get the time
-  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+  // Assign the time from the ntp server to the esp32 RTC
   AssignLocalTimeAnas();
+  // Print the updated time in the rtc
   Serial.println(rtc.getTime("%A, %B %d %Y %H:%M:%S"));
 
   //Initialize SPIFFS
@@ -195,7 +196,7 @@ void loop()
 {
   if  (WiFi.status() != WL_CONNECTED)
   {
-    //WiFi.begin(ssid, password);
+    // WiFi.begin(ssid, password);
     #if !defined(ssid)
     const char* ssid = doc["data"]["ssid"];
     #endif // MACRO
@@ -440,25 +441,24 @@ float batLevel(){
 }
 
 void AssignLocalTimeAnas(){
-  struct tm timeinfo;
-  getLocalTime(&timeinfo);
   int THour; 
   int TMin; 
   int TSec; 
-  // char Mintime[3];
-  // strftime(Mintime,3, "%M", &timeinfo);
   int TYear;
   int TMonth;
   int TDay;
-  TYear = timeinfo.tm_year;
-  TMonth = timeinfo.tm_mon;
+  const char* ntpServer = "pool.ntp.org";
+  const long  gmtOffset_sec = 3600;
+  const int   daylightOffset_sec = 0;
+  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+  struct tm timeinfo;
+  getLocalTime(&timeinfo);
+  TYear = timeinfo.tm_year + 1900;
+  TMonth = timeinfo.tm_mon + 1;
   TDay = timeinfo.tm_mday;
   THour = timeinfo.tm_hour;
   TMin = timeinfo.tm_min;
   TSec = timeinfo.tm_sec;
-  Serial.println(TMonth);
-  Serial.println(TYear);
-  // rtc.setTime(TSec,TMin,THour,TDay,TMonth,TYear);
-  rtc.setTime(TSec,TMin,THour,TDay,4,2021);
+  rtc.setTime(TSec,TMin,THour,TDay,TMonth,TYear);
   return ;
-  }
+}
