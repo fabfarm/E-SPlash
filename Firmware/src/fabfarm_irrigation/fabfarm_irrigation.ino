@@ -48,8 +48,8 @@ DynamicJsonDocument doc(jasonSize); // from arduinoJson
 int pumpPin = 13;
 int batVolt = 35;
 
-const char* ssid = "ratinho_do_malandro";
-const char* password = "gerryforever2018";
+const char* ssid = "fabfarm_ele_container";
+const char* password = "imakestuff";
 
 void setup(){
 
