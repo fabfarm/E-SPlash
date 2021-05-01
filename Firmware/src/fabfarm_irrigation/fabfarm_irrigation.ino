@@ -15,22 +15,25 @@
  *  Lucio PGN http://github.com/lpgn
  *  Jeffrey Knight http://github.com/jknight
  */
+#include <Arduino.h>
+#include <WiFi.h>
+#include <AsyncTCP.h>
+#include <ESPAsyncWebServer.h>
+
 
 #include <fstream>
 #include <iostream>
 #include <sstream>
 #include <streambuf>
-#include <string>
+//#include <string>
 #include "AsyncElegantOTA.h"
 
 #include "Adafruit_Sensor.h"
 #include "ArduinoJson.h"
 #include "AsyncJson.h"
-#include "AsyncTCP.h"
+
 #include "DHT.h"
-#include "ESPAsyncWebServer.h"
 #include "SPIFFS.h"
-#include "WiFi.h"
 
 // #include "printFarmTime.cpp"
 //#include "modifiedPrintLocalTime.cpp"
@@ -53,18 +56,27 @@ int pumpPin = 13;
 int batVolt = 35;
 
 //Declaring wifi credentials
-const char* ssid = "fabfarm1";
+const char* ssid = "fabfarm_ele_container";
 const char* password = "imakestuff";
 
 void setup(){
+  // Serial port for debugging purposes
+  Serial.begin(115200);
+  
+  //start wifi sessions as a client.
+  //Wifi client setup
+  WiFi.begin(ssid, password);
+  if (WiFi.waitForConnectResult() != WL_CONNECTED) {
+    Serial.printf("WiFi Failed!\n");
+    return;
+    }
+
+  Serial.print("IP Address: ");
+  Serial.println(WiFi.localIP());
 
   //Soft Wifi Access point setup
   WiFi.softAP("softap", "imakestuff");
   IPAddress IP = WiFi.softAPIP();
-
-  //start wifi sessions as a client.
-  //Wifi client setup
-  WiFi.begin(ssid, password);
 
   //defining behaviour of pumpPin and its startup state
   pinMode (pumpPin, OUTPUT);
@@ -76,9 +88,6 @@ void setup(){
 
   // Configure a random time in the rtc of the ESP32
   rtc.setTime(1,1,1,1,1,2021);
-
-  // Serial port for debugging purposes
-  Serial.begin(9600);
 
   // Print the random time in the rtc
   Serial.println(rtc.getTime("%A, %B %d %Y %H:%M:%S"));
@@ -170,14 +179,13 @@ void setup(){
 
   //start OTA
   AsyncElegantOTA.begin(&server);    // Start ElegantOTA
-
   // Start server here
   server.begin();
 }
 
 void loop()
 {
-    AsyncElegantOTA.loop();
+  AsyncElegantOTA.loop();
   if  (WiFi.status() != WL_CONNECTED)
   {
     Serial.println("Connecting to WiFi..");
