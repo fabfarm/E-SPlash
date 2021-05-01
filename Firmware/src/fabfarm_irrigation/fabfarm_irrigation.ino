@@ -21,6 +21,7 @@
 #include <sstream>
 #include <streambuf>
 #include <string>
+#include "AsyncElegantOTA.h"
 
 #include "Adafruit_Sensor.h"
 #include "ArduinoJson.h"
@@ -76,18 +77,11 @@ void setup(){
   // Configure a random time in the rtc of the ESP32
   rtc.setTime(1,1,1,1,1,2021);
 
+  // Serial port for debugging purposes
+  Serial.begin(9600);
+
   // Print the random time in the rtc
   Serial.println(rtc.getTime("%A, %B %d %Y %H:%M:%S"));
-
-
-  // Serial port for debugging purposes
-  Serial.begin(9600);    
-  if (WiFi.status() != WL_CONNECTED) {
-    Serial.println("Connecting to WiFi..");
-  }
-  // Print ESP32 Local IP Address
-  Serial.print("The Fabfarm Irrigation system network IP is:");
-  Serial.println(WiFi.localIP());
 
   // Assign the time from the ntp server to the esp32 RTC
   AssignLocalTime();
@@ -134,14 +128,14 @@ void setup(){
   });
   server.on("/getData", HTTP_GET, [](AsyncWebServerRequest *request)
     {
-
+  
   Serial.println("/getData");
   JsonObject data = doc["data"];
   data["currentTime"] = rtc.getTime("%A, %B %d %Y %H:%M:%S");
   data["temperature"] = readDHTTemperature();
   data["humidity"] = readDHTHumidity();
   data["batLevel"] = batLevel();
-  char json[2048];
+  char json[1520];
   Serial.println("Serialize json & return to caller - BEGIN");
   serializeJson(doc, json);
   Serial.println("Serialize json & return to caller - COMPLETE");
@@ -174,12 +168,16 @@ void setup(){
   
   server.addHandler(handler);
 
+  //start OTA
+  AsyncElegantOTA.begin(&server);    // Start ElegantOTA
+
   // Start server here
   server.begin();
 }
 
 void loop()
 {
+    AsyncElegantOTA.loop();
   if  (WiFi.status() != WL_CONNECTED)
   {
     Serial.println("Connecting to WiFi..");
