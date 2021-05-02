@@ -1,0 +1,53 @@
+(.../pcb-gcode-3.6.0.4/pcb-gcode.ulp)
+(Copyright 2005 - 2012 by John Johnson)
+(See readme.txt for licensing terms.)
+(This file generated from the board:)
+(.../gits_go_here/ESPlash/pcb/1.0/esplash.brd)
+(Current profile is .../pcb-gcode-3.6.0.4/profiles/mach.pp  )
+(This file generated 02/05/2021 19:58)
+(Settings from pcb-machine.h)
+(  Tool Size)
+(1.7000  )
+(Z Axis Settings)
+(  High     Up        Down     Drill)
+(12.7000 	2.5400  	-0.0350 	-1.8000 )
+(spindle on time = 1.0000)
+(milling depth = -1.7000)
+(text depth = -0.0350)
+(tool change at 12.7000 15.2400 25.4000 )
+(feed rate xy = F508   )
+(feed rate z  = F254   )
+(Settings from pcb-defaults.h)
+(isolate min = 0.0254)
+(isolate max = 0.5080)
+(isolate step = 0.1270)
+(Generated top outlines, top drill, bottom outlines, )
+(Unit of measure: mm)
+(Metric Mode)
+G21
+(Absolute Coordinates)
+G90
+G00 X0.0000  Y0.0000  
+M03
+G04 P1.000000
+G00 Z2.5400  
+G00 X-53.1288 Y70.5627 
+G01 Z-1.7000 F254   
+G01 X-53.3046 Y70.5627 F508   
+G01 X-53.8765 Y69.9908 
+G01 X-71.2488 Y69.9908 
+G01 X-71.7767 Y70.5187 
+G00 Z2.5400  
+G00 X-1.2283 Y70.5000 
+G01 Z-1.7000 F254   
+G01 X-98.7942 Y70.5000 F508   
+G01 X-100.5000 Y68.7942 
+G01 X-100.5000 Y5.0044  
+G01 X-98.7856 Y3.2900  
+G01 X-1.2420 Y3.2900  
+G01 X0.5100  Y5.0420  
+G01 X0.5100  Y68.7617 
+G01 X-1.2283 Y70.5000 
+G00 Z12.7000 
+M05
+M02
