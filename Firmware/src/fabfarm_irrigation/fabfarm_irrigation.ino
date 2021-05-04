@@ -15,21 +15,25 @@
  *  Lucio PGN http://github.com/lpgn
  *  Jeffrey Knight http://github.com/jknight
  */
+#include <Arduino.h>
+#include <WiFi.h>
+#include <AsyncTCP.h>
+#include <ESPAsyncWebServer.h>
+
 
 #include <fstream>
 #include <iostream>
 #include <sstream>
 #include <streambuf>
-#include <string>
+//#include <string>
+//#include "AsyncElegantOTA.h"
 
 #include "Adafruit_Sensor.h"
 #include "ArduinoJson.h"
 #include "AsyncJson.h"
-#include "AsyncTCP.h"
+
 #include "DHT.h"
-#include "ESPAsyncWebServer.h"
 #include "SPIFFS.h"
-#include "WiFi.h"
 
 // #include "printFarmTime.cpp"
 //#include "modifiedPrintLocalTime.cpp"
@@ -52,18 +56,27 @@ int pumpPin = 13;
 int batVolt = 35;
 
 //Declaring wifi credentials
-const char* ssid = "fabfarm1";
-const char* password = "imakestuff";
+const char* ssid = "AndroidAP0EBF";
+const char* password = "ddjs9775";
 
 void setup(){
+  // Serial port for debugging purposes
+  Serial.begin(9600);
+  
+  //start wifi sessions as a client.
+  //Wifi client setup
+  WiFi.begin(ssid, password);
+  if (WiFi.waitForConnectResult() != WL_CONNECTED) {
+    Serial.printf("WiFi Failed!\n");
+    return;
+    }
+
+  Serial.print("IP Address: ");
+  Serial.println(WiFi.localIP());
 
   //Soft Wifi Access point setup
   WiFi.softAP("softap", "imakestuff");
   IPAddress IP = WiFi.softAPIP();
-
-  //start wifi sessions as a client.
-  //Wifi client setup
-  WiFi.begin(ssid, password);
 
   //defining behaviour of pumpPin and its startup state
   pinMode (pumpPin, OUTPUT);
@@ -79,16 +92,6 @@ void setup(){
   // Print the random time in the rtc
   Serial.println(rtc.getTime("%A, %B %d %Y %H:%M:%S"));
 
-
-  // Serial port for debugging purposes
-  Serial.begin(9600);    
-  if (WiFi.status() != WL_CONNECTED) {
-    Serial.println("Connecting to WiFi..");
-  }
-  // Print ESP32 Local IP Address
-  Serial.print("The Fabfarm Irrigation system network IP is:");
-  Serial.println(WiFi.localIP());
-
   // Assign the time from the ntp server to the esp32 RTC
   AssignLocalTime();
   // Print the updated time in the rtc
@@ -101,7 +104,7 @@ void setup(){
     Serial.println("An Error has occurred while mounting SPIFFS");
     return;
   }
-
+  
   // we always read the data.json from disk on startup (always!)
   // If freshlly burned we have to send the sample json... TODO: generate json if not existent
   // open the json file with the name "data.json" from SPIFFS ...
@@ -119,6 +122,9 @@ void setup(){
   deserializeJson(doc, json);
 
   // Route for root / web page
+    server.on("/setuppage.html", HTTP_GET, [] (AsyncWebServerRequest *request) {
+    request->send(SPIFFS,"/setuppage.html", String(), false);
+  });
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(SPIFFS, "/index.html", String(), false);
   });
@@ -134,20 +140,21 @@ void setup(){
   });
   server.on("/getData", HTTP_GET, [](AsyncWebServerRequest *request)
     {
-
+  
   Serial.println("/getData");
   JsonObject data = doc["data"];
   data["currentTime"] = rtc.getTime("%A, %B %d %Y %H:%M:%S");
   data["temperature"] = readDHTTemperature();
   data["humidity"] = readDHTHumidity();
   data["batLevel"] = batLevel();
-  char json[2048];
+  char json[1520];
   Serial.println("Serialize json & return to caller - BEGIN");
   serializeJson(doc, json);
   Serial.println("Serialize json & return to caller - COMPLETE");
   request->send(200, "application/json", json);
   });
   
+
   AsyncCallbackJsonWebHandler *handler = new AsyncCallbackJsonWebHandler("/updateData", [](AsyncWebServerRequest *request, JsonVariant &json) {
   doc = json.as<JsonObject>();
     
@@ -174,12 +181,15 @@ void setup(){
   
   server.addHandler(handler);
 
+  //start OTA
+  // AsyncElegantOTA.begin(&server);    // Start ElegantOTA
   // Start server here
   server.begin();
 }
 
 void loop()
 {
+  // AsyncElegantOTA.loop();
   if  (WiFi.status() != WL_CONNECTED)
   {
     Serial.println("Connecting to WiFi..");
