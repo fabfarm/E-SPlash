@@ -4,7 +4,17 @@
         "temperature": "Failed to read temperator from sensor",
         "humidity": "Failed to read humidity from sensor",
         "isScheduleMode": 0,
-        "batLevel": 100
+        "batLevel": 100,
+        "changedtime": [
+            {  
+                "Ttime" : "02:02",
+                "min": 0, 
+                "hour" : 0,
+                "day": 0,
+                "month": 0,
+                "year": 0
+            }
+        ]
     },
     "relays": [
         {

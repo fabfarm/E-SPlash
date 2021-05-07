@@ -21,11 +21,7 @@
     <br>
     <hr>
     <h3>Date and time</h3>
-    <form id = "timeform" class= "form">
-    Time : <input id="field2" name="field2" type="time" style="width:70px;" />
-    Date : <input type="date"  style="width:130px;"  name="field1" id="field1" /><br /><br />
-    <input type="button" onClick="ManualChangelocaltime('field1', 'field2')" value="Change time" />
-    </form>
+    <div id="main"></div> 
     <br>
     <hr>
     <h3>Wifi credentials :</h3>
@@ -36,7 +32,7 @@
         Password: <input type="text" name="password" id="password"  placeholder = "password">
     </div>
     <br> 
-    <input type="button" style="width:140px" onClick="ManualChangeCredentials('ssid', 'password')" value="Change credentials" />
+    <input type="button" style="width:140px" onChange="update(this)" value="Change credentials" />
     </form>
     <hr>
     <h3>Current relays :</h3>
@@ -81,26 +77,69 @@
     <hr>
 </body>
 <script>
-    
-    function ManualChangelocaltime(f1,f2) {
-
-        var fl1= document.getElementById(f1).value;
-        var fl2= document.getElementById(f2).value;
+    var jsonData; 
+    function update(obj) {       
+        // jsonData.changedtime.newtime =document.getElementById('field1').value;
+        // jsonData.changedtime.newdate =document.getElementById('field2').value;
+        var fl1= document.getElementById('field1').innerText;
+        var fl2= document.getElementById('field3').value;
         var timex = (new Date(fl1));
-
         var hour = fl2.split(":")[0];
         var min = fl2.split(":")[1];
         var day = timex.getDate();
         var month = timex.getMonth();
         var year = timex.getYear();
         console.log(year);
+        console.log(hour)
+        console.log(min);
+        jsonData.data.changedtime.min=min;
+        jsonData.data.changedtime.hour=hour;
+        // jsonData.changedtime.day=day;
+        // jsonData.changedtime.month=month+1;
+        // jsonData.changedtime.year=year+1900;        
+        console.log(jsonData.data.changedtime.year);
+        var json = JSON.stringify(jsonData);
+        var xmlhttp = new XMLHttpRequest();   
+        xmlhttp.open("POST", "/updateData");
+        xmlhttp.setRequestHeader("Content-Type", "application/json;");
+        xmlhttp.send(json);
         return;
     }
 
+    function refresh() {
+        var r3 = new XMLHttpRequest();
+        r3.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                jsonData = JSON.parse(this.responseText);
+                
+                var html=`<form id = "timeform" class= "form">
+                Time : <input id="field3" name="field3" type="time" style="width:70px; " value="${jsonData.data.changedtime.Ttime}" />
+                Date : <input type="date"  style="width:130px;"  name="field1" id="field1" /><br /><br />
+                <input type="button" onClick="update(this)" value="Change time" />
+                </form>`;
+
+                var main = document.getElementById("main");
+                main.innerHTML = html; //this will REBUILD the page per ping (?)    
+            }
+        };                    
+
+        r3.open("GET", "/getData", true);
+        r3.timeout = 2000;
+        r3.ontimeout = function(e) {
+            // retry
+            refresh();
+        };
+        // for testing:
+        //r3.open("GET", "sample.json", true);
+        r3.send();
+    
+    };
+    refresh();
+
     function ManualChangeCredentials(f1,f2) {
     
-        var ssid= document.getElementById(f1).value;
-        var pass= document.getElementById(f2).value;
+        var ssid= document.getElementById(f1).innerText;
+        var pass= document.getElementById(f2).innerText;
         
         console.log(ssid);
         console.log(pass);
@@ -116,7 +155,7 @@
     //         return;   
     // }
                 
-    Relayinfo()
+    // Relayinfo()
 </script>
 
 </html>

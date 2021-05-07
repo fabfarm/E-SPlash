@@ -121,12 +121,11 @@
                                                     required value="${time.startTime}" />
                                             <input id="jsonData.relays[${i}].times[${j}].duration" type="range" onChange="update(this);" 
                                                     min="0" max="60" value="${time.duration}" step="1" class="slider2">
-                                        </div>
-                                        `;
+                                                    <p>Value: <span id="demo"></span></p>
+                                        </div>`;
                         html += times;
                     }
-                }                    
-
+                }                                   
                 var main = document.getElementById("main");
                 main.innerHTML = html; //this will REBUILD the page per ping (?)
 
@@ -148,7 +147,5 @@
 
     //}, 10000);
 
-
 </script>
-
 </html>

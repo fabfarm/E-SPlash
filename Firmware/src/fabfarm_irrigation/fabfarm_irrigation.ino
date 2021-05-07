@@ -56,8 +56,8 @@ int pumpPin = 13;
 int batVolt = 35;
 
 //Declaring wifi credentials
-const char* ssid = "AndroidAP0EBF";
-const char* password = "ddjs9775";
+const char* ssid = "fabfarm_ele_container";
+const char* password = "imakestuff";
 
 void setup(){
   // Serial port for debugging purposes
@@ -202,6 +202,10 @@ void loop()
     Serial.println(WiFi.localIP());
   }
   Serial.println(rtc.getTime("%A, %B %d %Y %H:%M:%S"));
+
+  // Call function that assigns the array in the json to the rtc of ESP32
+   changetime();
+
   JsonObject data = doc["data"];
   boolean data_isScheduleMode = data["isScheduleMode"];
 
@@ -213,6 +217,30 @@ void loop()
   }
 
 //*****end of loop*****
+}
+void changetime (){
+
+JsonObject data = doc["data"];
+JsonArray data_changedtime = data["changedtime"];
+int mIn = data["batlevel"];
+int hOur = data_changedtime["hour"];
+int dAy = data_changedtime["min"];
+Serial.println("mIn is :");
+Serial.println(mIn);
+Serial.println("hOur is :");
+Serial.println(hOur);
+Serial.println("dAy is :");
+Serial.println(dAy);
+Serial.println("Time not changed");
+
+  //   if (hOur == 0){
+
+  //    Serial.println("Time not changed");
+  //   }
+  //   else{
+  //   rtc.setTime(0,mIn,hOur,4,2,2021);
+  //   }  
+  // return;
 }
 
 void scheduleMode(){
