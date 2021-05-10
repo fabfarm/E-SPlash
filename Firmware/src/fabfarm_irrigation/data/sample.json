@@ -5,9 +5,16 @@
         "humidity": "Failed to read humidity from sensor",
         "isScheduleMode": 0,
         "batLevel": 100,
+        "credentials" : [
+            { "ssid": "fabfarm_ele_container",
+            " password" : "imakestuff"
+            }
+        ],
+    
         "changedtime": [
-            {  
+            {   "internettime" : 1,
                 "Ttime" : "02:02",
+                "Tdate" : "01/01/2021",
                 "min": 0, 
                 "hour" : 0,
                 "day": 0,
