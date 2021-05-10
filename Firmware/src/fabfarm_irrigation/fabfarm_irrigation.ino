@@ -58,10 +58,12 @@ int batVolt = 35;
 //Declaring wifi credentials
 const char* ssid = "fabfarm_ele_container";
 const char* password = "imakestuff";
+// const char* ssid = doc["data"]["credentials"][0]["ssid"];
+// const char* password = doc["data"]["credentials"][0]["ssid"];
 
 void setup(){
   // Serial port for debugging purposes
-  Serial.begin(115200);
+  Serial.begin(9600);
   
   //start wifi sessions as a client.
   //Wifi client setup
@@ -93,7 +95,7 @@ void setup(){
   Serial.println(rtc.getTime("%A, %B %d %Y %H:%M:%S"));
 
   // Assign the time from the ntp server to the esp32 RTC
-  AssignLocalTime();
+  // AssignLocalTime();
   // Print the updated time in the rtc
   Serial.println(rtc.getTime("%A, %B %d %Y %H:%M:%S"));
 
@@ -104,7 +106,7 @@ void setup(){
     Serial.println("An Error has occurred while mounting SPIFFS");
     return;
   }
-
+  
   // we always read the data.json from disk on startup (always!)
   // If freshlly burned we have to send the sample json... TODO: generate json if not existent
   // open the json file with the name "data.json" from SPIFFS ...
@@ -122,6 +124,9 @@ void setup(){
   deserializeJson(doc, json);
 
   // Route for root / web page
+    server.on("/setuppage.html", HTTP_GET, [] (AsyncWebServerRequest *request) {
+    request->send(SPIFFS,"/setuppage.html", String(), false);
+  });
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(SPIFFS, "/index.html", String(), false);
   });
@@ -151,6 +156,7 @@ void setup(){
   request->send(200, "application/json", json);
   });
   
+
   AsyncCallbackJsonWebHandler *handler = new AsyncCallbackJsonWebHandler("/updateData", [](AsyncWebServerRequest *request, JsonVariant &json) {
   doc = json.as<JsonObject>();
     
@@ -198,7 +204,21 @@ void loop()
     Serial.println(WiFi.localIP());
   }
   Serial.println(rtc.getTime("%A, %B %d %Y %H:%M:%S"));
+
+  // Call function that assigns the array in the json to the rtc of ESP32
   JsonObject data = doc["data"];
+  boolean data_internettime = data["changedtime"][0]["internettime"] ;
+  if ( data_internettime  == 1){
+    Serial.println("Time updated using internet");
+  AssignLocalTime();
+  // rtc.setTime(1,1,1,1,1,2021);
+  // Serial.println("7mida");
+  }
+if ( data_internettime  == 0){
+    Serial.println("Time updated using manual input");
+   changetime();
+  }
+
   boolean data_isScheduleMode = data["isScheduleMode"];
 
   if (data_isScheduleMode == 0){
@@ -209,6 +229,18 @@ void loop()
   }
 
 //*****end of loop*****
+}
+
+void changetime (){
+
+ JsonObject data = doc["data"];
+ JsonArray data_changedtime = data["changedtime"];
+ int mIn = data_changedtime[0]["min"];
+ int hOur = data_changedtime[0]["hour"];
+ int dAy = data_changedtime[0]["day"];
+ int mOnth = data_changedtime[0]["month"];
+ int yEar = data_changedtime[0]["year"];
+ rtc.setTime(0,mIn,hOur,dAy,mOnth,yEar);
 }
 
 void scheduleMode(){
@@ -393,6 +425,7 @@ int isEnabledFunc (int startTimeInMinutes, int duration)
     }
   return isEnabled;
 }
+
 float batLevel(){
   analogRead(batVolt);
   float batteryLevel = map(analogRead(batVolt), 0.0f, 1866.0f, 0, 100);
