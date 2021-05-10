@@ -1,12 +1,27 @@
 {
     "data": {
-        "currentTime": "Sunday, July 12 2020 02:30:58",
+        "currentTime": "Tuesday, May 04 2021 21:16:44",
         "temperature": "Failed to read temperator from sensor",
         "humidity": "Failed to read humidity from sensor",
         "isScheduleMode": 0,
-        "ssid": "rato",
-        "pass": "imakestuff",
-        "batLevel": 0
+        "batLevel": 100,
+        "credentials" : [
+            { "ssid": "fabfarm_ele_container",
+            " password" : "imakestuff"
+            }
+        ],
+    
+        "changedtime": [
+            {   "internettime" : 1,
+                "Ttime" : "02:02",
+                "Tdate" : "01/01/2021",
+                "min": 0, 
+                "hour" : 0,
+                "day": 0,
+                "month": 0,
+                "year": 0
+            }
+        ]
     },
     "relays": [
         {
@@ -28,7 +43,6 @@
             "pin": 26,
             "isRunning": 1,
             "isEnabled": 0,
-            "status": 1,
             "times": [
                 {
                     "startTime": "02:02",
@@ -43,7 +57,6 @@
             "pin": 2,
             "isRunning": 1,
             "isEnabled": 0,
-            "status": 1,
             "times": [
                 {
                     "startTime": "02:02",
@@ -58,34 +71,12 @@
             "pin": 4,
             "isRunning": 1,
             "isEnabled": 0,
-            "status": 1,
             "times": [
                 {
                     "startTime": "02:02",
                     "duration": 32,
                     "hour": 2,
                     "min": 2
-                }
-            ]
-        },
-        {
-            "name": "Cypress Hill",
-            "pin": 25,
-            "isRunning": 1,
-            "isEnabled": 0,
-            "status": 1,
-            "times": [
-                {
-                    "startTime": "03:03",
-                    "duration": 60,
-                    "hour": 3,
-                    "min": 3
-                },
-                {
-                    "startTime": "03:03",
-                    "duration": 60,
-                    "hour": 3,
-                    "min": 3
                 }
             ]
         }

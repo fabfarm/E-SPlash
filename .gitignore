@@ -17,3 +17,7 @@ references/arduinojson5.pdf
 *.job
 *.b#1
 pcb/ESPlash/esplashbpk.brd
+Firmware/.vscode/launch.json
+Firmware/.vscode/c_cpp_properties.json
+Firmware/.vscode/launch.json
+Firmware/.vscode/c_cpp_properties.json

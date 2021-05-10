@@ -10,6 +10,7 @@
 </head>
 <body>
     <img src="/logo.png" style="height:400px;" />
+    <input type="button" style="width:140px" onClick= "location.href='/setuppage.html';" value="Change parameters" />
     <hr>
         <i class="fas fa-clock"></i>
         <span class="dht-labels">Farm Time:</span>
@@ -30,6 +31,7 @@
     <hr/>
     <h3>Irrigation System</h3>
     <div id="main"></div>
+    <h3>Update <a href="/update">firmware</a></h3>
 </body>
 <script>
     // keep global json object - we'll update this on element change
@@ -51,18 +53,18 @@
                 //console.log(timex);
                 var hour = timex.getHours();
                 var min = timex.getMinutes();
-                //console.log(hour)
-                //console.log(min)
+                console.log(hour)
+                console.log(min)
                 jsonData.relays[i].times[j].hour = hour;
                 jsonData.relays[i].times[j].min = min;
             }
         }
-
         var json = JSON.stringify(jsonData);
         var xmlhttp = new XMLHttpRequest();   
         xmlhttp.open("POST", "/updateData");
         xmlhttp.setRequestHeader("Content-Type", "application/json;");
         xmlhttp.send(json);
+        console.log(json)
     }
 
     /* Currently we load this once from the server & it's working well.
@@ -120,12 +122,11 @@
                                                     required value="${time.startTime}" />
                                             <input id="jsonData.relays[${i}].times[${j}].duration" type="range" onChange="update(this);" 
                                                     min="0" max="60" value="${time.duration}" step="1" class="slider2">
-                                        </div>
-                                        `;
+                                                    Value: <span id="value"></span> ${time.duration}
+                                        </div>`;
                         html += times;
                     }
-                }                    
-
+                }                                   
                 var main = document.getElementById("main");
                 main.innerHTML = html; //this will REBUILD the page per ping (?)
 
@@ -147,7 +148,5 @@
 
     //}, 10000);
 
-
 </script>
-
 </html>
