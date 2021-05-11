@@ -26,7 +26,7 @@
 #include <sstream>
 #include <streambuf>
 //#include <string>
-//#include "AsyncElegantOTA.h"
+#include "AsyncElegantOTA.h"
 
 #include "Adafruit_Sensor.h"
 #include "ArduinoJson.h"
@@ -141,58 +141,56 @@ void setup(){
     request->send(SPIFFS, "/logo.png", "image/png");
   });
   server.on("/getData", HTTP_GET, [](AsyncWebServerRequest *request)
-    {
-  
-  Serial.println("/getData");
-  JsonObject data = doc["data"];
-  data["currentTime"] = rtc.getTime("%A, %B %d %Y %H:%M:%S");
-  data["temperature"] = readDHTTemperature();
-  data["humidity"] = readDHTHumidity();
-  data["batLevel"] = batLevel();
-  char json[1520];
-  Serial.println("Serialize json & return to caller - BEGIN");
-  serializeJson(doc, json);
-  Serial.println("Serialize json & return to caller - COMPLETE");
-  request->send(200, "application/json", json);
-  });
-  
-
-  AsyncCallbackJsonWebHandler *handler = new AsyncCallbackJsonWebHandler("/updateData", [](AsyncWebServerRequest *request, JsonVariant &json) {
-  doc = json.as<JsonObject>();
-    
-  String jsonString;
-  serializeJson(doc, jsonString);
-
-  //write this to disk
-  // Read json from the file ...
-  Serial.println("Saving to disk - BEGIN");
-  File f = SPIFFS.open("/data.json", "w");
-  if (!f)
   {
-    Serial.println("Failed to open file for writing");
-  }
-  int bytesWritten = f.print(jsonString);
-  f.close();
-  Serial.printf("Saving to disk - COMPLETE(%d bytes)\n", bytesWritten);
-
-  request->send(200); // "application/json", jsonString);
-  Serial.println("-------------------");
-  Serial.println(jsonString);
-  Serial.println("-------------------");
+    Serial.println("/getData");
+    JsonObject data = doc["data"];
+    data["currentTime"] = rtc.getTime("%A, %B %d %Y %H:%M:%S");
+    data["temperature"] = readDHTTemperature();
+    data["humidity"] = readDHTHumidity();
+    data["batLevel"] = batLevel();
+    char json[1520];
+    Serial.println("Serialize json & return to caller - BEGIN");
+    serializeJson(doc, json);
+    Serial.println("Serialize json & return to caller - COMPLETE");
+    request->send(200, "application/json", json);
   });
+  
+
+  AsyncCallbackJsonWebHandler *handler = new AsyncCallbackJsonWebHandler("/updateData", 
+  [](AsyncWebServerRequest *request, JsonVariant &json) {
+    doc = json.as<JsonObject>();
+    String jsonString;
+    serializeJson(doc, jsonString);
+
+    //write this to disk
+    // Read json from the file ...
+    Serial.println("Saving to disk - BEGIN");
+    File f = SPIFFS.open("/data.json", "w");
+    if (!f)
+    {
+      Serial.println("Failed to open file for writing");
+    }
+      int bytesWritten = f.print(jsonString);
+      f.close();
+      Serial.printf("Saving to disk - COMPLETE(%d bytes)\n", bytesWritten);
+
+      request->send(200); // "application/json", jsonString);
+      Serial.println("-------------------");
+      Serial.println(jsonString);
+      Serial.println("-------------------");
+    });
   
   server.addHandler(handler);
 
   //start OTA
-  // AsyncElegantOTA.begin(&server);    // Start ElegantOTA
+  AsyncElegantOTA.begin(&server);    // Start ElegantOTA
   // Start server here
   server.begin();
 }
 
 void loop()
 {
-  
-  // AsyncElegantOTA.loop();
+  AsyncElegantOTA.loop();
   if  (WiFi.status() != WL_CONNECTED)
   {
     Serial.println("Connecting to WiFi..");
@@ -244,6 +242,115 @@ void changetime (){
  rtc.setTime(0,mIn,hOur,dAy,mOnth,yEar);
 }
 
+//@carlosmouracorreia your alterations in this fuction did not work. when swiching from manual mode to schedule mode relays that were on remain on 
+// void scheduleMode(){
+  
+//   //matrix logic test
+
+//   JsonArray relays = doc["relays"];
+//   for (int i = 0; i < relays.size(); i++){
+//     int flagEnableRelay = 0;
+//     for (int j = 0; j < relays[i]["times"].size(); j++) {
+//       //aparentelly there is no problem to set digital write several times as it only dows write a different value, need to check that. https://forum.arduino.cc/index.php?topic=52806.0
+//       pinMode(relays[i]["pin"], OUTPUT);
+      
+//       JsonObject timedRelay = relays[i]["times"][j];
+
+//       const char* relaysStartTime = timedRelay["startTime"];
+//       int hOurs = timedRelay["hour"];
+//       int mIns = timedRelay["min"];
+//       int cycleDuration = timedRelay["duration"];
+//       //Probabilly should learn about bitwise... https://playground.arduino.cc/Code/BitMath/
+//       if (isEnabledFunc(hOurs*60+mIns, cycleDuration) == 1)
+//       {
+//         ++flagEnableRelay;
+//       }
+//     }
+//     if (flagEnableRelay >= 1)
+//     {
+//       digitalWrite(relays[i]["pin"], 1);
+//       digitalWrite(pumpPin, 1);
+//       Serial.print("Zone ");
+//       String zoneName = relays[i]["name"];
+//       Serial.print(zoneName);
+//       Serial.println(" is Enabled!");
+
+//       return;
+//     }
+    
+    
+//     int valveFlag = 0;
+//     for (int y = 0; y < relays.size(); y++)
+//     {
+//       if (digitalRead (relays[y]["pin"]) == HIGH)
+//       {
+//         ++valveFlag;
+//       }
+//     }
+//     if (valveFlag == 0)
+//       {
+//         digitalWrite(pumpPin, 0);
+//       }
+//     digitalWrite(relays[i]["pin"], 0);
+//     Serial.print("Zone ");
+//     String zoneName = relays[i]["name"];
+//     Serial.print(zoneName);
+//     Serial.println(" is off");
+//   }
+// }
+
+// void manualMode()
+// {
+
+//   Serial.println("now Manual Mode");
+//   JsonArray relays = doc["relays"];
+//   for (int i = 0; i < relays.size(); i++)
+//   {
+//     pinMode(relays[i]["pin"], OUTPUT);
+//     if (relays[i]["isEnabled"] == 1)
+//     {
+//       digitalWrite(relays[i]["pin"], 1);
+
+//       digitalWrite(pumpPin, 1);
+//       continue;
+//     }
+    
+//     int valveFlag = 0;
+//     for (int y = 0; y < relays.size(); y++)
+//     {
+//       if (digitalRead (relays[y]["pin"]) == HIGH)
+//       {
+//         ++valveFlag;
+//       }
+//     }
+//     if (valveFlag == 0)
+//       {
+//         digitalWrite(pumpPin, 0);
+//       }
+
+//     digitalWrite(relays[i]["pin"], 0);
+//     Serial.print("Zone ");
+//     String zoneName = relays[i]["name"];
+//     Serial.print(zoneName);
+//     Serial.println(" is off");
+    
+//   }
+// }
+
+// //function to deactivate all pins usefull for safe startup not finished yet
+// void allRelaysdisable(){
+  
+
+//   JsonObject data = doc["data"];
+//   JsonArray relays = doc["relays"];
+//   for (int p = 0; p < relays.size(); p++)
+//   {
+//     int pin = relays[p]["pin"];
+//     pinMode(pin, OUTPUT);
+//     digitalWrite(pin,LOW);
+//   }
+// }
+
 void scheduleMode(){
 
   //matrix logic test
@@ -253,7 +360,7 @@ void scheduleMode(){
     for (int j = 0; j < relays[i]["times"].size(); j++) {
       //aparentelly there is no problem to set digital write several times as it only dows write a different value, need to check that. https://forum.arduino.cc/index.php?topic=52806.0
       pinMode(relays[i]["pin"], OUTPUT);
-      const char* relaysStartTime = relays[i]["times"][j]["startTime"];
+      //const char* relaysStartTime = relays[i]["times"][j]["startTime"];
       int hOurs = relays[i]["times"][j]["hour"];
       int mIns = relays[i]["times"][j]["min"];
       int cycleDuration = relays[i]["times"][j]["duration"];
@@ -294,7 +401,6 @@ void scheduleMode(){
     }
   }
 }
-
 void manualMode()
 {
   Serial.println("now Manual Mode");
@@ -332,7 +438,7 @@ void manualMode()
 
 //function to deactivate all pins usefull for safe startup not finished yet
 void allRelaysdisable(){
-  JsonObject data = doc["data"];
+  //JsonObject data = doc["data"];
     JsonArray relays = doc["relays"];
     for (int p = 0; p < relays.size(); p++)
   {
@@ -397,28 +503,17 @@ String readDHTHumidity()
 int isEnabledFunc (int startTimeInMinutes, int duration)
 {
 
-  // const char *ntpServer = "us.pool.ntp.org";
-  // const long gmtOffset_sec = 0;
-  // const int daylightOffset_sec = 3600;
+
   int onlyHour;
   int onlyMin;
-  int onlySec;
-  // configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
-  // struct tm timeinfo;
-  // getLocalTime(&timeinfo);
-  // onlyHour = timeinfo.tm_hour;
-  // onlyMin = timeinfo.tm_min;
-  // onlySec = timeinfo.tm_sec;
 
   onlyHour =rtc.getHour(true);
   onlyMin = rtc.getMinute();
-  onlySec = rtc.getSecond();
 
   int presentTimeInMinutes = onlyHour*60+onlyMin;
   int isEnabled;
     if (startTimeInMinutes <= presentTimeInMinutes && presentTimeInMinutes <= startTimeInMinutes+duration){
     isEnabled = 1;
-    //Serial.println("time to start the pump!");
   }
     else
     {
