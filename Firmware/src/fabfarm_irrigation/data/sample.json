@@ -3,16 +3,16 @@
         "currentTime": "Tuesday, May 04 2021 21:16:44",
         "temperature": "Failed to read temperator from sensor",
         "humidity": "Failed to read humidity from sensor",
-        "isScheduleMode": 0,
+        "isScheduleMode": 1,
         "batLevel": 100,
         "credentials" : [
-            { "ssid": "fabfarm_ele_container",
-            " password" : "imakestuff"
+            { "ssid": "fabfarm",
+            " password" : "fabfarm"
             }
         ],
     
         "changedtime": [
-            {   "internettime" : 1,
+            {  
                 "Ttime" : "02:02",
                 "Tdate" : "01/01/2021",
                 "min": 0, 

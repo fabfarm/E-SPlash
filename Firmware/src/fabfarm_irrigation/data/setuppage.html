@@ -36,28 +36,7 @@
     <input type="button" style="width:140px" onClick="updatecredentials(this)" value="Change credentials" />
     </form>
     <hr>
-    <h3>Current relays :</h3>
-    <table>
-        <thead>
-            <tr>
-                <th>Relay name </th>
-                <th>Relay Pin </th>
-                <th>Current status</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>x</td>
-                <td>x</td>
-                <td>x</td>
-            </tr>
-            <tr>
-                <td>x</td>
-                <td>x</td>
-                <td>x</td>
-            </tr>
-        </tbody>
-    </table>
+    
     <h3>New relay :</h3>
     <div>
        Relay Name: <input type="number" name="inputInt" placeholder = "Example : 2">
@@ -78,6 +57,12 @@
     <hr>
 </body>
 <script>
+
+    var myVar = setInterval(Time ,2000);
+    function Time() {
+        document.getElementById("currentTime").innerHTML =jsonData.data.currentTime ;
+    }
+
     var jsonData; 
     function updatecredentials(obj){
         var fl1 = document.getElementById("ssid").value;
@@ -125,7 +110,7 @@
             if (this.readyState == 4 && this.status == 200) {
                 jsonData = JSON.parse(this.responseText);
                 document.getElementById("currentTime").innerText = jsonData.data.currentTime;
-                var html=`<form id = "timeform" class= "form">
+                var html= `<form id = "timeform" class= "form">
                 Time : <input id="field2" name="field2" type="time" style="width:70px;" value="02:02"  />
                 Date : <input type="date"  style="width:130px;"  name="field1" id="field1" /><br /><br />
                 <input type="button" onClick="updatetime(this)" value="Change time and date" />
@@ -134,11 +119,39 @@
                 <input type="checkbox" ${jsonData.data.changedtime[0].internettime ? "checked" : ""} 
                 onClick="enableinternetupdate(this);" id="field3" value="use internet time"/>
                 <span class="slider"></span> 
-                </label> Use internet time;
+                </label> Use internet time
                 <hr>`;
-
-
-                var main = document.getElementById("main");
+ 
+                var htmlrelay = `<h3>Current relays :</h3>
+            <table>
+                <thead>
+                    <tr>
+                       <th>Relay name </th>
+                       <th>Relay Pin </th>
+                       <th>Current status</th>
+                       </tr>
+                </thead>
+                <tbody> `
+            for(var i = 0; i  < jsonData.relays.length; i++) {
+                var relay =  jsonData.relays[i];
+                if (relay.isrunning == 1){
+                    var status = "ON";
+                }
+                else{
+                    var status = "OFF";
+                }
+                
+            htmlrelay+=  
+                   `<tr>
+                        <td>${relay.name}</td>
+                        <td>${relay.pin}</td>
+                        <td>${status}</td>
+                    </tr>`
+            }
+            htmlrelay+=
+            `   </tbody>
+            </table> `
+                 var main = document.getElementById("main");
                 main.innerHTML = html; //this will REBUILD the page per ping (?)    
             }
         };                    
@@ -155,6 +168,8 @@
     
     };
     refresh();
+
+    
 
     function enableinternetupdate() {
         jsonData.data.changedtime[0].internettime = document.getElementById("field3").checked ? 1 : 0;

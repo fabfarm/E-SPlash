@@ -34,6 +34,7 @@
 </body>
 <script>
     // keep global json object - we'll update this on element change
+
     var jsonData; 
 
     // gets called anytime anything changes
@@ -52,8 +53,8 @@
                 //console.log(timex);
                 var hour = timex.getHours();
                 var min = timex.getMinutes();
-                console.log(hour)
-                console.log(min)
+                // console.log(hour)
+                // console.log(min)
                 jsonData.relays[i].times[j].hour = hour;
                 jsonData.relays[i].times[j].min = min;
             }
