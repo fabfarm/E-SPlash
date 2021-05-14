@@ -56,10 +56,11 @@ int pumpPin = 13;
 int batVolt = 35;
 
 //Declaring wifi credentials
-const char* ssid = "fabfarm_ele_container";
-const char* password = "imakestuff";
+const char* ssid = "fabfarm_ele_containero";
+const char* password = "imakeistuff";
 // const char* ssid = doc["data"]["credentials"][0]["ssid"];
 // const char* password = doc["data"]["credentials"][0]["ssid"];
+int flag = 0;
 
 void setup(){
   // Serial port for debugging purposes
@@ -95,7 +96,7 @@ void setup(){
   Serial.println(rtc.getTime("%A, %B %d %Y %H:%M:%S"));
 
   // Assign the time from the ntp server to the esp32 RTC
-  // AssignLocalTime();
+
   // Print the updated time in the rtc
   Serial.println(rtc.getTime("%A, %B %d %Y %H:%M:%S"));
 
@@ -207,15 +208,16 @@ void loop()
   // Call function that assigns the array in the json to the rtc of ESP32
   JsonObject data = doc["data"];
   boolean data_internettime = data["changedtime"][0]["internettime"] ;
+  boolean data_manualtimeflag = data["changedtime"][0]["manualtimeenabled"];
   if ( data_internettime  == 1){
     Serial.println("Time updated using internet");
-  AssignLocalTime();
-  // rtc.setTime(1,1,1,1,1,2021);
-  // Serial.println("7mida");
+  // AssignLocalTime();
   }
-if ( data_internettime  == 0){
+  
+if ( data_internettime  == 0 && flag == 0){
     Serial.println("Time updated using manual input");
    changetime();
+   flag = 1 ;
   }
 
   boolean data_isScheduleMode = data["isScheduleMode"];
