@@ -65,8 +65,13 @@
         xmlhttp.open("POST", "/updateData");
         xmlhttp.setRequestHeader("Content-Type", "application/json;");
         xmlhttp.send(json);
-        console.log(json)
     }
+ 
+// send a json every 4 secs 
+
+function setTimer(func) {
+      setTimeout(function() {return func()}, 4000)
+   }
 
     /* Currently we load this once from the server & it's working well.
     Once we start pinging the server for updates, we'll run into the issue where this keep running over and over
@@ -85,6 +90,7 @@
         var r3 = new XMLHttpRequest();
         r3.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
+                var response = this.response;
                 //document.getElementById("getData").innerHTML = this.responseText;
                 jsonData = JSON.parse(this.responseText);
                 document.getElementById("currentTime").innerText = jsonData.data.currentTime;
@@ -130,7 +136,7 @@
                 }                                   
                 var main = document.getElementById("main");
                 main.innerHTML = html; //this will REBUILD the page per ping (?)
-
+                setTimer(function() { console.log(response) })
             };
         }; 
 

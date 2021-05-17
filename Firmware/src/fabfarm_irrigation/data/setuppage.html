@@ -81,6 +81,7 @@
     }
 
     function updatetime(obj) {       
+        jsonData.data.changedtime[0].manualtimeenabled =0;
         var fl1= document.getElementById("field1").value;
         var fl2= document.getElementById("field2").value;
         jsonData.data.changedtime[0].Ttime = fl2 ;
@@ -113,8 +114,8 @@
                 jsonData = JSON.parse(this.responseText);
                 document.getElementById("currentTime").innerText = jsonData.data.currentTime;
                 var html= `<form id = "timeform" class= "form">
-                Time : <input id="field2" name="field2" type="time" style="width:70px;" value="02:02"  />
-                Date : <input type="date"  style="width:130px;"  name="field1" id="field1" /><br /><br />
+                Time : <input id="field2" name="field2" type="time" style="width:70px;" value="${jsonData.data.changedtime[0].Ttime}"  />
+                Date : <input type="date"  style="width:130px;"  name="field1" id="field1"/><br /><br />
                 <input type="button" onClick="updatetime(this)" value="Change time and date" />
                 </form>
                  <label class="switch">

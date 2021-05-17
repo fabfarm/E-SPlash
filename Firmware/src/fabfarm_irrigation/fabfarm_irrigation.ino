@@ -56,8 +56,8 @@ int pumpPin = 13;
 int batVolt = 35;
 
 //Declaring wifi credentials
-const char* ssid = "fabfarm_ele_containero";
-const char* password = "imakeistuff";
+const char* ssid = "fabfarm_ele_container";
+const char* password = "imakestuff";
 // const char* ssid = doc["data"]["credentials"][0]["ssid"];
 // const char* password = doc["data"]["credentials"][0]["ssid"];
 int flag = 0;
@@ -209,16 +209,26 @@ void loop()
   JsonObject data = doc["data"];
   boolean data_internettime = data["changedtime"][0]["internettime"] ;
   boolean data_manualtimeflag = data["changedtime"][0]["manualtimeenabled"];
-  if ( data_internettime  == 1){
+  if ( data_internettime  == 1)
+  {
     Serial.println("Time updated using internet");
-  // AssignLocalTime();
+      for(static bool first = true;first;first=false)
+    { 
+      AssignLocalTime();
+    }
   }
-  
-if ( data_internettime  == 0 && flag == 0){
+if ( data_internettime  == 0 ){
+  //   Serial.println("Time updated using manual input");
+  //  changetime();
+  //  flag = 1 ;
     Serial.println("Time updated using manual input");
-   changetime();
-   flag = 1 ;
+  for(static bool first = true;first;first=false)
+  { 
+   changetime();  
   }
+  // test
+}
+  
 
   boolean data_isScheduleMode = data["isScheduleMode"];
 
