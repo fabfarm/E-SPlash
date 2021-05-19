@@ -39,19 +39,12 @@
     </form>
     <hr>
     
-    <h3>New relay :</h3>
+    <h4>New relay :</h4>
     <div>
-       Relay Name: <input type="number" name="inputInt" placeholder = "Example : 2">
-    </div>    
-    <br>
-    <div>
-        Pin number: <input type="number" name="inputInt"  placeholder = "Example : Garden valve ">
+       <input type="text" style="width:90px" name="inputInt" placeholder = "Relay Name">
+       <input type="number" style="width:70px" name="inputInt"  placeholder = "Pin number">
+       <input type="text" style="width:90px" name="inputInt" placeholder = "Relay status">
     </div>
-    <br>
-    <div>
-        Relay status: <input type="number" name="inputInt" placeholder = "Example : 2">
-    </div>
-    <br>
     <input type="submit" name = "submit" value="Add relay">
     </form>
     <hr>
@@ -155,7 +148,7 @@
             `   </tbody>
             </table> `
                  var main = document.getElementById("main");
-                main.innerHTML = html; //this will REBUILD the page per ping (?)    
+                main.innerHTML = html+htmlrelay; //this will REBUILD the page per ping (?)    
             }
         };                    
 

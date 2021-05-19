@@ -70,7 +70,7 @@
 // send a json every 4 secs 
 
 function setTimer(func) {
-      setTimeout(function() {return func()}, 4000)
+      setTimeout(function() {return func()}, 4000);
    }
 
     /* Currently we load this once from the server & it's working well.
@@ -136,7 +136,7 @@ function setTimer(func) {
                 }                                   
                 var main = document.getElementById("main");
                 main.innerHTML = html; //this will REBUILD the page per ping (?)
-                setTimer(function() { console.log(response) })
+                setTimer(function() { console.log(response) });
             };
         }; 
 
