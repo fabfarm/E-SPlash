@@ -25,8 +25,18 @@
     <h3>Date and time</h3>
     <div id="main"></div> 
     <br>
+    <h5>Add a relay:</h5>
+    <form id = "relayform" class= "form"></form>
+    <div>
+       <input type="text" id="relayname" style="width:90px" name="inputInt" placeholder = "Relay Name">
+       <input type="number" id="relaypin" style="width:70px" name="inputInt"  placeholder = "Pin number">
+       <input type="text" id="relaystatus" style="width:90px" name="inputInt" placeholder = "Relay status">
+    </div>
+    <input type="submit" name = "submit" onclick="addrelay(this)" value="Add relay">
+    </form>
     <hr>
-    
+    <input type="button"  value="Return to homepage" />
+    <hr>
     <h3>Wifi credentials :</h3>
     <form id = "credentialsform" class= "form">
         SSID: <input type="text" name="ssid" id="ssid"  placeholder = "ssid">
@@ -38,25 +48,9 @@
     <input type="button" style="width:140px" onClick="updatecredentials(this)" value="Change credentials" />
     </form>
     <hr>
-    
-    <h4>New relay :</h4>
-    <div>
-       <input type="text" style="width:90px" name="inputInt" placeholder = "Relay Name">
-       <input type="number" style="width:70px" name="inputInt"  placeholder = "Pin number">
-       <input type="text" style="width:90px" name="inputInt" placeholder = "Relay status">
-    </div>
-    <input type="submit" name = "submit" value="Add relay">
-    </form>
-    <hr>
-    <input type="button" onclick="" value="Return to homepage" />
-    <hr>
 </body>
 <script>
 
-    var myVar = setInterval(Time ,2000);
-    function Time() {
-        document.getElementById("currentTime").innerHTML =jsonData.data.currentTime ;
-    }
 
     var jsonData; 
     function updatecredentials(obj){
@@ -66,6 +60,21 @@
         jsonData.data.credentials[0].password=fl2;
         console.log(fl1);
         console.log(fl2);
+        var json = JSON.stringify(jsonData);
+        var xmlhttp = new XMLHttpRequest();   
+        xmlhttp.open("POST", "/updateData");
+        xmlhttp.setRequestHeader("Content-Type", "application/json;");
+        xmlhttp.send(json);
+    }
+
+    function updaterelays(obj) {
+        var1 = document.getElementById("relayname").value;
+        var2 = document.getElementById("relaypin").value;
+        var3 = document.getElementById("relaystatus").value;
+        // for(var i = 0; i < jsonData.relays.length; i++) { 
+        //    if var2 = jsonData.relays[i].times.pin ; 
+        // }
+        jsonData.relay[0].name
         var json = JSON.stringify(jsonData);
         var xmlhttp = new XMLHttpRequest();   
         xmlhttp.open("POST", "/updateData");
@@ -119,13 +128,13 @@
                 <hr>`;
  
                 var htmlrelay = `<h3>Current relays :</h3>
-            <table>
+            <table id="productTable">
                 <thead>
                     <tr>
                        <th>Relay name </th>
                        <th>Relay Pin </th>
                        <th>Current status</th>
-                       </tr>
+                    </tr>
                 </thead>
                 <tbody> `
             for(var i = 0; i  < jsonData.relays.length; i++) {
@@ -135,20 +144,24 @@
                 }
                 else{
                     var status = "OFF";
-                }
-                
-            htmlrelay+=  
+                }       
+                if  (relay.active ==1 ){
+                    htmlrelay+=  
                    `<tr>
                         <td>${relay.name}</td>
                         <td>${relay.pin}</td>
                         <td>${status}</td>
+                        <td><input type="button" value="X" style="width:10px" onclick="deleterelay(this)"></td>
                     </tr>`
+                }
             }
+            
             htmlrelay+=
             `   </tbody>
             </table> `
+        
                  var main = document.getElementById("main");
-                main.innerHTML = html+htmlrelay; //this will REBUILD the page per ping (?)    
+                main.innerHTML = html + htmlrelay; //this will REBUILD the page per ping (?)    
             }
         };                    
 
@@ -188,15 +201,22 @@
         return;
     }
 
-    // function Relayinfo() {
-
-    //     for(var i = 0; i  < jsonData.relays.length; i++) {
-    //         var relay = jsonData.relays[i];
-    //         relay.name}
-    //         return;   
-    // }
-                
-    // Relayinfo()
+    function deleterelay(obj){
+        jsonData.relays[2].active = 0;
+        window.location.reload();
+        var json = JSON.stringify(jsonData);
+        var xmlhttp = new XMLHttpRequest();   
+        xmlhttp.open("POST", "/updateData");
+        xmlhttp.setRequestHeader("Content-Type", "application/json;");
+        xmlhttp.send(json);
+        return;
+    }
+    
+    function addrelay(o){
+        window.location.reload();
+        return;
+    }
+    
 </script>
 
 </html>

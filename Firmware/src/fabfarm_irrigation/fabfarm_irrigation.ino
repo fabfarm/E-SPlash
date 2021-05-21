@@ -48,7 +48,7 @@ const char *dataFile = "data.json";
 AsyncWebServer server(80);
 
 // Specifing the capacity of the json in bytes.
-int jasonSize = 1520;
+int jasonSize = 2048;
 DynamicJsonDocument doc(jasonSize); // from arduinoJson
 
 //Defining pump pin number
@@ -56,7 +56,7 @@ int pumpPin = 13;
 int batVolt = 35;
 
 //Declaring wifi credentials
-const char* ssid = "fabfarm_ele_container";
+const char* ssid = "fabfarm";
 const char* password = "imakestuff";
 // const char* ssid = doc["data"]["credentials"][0]["ssid"];
 // const char* password = doc["data"]["credentials"][0]["ssid"];

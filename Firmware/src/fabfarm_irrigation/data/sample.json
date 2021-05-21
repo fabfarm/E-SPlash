@@ -3,24 +3,17 @@
         "currentTime": "Tuesday, May 04 2021 21:16:44",
         "temperature": "Failed to read temperator from sensor",
         "humidity": "Failed to read humidity from sensor",
-        "isScheduleMode": 1,
+        "isScheduleMode": 0,
         "batLevel": 100,
-        "credentials" : [
-            { "ssid": "fabfarm",
-            " password" : "fabfarm"
-            }
-        ],
-    
         "changedtime": [
-            {  
+            {   "internettime" : 1,
                 "Ttime" : "02:02",
                 "Tdate" : "01/01/2021",
                 "min": 0, 
                 "hour" : 0,
                 "day": 0,
                 "month": 0,
-                "year": 0,
-                "manualtimeenabled": 0
+                "year": 0
             }
         ]
     },
@@ -44,6 +37,7 @@
             "pin": 26,
             "isRunning": 1,
             "isEnabled": 0,
+            "active" : 1,
             "times": [
                 {
                     "startTime": "02:02",
@@ -58,6 +52,7 @@
             "pin": 2,
             "isRunning": 1,
             "isEnabled": 0,
+            "active" : 1,
             "times": [
                 {
                     "startTime": "02:02",
