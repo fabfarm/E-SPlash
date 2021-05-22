@@ -151,7 +151,7 @@
                         <td>${relay.name}</td>
                         <td>${relay.pin}</td>
                         <td>${status}</td>
-                        <td><input type="button" value="X" style="width:10px" onclick="deleterelay(this)"></td>
+                        <td><input type="button" value="X " style="width:20px" onclick="deleterelay('this','${i}')"></td>
                     </tr>`
                 }
             }
@@ -201,8 +201,8 @@
         return;
     }
 
-    function deleterelay(obj){
-        jsonData.relays[2].active = 0;
+    function deleterelay(obj,relay){
+        jsonData.relays[relay].active = 0;
         window.location.reload();
         var json = JSON.stringify(jsonData);
         var xmlhttp = new XMLHttpRequest();   
@@ -212,8 +212,24 @@
         return;
     }
     
-    function addrelay(o){
+    function addrelay(obj){
+        for(var i = 0; i  < jsonData.relays.length; i++) {
+            var relay =  jsonData.relays[i];
+            if (relay.active == 0 ){
+            relay.name =  document.getElementById("relayname").value; 
+            relay.pin = document.getElementById("relaypin").value;
+            relay.active = 1;
+        }
+            else {
+                console.log(" no relays available");
+            }
+        }
         window.location.reload();
+        var json = JSON.stringify(jsonData);
+        var xmlhttp = new XMLHttpRequest();   
+        xmlhttp.open("POST", "/updateData");
+        xmlhttp.setRequestHeader("Content-Type", "application/json;");
+        xmlhttp.send(json);
         return;
     }
     
