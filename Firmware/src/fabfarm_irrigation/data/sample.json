@@ -19,10 +19,11 @@
     },
     "relays": [
         {
-            "name": "Fruit Tree",
+            "name": "Zone1",
             "pin": 27,
             "isRunning": 1,
             "isEnabled": 0,
+            "active" : 1,
             "times": [
                 {
                     "startTime": "01:01",
@@ -33,7 +34,7 @@
             ]
         },
         {
-            "name": "Vegie Garden",
+            "name": "Zone2",
             "pin": 26,
             "isRunning": 1,
             "isEnabled": 0,
@@ -48,25 +49,11 @@
             ]
         },
         {
-            "name": "Led1",
-            "pin": 2,
+            "name": "Zone3",
+            "pin": 25,
             "isRunning": 1,
             "isEnabled": 0,
             "active" : 1,
-            "times": [
-                {
-                    "startTime": "02:02",
-                    "duration": 32,
-                    "hour": 2,
-                    "min": 2
-                }
-            ]
-        },
-        {
-            "name": "Led2",
-            "pin": 4,
-            "isRunning": 1,
-            "isEnabled": 0,
             "times": [
                 {
                     "startTime": "02:02",

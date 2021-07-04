@@ -1,43 +1,26 @@
 
-/**
+/*
  * This code is part of a Irrigation Sytem developed as my final project,
  * in the Fabacademy course, full documentation can be viewed on the link:
  * http://fabacademy.org/2020/labs/algarve/students/lucio/index.html
  * 
- * The begining of the code was based on the works of Rui Santos. With the 
- * contributions of Jeff and my obssession in learning to code its significantly 
- * different a Special thanks to Jeffrey Knight who without I would be probabily
- * struglyng with the most advanced parts of the project.
- * 
  * Project page: http://github.com/fabfarm/esplash
- * 
- * Contributors:
- *  Lucio PGN http://github.com/lpgn
- *  Jeffrey Knight http://github.com/jknight
  */
+
 #include <Arduino.h>
 #include <WiFi.h>
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
-
-
 #include <fstream>
 #include <iostream>
 #include <sstream>
 #include <streambuf>
-//#include <string>
 #include "AsyncElegantOTA.h"
-
 #include "Adafruit_Sensor.h"
 #include "ArduinoJson.h"
 #include "AsyncJson.h"
-
 #include "DHT.h"
 #include "SPIFFS.h"
-
-// #include "printFarmTime.cpp"
-//#include "modifiedPrintLocalTime.cpp"
-
 #include <ESP32Time.h>
 ESP32Time rtc;
 
@@ -52,15 +35,25 @@ int jasonSize = 2048;
 DynamicJsonDocument doc(jasonSize); // from arduinoJson
 
 //Defining pump pin number
-int pumpPin = 13;
+int pumpPinNumber = 33;
+
+//Define Voltage read pin number
 int batVolt = 35;
 
 //Declaring wifi credentials
-const char* ssid = "fabfarm";
+const char* ssid = "fabfarm_ele_container";
 const char* password = "imakestuff";
-// const char* ssid = doc["data"]["credentials"][0]["ssid"];
-// const char* password = doc["data"]["credentials"][0]["ssid"];
-int flag = 0;
+
+//included option to use relays with TTL Logic LOW. Comment to use high
+#define TTL_Logic_Low
+
+#ifdef TTL_Logic_Low
+  #define ON   LOW
+  #define OFF  HIGH
+#else
+  #define ON   HIGH
+  #define OFF  LOW
+#endif
 
 void setup(){
   // Serial port for debugging purposes
@@ -81,9 +74,9 @@ void setup(){
   WiFi.softAP("softap", "imakestuff");
   IPAddress IP = WiFi.softAPIP();
 
-  //defining behaviour of pumpPin and its startup state
-  pinMode (pumpPin, OUTPUT);
-  digitalWrite (pumpPin, LOW);
+  //defining behaviour of pumpPinNumber and its startup state
+  pinMode (pumpPinNumber, OUTPUT);
+  digitalWrite (pumpPinNumber, OFF);
   
   //put all relays in LOW at startup
   //TODO write to Json as well otherwise it reactivates
@@ -183,8 +176,9 @@ void setup(){
   
   server.addHandler(handler);
 
-  //start OTA
-  AsyncElegantOTA.begin(&server);    // Start ElegantOTA
+  // Start ElegantOTA
+  AsyncElegantOTA.begin(&server);
+
   // Start server here
   server.begin();
 }
@@ -208,7 +202,7 @@ void loop()
   // Call function that assigns the array in the json to the rtc of ESP32
   JsonObject data = doc["data"];
   boolean data_internettime = data["changedtime"][0]["internettime"] ;
-  boolean data_manualtimeflag = data["changedtime"][0]["manualtimeenabled"];
+  //boolean data_manualtimeflag = data["changedtime"][0]["manualtimeenabled"];
   if ( data_internettime  == 1)
   {
     Serial.println("Time updated using internet");
@@ -218,15 +212,11 @@ void loop()
     }
   }
 if ( data_internettime  == 0 ){
-  //   Serial.println("Time updated using manual input");
-  //  changetime();
-  //  flag = 1 ;
     Serial.println("Time updated using manual input");
   for(static bool first = true;first;first=false)
   { 
    changetime();  
   }
-  // test
 }
   
 
@@ -254,115 +244,6 @@ void changetime (){
  rtc.setTime(0,mIn,hOur,dAy,mOnth,yEar);
 }
 
-//@carlosmouracorreia your alterations in this fuction did not work. when swiching from manual mode to schedule mode relays that were on remain on 
-// void scheduleMode(){
-  
-//   //matrix logic test
-
-//   JsonArray relays = doc["relays"];
-//   for (int i = 0; i < relays.size(); i++){
-//     int flagEnableRelay = 0;
-//     for (int j = 0; j < relays[i]["times"].size(); j++) {
-//       //aparentelly there is no problem to set digital write several times as it only dows write a different value, need to check that. https://forum.arduino.cc/index.php?topic=52806.0
-//       pinMode(relays[i]["pin"], OUTPUT);
-      
-//       JsonObject timedRelay = relays[i]["times"][j];
-
-//       const char* relaysStartTime = timedRelay["startTime"];
-//       int hOurs = timedRelay["hour"];
-//       int mIns = timedRelay["min"];
-//       int cycleDuration = timedRelay["duration"];
-//       //Probabilly should learn about bitwise... https://playground.arduino.cc/Code/BitMath/
-//       if (isEnabledFunc(hOurs*60+mIns, cycleDuration) == 1)
-//       {
-//         ++flagEnableRelay;
-//       }
-//     }
-//     if (flagEnableRelay >= 1)
-//     {
-//       digitalWrite(relays[i]["pin"], 1);
-//       digitalWrite(pumpPin, 1);
-//       Serial.print("Zone ");
-//       String zoneName = relays[i]["name"];
-//       Serial.print(zoneName);
-//       Serial.println(" is Enabled!");
-
-//       return;
-//     }
-    
-    
-//     int valveFlag = 0;
-//     for (int y = 0; y < relays.size(); y++)
-//     {
-//       if (digitalRead (relays[y]["pin"]) == HIGH)
-//       {
-//         ++valveFlag;
-//       }
-//     }
-//     if (valveFlag == 0)
-//       {
-//         digitalWrite(pumpPin, 0);
-//       }
-//     digitalWrite(relays[i]["pin"], 0);
-//     Serial.print("Zone ");
-//     String zoneName = relays[i]["name"];
-//     Serial.print(zoneName);
-//     Serial.println(" is off");
-//   }
-// }
-
-// void manualMode()
-// {
-
-//   Serial.println("now Manual Mode");
-//   JsonArray relays = doc["relays"];
-//   for (int i = 0; i < relays.size(); i++)
-//   {
-//     pinMode(relays[i]["pin"], OUTPUT);
-//     if (relays[i]["isEnabled"] == 1)
-//     {
-//       digitalWrite(relays[i]["pin"], 1);
-
-//       digitalWrite(pumpPin, 1);
-//       continue;
-//     }
-    
-//     int valveFlag = 0;
-//     for (int y = 0; y < relays.size(); y++)
-//     {
-//       if (digitalRead (relays[y]["pin"]) == HIGH)
-//       {
-//         ++valveFlag;
-//       }
-//     }
-//     if (valveFlag == 0)
-//       {
-//         digitalWrite(pumpPin, 0);
-//       }
-
-//     digitalWrite(relays[i]["pin"], 0);
-//     Serial.print("Zone ");
-//     String zoneName = relays[i]["name"];
-//     Serial.print(zoneName);
-//     Serial.println(" is off");
-    
-//   }
-// }
-
-// //function to deactivate all pins usefull for safe startup not finished yet
-// void allRelaysdisable(){
-  
-
-//   JsonObject data = doc["data"];
-//   JsonArray relays = doc["relays"];
-//   for (int p = 0; p < relays.size(); p++)
-//   {
-//     int pin = relays[p]["pin"];
-//     pinMode(pin, OUTPUT);
-//     digitalWrite(pin,LOW);
-//   }
-// }
-
 void scheduleMode(){
 
   //matrix logic test
@@ -370,9 +251,7 @@ void scheduleMode(){
   for (int i = 0; i < relays.size(); i++){
     int flagEnableRelay = 0;
     for (int j = 0; j < relays[i]["times"].size(); j++) {
-      //aparentelly there is no problem to set digital write several times as it only dows write a different value, need to check that. https://forum.arduino.cc/index.php?topic=52806.0
       pinMode(relays[i]["pin"], OUTPUT);
-      //const char* relaysStartTime = relays[i]["times"][j]["startTime"];
       int hOurs = relays[i]["times"][j]["hour"];
       int mIns = relays[i]["times"][j]["min"];
       int cycleDuration = relays[i]["times"][j]["duration"];
@@ -384,8 +263,8 @@ void scheduleMode(){
     }
     if (flagEnableRelay >= 1)
     {
-      digitalWrite(relays[i]["pin"], 1);
-      digitalWrite(pumpPin, 1);
+      digitalWrite(relays[i]["pin"], ON);
+      digitalWrite(pumpPinNumber, ON);
       Serial.print("Zone ");
       String zoneName = relays[i]["name"];
       Serial.print(zoneName);
@@ -396,16 +275,16 @@ void scheduleMode(){
       int valveFlag = 0;
       for (int y = 0; y < relays.size(); y++)
       {
-        if (digitalRead (relays[y]["pin"]) == HIGH)
+        if (digitalRead (relays[y]["pin"]) == ON)
         {
           ++valveFlag;
         }
       }
       if (valveFlag == 0)
         {
-          digitalWrite(pumpPin, 0);
+          digitalWrite(pumpPinNumber, OFF);
         }
-      digitalWrite(relays[i]["pin"], 0);
+      digitalWrite(relays[i]["pin"], OFF);
       Serial.print("Zone ");
       String zoneName = relays[i]["name"];
       Serial.print(zoneName);
@@ -422,24 +301,24 @@ void manualMode()
     pinMode(relays[i]["pin"], OUTPUT);
     if (relays[i]["isEnabled"] == 1)
     {
-      digitalWrite(relays[i]["pin"], 1);
-      digitalWrite(pumpPin, 1);
+      digitalWrite(relays[i]["pin"], ON);
+      digitalWrite(pumpPinNumber, ON);
     }
     else
     {   
       int valveFlag = 0;
       for (int y = 0; y < relays.size(); y++)
       {
-        if (digitalRead (relays[y]["pin"]) == HIGH)
+        if (digitalRead (relays[y]["pin"]) == ON)
         {
           ++valveFlag;
         }
       }
       if (valveFlag == 0)
         {
-          digitalWrite(pumpPin, 0);
+          digitalWrite(pumpPinNumber, OFF);
         }
-      digitalWrite(relays[i]["pin"], 0);
+      digitalWrite(relays[i]["pin"], OFF);
       Serial.print("Zone ");
       String zoneName = relays[i]["name"];
       Serial.print(zoneName);
@@ -454,9 +333,9 @@ void allRelaysdisable(){
     JsonArray relays = doc["relays"];
     for (int p = 0; p < relays.size(); p++)
   {
-    int pin = relays[p]["pin"];
-    pinMode(pin, OUTPUT);
-    digitalWrite(pin,LOW);
+    int pinNumber = relays[p]["pin"];
+    pinMode(pinNumber, OUTPUT);
+    digitalWrite(pinNumber, OFF);
   }
 }
 
