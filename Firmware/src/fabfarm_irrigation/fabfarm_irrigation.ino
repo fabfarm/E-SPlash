@@ -55,6 +55,10 @@ const char* password = "imakestuff";
   #define OFF  LOW
 #endif
 
+//**************************************************************************************************************
+// *****************************************Setup starts here***************************************************
+//**************************************************************************************************************
+
 void setup(){
   // Serial port for debugging purposes
   Serial.begin(9600);
@@ -118,11 +122,12 @@ void setup(){
   deserializeJson(doc, json);
 
   // Route for root / web page
-    server.on("/setuppage.html", HTTP_GET, [] (AsyncWebServerRequest *request) {
-    request->send(SPIFFS,"/setuppage.html", String(), false);
-  });
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(SPIFFS, "/index.html", String(), false);
+  });
+  // Route for setup page / web page
+  server.on("/setuppage.html", HTTP_GET, [] (AsyncWebServerRequest *request) {
+    request->send(SPIFFS,"/setuppage.html", String(), false);
   });
   // Route to load style.css file
   server.on("/style.css", HTTP_GET, [](AsyncWebServerRequest *request) {
@@ -131,9 +136,11 @@ void setup(){
   server.on("/all.css", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(SPIFFS, "/all.css", "text/css");
   });
+    // Route to load images file
   server.on("/logo.png", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(SPIFFS, "/logo.png", "image/png");
   });
+  // Route to 
   server.on("/getData", HTTP_GET, [](AsyncWebServerRequest *request)
   {
     Serial.println("/getData");
@@ -183,6 +190,10 @@ void setup(){
   server.begin();
 }
 
+//**************************************************************************************************************
+// ********************************Loop Stats here************************************************************** 
+//**************************************************************************************************************
+
 void loop()
 {
   AsyncElegantOTA.loop();
@@ -218,9 +229,8 @@ if ( data_internettime  == 0 ){
    changetime();  
   }
 }
-  
 
-  boolean data_isScheduleMode = data["isScheduleMode"];
+boolean data_isScheduleMode = data["isScheduleMode"];
 
   if (data_isScheduleMode == 0){
     manualMode();
@@ -231,6 +241,10 @@ if ( data_internettime  == 0 ){
 
 //*****end of loop*****
 }
+
+//**************************************************************************************************************
+//***********Bellow here only functions*************************************************************************
+//**************************************************************************************************************
 
 void changetime (){
 
