@@ -24,6 +24,23 @@
 #include <ESP32Time.h>
 ESP32Time rtc;
 
+//13 CLK 
+//14 DAT 
+//32 RST
+
+// CONNECTIONS:
+// DS1302 CLK/SCLK --> 13
+// DS1302 DAT/IO --> 14
+// DS1302 RST/CE --> 32
+// DS1302 VCC --> 3.3v - 5v
+// DS1302 GND --> GND
+
+#include <ThreeWire.h>  
+#include <RtcDS1302.h>
+
+ThreeWire myWire(14,13,32); // IO, SCLK, CE
+RtcDS1302<ThreeWire> Rtc(myWire);
+
 // read / write json to save state
 const char *dataFile = "data.json";
 
@@ -55,14 +72,31 @@ const char* password = "imakestuff";
   #define OFF  LOW
 #endif
 
+unsigned long previousMillis = 0;
+const long printTimeInterval = 1000;
+
 //**************************************************************************************************************
 // *****************************************Setup starts here***************************************************
 //**************************************************************************************************************
 
 void setup(){
+  //defining behaviour of pumpPinNumber and its startup state
+  pinMode (pumpPinNumber, OUTPUT);
+  digitalWrite (pumpPinNumber, OFF);
+  //put all relays in LOW at startup
+  //TODO write to Json as well otherwise it reactivates
+  allRelaysdisable();
   // Serial port for debugging purposes
   Serial.begin(9600);
-  
+  Serial.println("This program was Compiled on: ");
+  Serial.print("date: ");
+  Serial.println(__DATE__);
+  Serial.print("time: ");
+  Serial.println(__TIME__);
+  //external rtc initiation
+  Rtc.Begin();
+  //this function will do a series of logical tests on external rtc in order to set its time in case is needed and print then  status
+  first_rtc_function();
   //start wifi sessions as a client.
   //Wifi client setup
   WiFi.begin(ssid, password);
@@ -70,32 +104,11 @@ void setup(){
     Serial.printf("WiFi Failed!\n");
     return;
     }
-
   Serial.print("IP Address: ");
   Serial.println(WiFi.localIP());
-
   //Soft Wifi Access point setup
   WiFi.softAP("softap", "imakestuff");
   IPAddress IP = WiFi.softAPIP();
-
-  //defining behaviour of pumpPinNumber and its startup state
-  pinMode (pumpPinNumber, OUTPUT);
-  digitalWrite (pumpPinNumber, OFF);
-  
-  //put all relays in LOW at startup
-  //TODO write to Json as well otherwise it reactivates
-  allRelaysdisable();
-
-  // Configure a random time in the rtc of the ESP32
-  rtc.setTime(1,1,1,1,1,2021);
-
-  // Print the random time in the rtc
-  Serial.println(rtc.getTime("%A, %B %d %Y %H:%M:%S"));
-
-  // Assign the time from the ntp server to the esp32 RTC
-
-  // Print the updated time in the rtc
-  Serial.println(rtc.getTime("%A, %B %d %Y %H:%M:%S"));
 
   //Initialize SPIFFS
   //That is the file system.
@@ -156,7 +169,6 @@ void setup(){
     request->send(200, "application/json", json);
   });
   
-
   AsyncCallbackJsonWebHandler *handler = new AsyncCallbackJsonWebHandler("/updateData", 
   [](AsyncWebServerRequest *request, JsonVariant &json) {
     doc = json.as<JsonObject>();
@@ -196,6 +208,9 @@ void setup(){
 
 void loop()
 {
+  //uncomment testRtcOnLoop() to display time every second on serial monitor
+  //testRtcOnLoop();
+  
   AsyncElegantOTA.loop();
   if  (WiFi.status() != WL_CONNECTED)
   {
@@ -208,29 +223,8 @@ void loop()
     Serial.print("The Fabfarm Irrigation system network IP is:");
     Serial.println(WiFi.localIP());
   }
-  Serial.println(rtc.getTime("%A, %B %d %Y %H:%M:%S"));
-
-  // Call function that assigns the array in the json to the rtc of ESP32
   JsonObject data = doc["data"];
-  boolean data_internettime = data["changedtime"][0]["internettime"] ;
-  //boolean data_manualtimeflag = data["changedtime"][0]["manualtimeenabled"];
-  if ( data_internettime  == 1)
-  {
-    Serial.println("Time updated using internet");
-      for(static bool first = true;first;first=false)
-    { 
-      AssignLocalTime();
-    }
-  }
-if ( data_internettime  == 0 ){
-    Serial.println("Time updated using manual input");
-  for(static bool first = true;first;first=false)
-  { 
-   changetime();  
-  }
-}
-
-boolean data_isScheduleMode = data["isScheduleMode"];
+  boolean data_isScheduleMode = data["isScheduleMode"];
 
   if (data_isScheduleMode == 0){
     manualMode();
@@ -245,6 +239,30 @@ boolean data_isScheduleMode = data["isScheduleMode"];
 //**************************************************************************************************************
 //***********Bellow here only functions*************************************************************************
 //**************************************************************************************************************
+
+// void internetOrManualTime()
+// {
+//   // Call function that assigns the array in the json to the rtc of ESP32
+//   Serial.println(rtc.getTime("%A, %B %d %Y %H:%M:%S"));
+//   boolean data_internettime = data["changedtime"][0]["internettime"] ;
+//   //boolean data_manualtimeflag = data["changedtime"][0]["manualtimeenabled"];
+//   if ( data_internettime  == 1)
+//   {
+//     Serial.println("Time updated using internet");
+//       for(static bool first = true;first;first=false)
+//       { 
+//         	AssignLocalTime();
+//       }
+//   }
+//   if ( data_internettime  == 0 )
+//   { 
+//     Serial.println("Time updated using manual input");
+//     for(static bool first = true;first;first=false)
+//     { 
+//       changetime();  
+//     }
+//   }
+// }
 
 void changetime (){
 
@@ -463,4 +481,130 @@ void AssignLocalTime(){
   TSec = timeinfo.tm_sec;
   rtc.setTime(TSec,TMin,THour,TDay,TMonth,TYear);
   return ;
+}
+
+#define countof(a) (sizeof(a) / sizeof(a[0]))
+
+void printDateTime(const RtcDateTime& dt)
+{
+  char datestring[20];
+
+  snprintf_P(datestring, 
+          countof(datestring),
+          PSTR("%02u/%02u/%04u %02u:%02u:%02u"),
+          dt.Month(),
+          dt.Day(),
+          dt.Year(),
+          dt.Hour(),
+          dt.Minute(),
+          dt.Second() );
+  Serial.println(datestring);
+}
+//Function to update internal RTC using External RTC
+void updateInternalRTC(const RtcDateTime& dt)
+{
+  char datestring[20];
+
+  snprintf_P(datestring, 
+          countof(datestring),
+          PSTR("%02u/%02u/%04u %02u:%02u:%02u"),
+          dt.Month(),
+          dt.Day(),
+          dt.Year(),
+          dt.Hour(),
+          dt.Minute(),
+          dt.Second() );
+  rtc.setTime(dt.Second(),dt.Minute(),dt.Hour(),dt.Day(),dt.Month(),dt.Year());
+
+  Serial.println("----------------------------------------------------------------------------------");
+  Serial.println("----------------------------------------------------------------------------------");
+  Serial.println("----------------------------------------------------------------------------------");
+  Serial.println("This data comes from void void updateInternalRTC(const RtcDateTime& dt)");
+  Serial.println(datestring);
+  Serial.println("End of data from updateInternalRTC(const RtcDateTime& dt)");
+  Serial.println("----------------------------------------------------------------------------------");
+  Serial.println("----------------------------------------------------------------------------------");
+  Serial.println("----------------------------------------------------------------------------------");
+}
+
+
+void first_rtc_function()
+{ 
+  Serial.println("**********************************************************************************");
+  Serial.println("**********************************************************************************");
+  Serial.println("**********************************************************************************");
+  Serial.println("This data comes from void first_rtc_function()");
+  RtcDateTime compiled = RtcDateTime(__DATE__, __TIME__);
+  // Print the Time before updated from external RTC
+  Serial.println("Time is from from internal RTC on boot");
+  Serial.println(rtc.getTime("%A, %B %d %Y %H:%M:%S"));
+  // Configure internal RTC from external rtc time
+  updateInternalRTC(Rtc.GetDateTime());
+  // Print the Time updated from external RTC
+  Serial.println("Time from internal RTC after external RTC update");
+  Serial.println(rtc.getTime("%A, %B %d %Y %H:%M:%S"));
+
+  if (!Rtc.IsDateTimeValid()) 
+  {
+      // Common Causes:
+      //    1) first time you ran and the device wasn't running yet
+      //    2) the battery on the device is low or even missing
+
+      Serial.println("RTC lost confidence in the DateTime!");
+      Rtc.SetDateTime(compiled);
+  }
+
+  if (Rtc.GetIsWriteProtected())
+  {
+      Serial.println("RTC was write protected, enabling writing now");
+      Rtc.SetIsWriteProtected(false);
+  }
+
+  if (!Rtc.GetIsRunning())
+  {
+      Serial.println("RTC was not actively running, starting now");
+      Rtc.SetIsRunning(true);
+  }
+
+  RtcDateTime now = Rtc.GetDateTime();
+  if (now < compiled) 
+  {
+      Serial.println("RTC is older than compile time!  (Updating DateTime)");
+      Rtc.SetDateTime(compiled);
+  }
+  else if (now > compiled) 
+  {
+      Serial.println("RTC is newer than compile time. (this is expected)");
+  }
+  else if (now == compiled) 
+  {
+      Serial.println("RTC is the same as compile time! (not expected but all is fine)");
+  }
+      Serial.println();
+
+  Serial.println("END of data from first external RTC function");
+  Serial.println("**********************************************************************************");
+  Serial.println("**********************************************************************************");
+  Serial.println("**********************************************************************************");
+
+}
+
+void testRtcOnLoop()
+{
+  Serial.println("This data comes from void testRtcOnLoop() time will apear only every 1 second" );
+  unsigned long currentMillis = millis();
+  if (currentMillis - previousMillis >= printTimeInterval) 
+  {
+    previousMillis = currentMillis;
+    RtcDateTime now = Rtc.GetDateTime();
+    printDateTime(Rtc.GetDateTime());
+    Serial.println();
+    if (!now.IsValid())
+    {
+      // Common Causes:
+      //    1) the battery on the device is low or even missing and the power line was disconnected
+      Serial.println("RTC lost confidence in the DateTime!");
+    }
+  }
+  Serial.println("End of data from void testRtcOnLoop()" );
 }
