@@ -7,39 +7,26 @@
  * Project page: http://github.com/fabfarm/esplash
  */
 
-#include <Arduino.h>
-#include <WiFi.h>
-#include <AsyncTCP.h>
-#include <ESPAsyncWebServer.h>
-#include <fstream>
-#include <iostream>
-#include <sstream>
-#include <streambuf>
-#include "AsyncElegantOTA.h"
-#include "Adafruit_Sensor.h"
 #include "ArduinoJson.h"
 #include "AsyncJson.h"
 #include "DHT.h"
 #include "SPIFFS.h"
 #include <ESP32Time.h>
+#include "AsyncElegantOTA.h"
+#include <WiFi.h>
+
+
+//Below is already declared in platformio.ini file
+//#include <Arduino.h>
+//#include <AsyncTCP.h>
+//#include <ESPAsyncWebServer.h>
+//#include <fstream>
+//#include <iostream>
+//#include <sstream>
+//#include <streambuf>
+//#include "Adafruit_Sensor.h"
+
 ESP32Time rtc;
-
-//13 CLK 
-//14 DAT 
-//32 RST
-
-// CONNECTIONS:
-// DS1302 CLK/SCLK --> 13
-// DS1302 DAT/IO --> 14
-// DS1302 RST/CE --> 32
-// DS1302 VCC --> 3.3v - 5v
-// DS1302 GND --> GND
-
-#include <ThreeWire.h>  
-#include <RtcDS1302.h>
-
-ThreeWire myWire(14,13,32); // IO, SCLK, CE
-RtcDS1302<ThreeWire> Rtc(myWire);
 
 // read / write json to save state
 const char *dataFile = "data.json";
@@ -51,18 +38,39 @@ AsyncWebServer server(80);
 int jasonSize = 2048;
 DynamicJsonDocument doc(jasonSize); // from arduinoJson
 
-//Defining pump pin number
-int pumpPinNumber = 33;
+#define zeroponto1
 
-//Define Voltage read pin number
-int batVolt = 35;
+#ifdef zeroponto1
+  #include <Wire.h>
+  #include <RtcDS3231.h>
+
+  RtcDS3231<TwoWire> Rtc(Wire); 
+  //Defining pump pin number
+  int pumpPinNumber = 13;
+  //Define Voltage read pin number
+  int batVolt = 35;
+
+#else
+  #include <ThreeWire.h>  
+  #include <RtcDS1302.h>
+  RtcDS1302<ThreeWire> Rtc(myWire);
+  //Defining pump pin number
+  int pumpPinNumber = 33;
+  //Define Voltage read pin number
+  int batVolt = 35;
+  ThreeWire myWire(14,13,32); // DAT, CLK, RST
+
+#endif
+
+// 
+
 
 //Declaring wifi credentials
 const char* ssid = "fabfarm_ele_container";
 const char* password = "imakestuff";
 
 //included option to use relays with TTL Logic LOW. Comment to use high
-#define TTL_Logic_Low
+//#define TTL_Logic_Low
 
 #ifdef TTL_Logic_Low
   #define ON   LOW
@@ -80,6 +88,8 @@ const long printTimeInterval = 1000;
 //**************************************************************************************************************
 
 void setup(){
+  Serial.print("IP Address: ");
+  Serial.println(WiFi.localIP());
   //defining behaviour of pumpPinNumber and its startup state
   pinMode (pumpPinNumber, OUTPUT);
   digitalWrite (pumpPinNumber, OFF);
@@ -94,21 +104,12 @@ void setup(){
   Serial.print("time: ");
   Serial.println(__TIME__);
   //external rtc initiation
+  #ifdef zeroponto1
+  Wire.begin(05, 17); // SDA, SCL
+  #endif
   Rtc.Begin();
   //this function will do a series of logical tests on external rtc in order to set its time in case is needed and print then  status
   first_rtc_function();
-  //start wifi sessions as a client.
-  //Wifi client setup
-  WiFi.begin(ssid, password);
-  if (WiFi.waitForConnectResult() != WL_CONNECTED) {
-    Serial.printf("WiFi Failed!\n");
-    return;
-    }
-  Serial.print("IP Address: ");
-  Serial.println(WiFi.localIP());
-  //Soft Wifi Access point setup
-  WiFi.softAP("softap", "imakestuff");
-  IPAddress IP = WiFi.softAPIP();
 
   //Initialize SPIFFS
   //That is the file system.
@@ -198,6 +199,22 @@ void setup(){
   // Start ElegantOTA
   AsyncElegantOTA.begin(&server);
 
+
+
+  //Soft Wifi Access point setup
+  WiFi.softAP("Irrigation");
+  IPAddress IP = WiFi.softAPIP();
+  Serial.print("AP IP address: ");
+  Serial.println(IP);
+
+  //start wifi sessions as a client.
+  //Wifi client setup
+  // WiFi.begin(ssid, password);
+  // if (WiFi.waitForConnectResult() != WL_CONNECTED) {
+  //   Serial.printf("WiFi Failed!\n");
+  //   return;
+  // }
+  
   // Start server here
   server.begin();
 }
@@ -212,17 +229,7 @@ void loop()
   //testRtcOnLoop();
   
   AsyncElegantOTA.loop();
-  if  (WiFi.status() != WL_CONNECTED)
-  {
-    Serial.println("Connecting to WiFi..");
-  }
-  else
-  {
-    Serial.println("Connected to WiFi!");
-    // Print ESP32 Local IP Address
-    Serial.print("The Fabfarm Irrigation system network IP is:");
-    Serial.println(WiFi.localIP());
-  }
+
   JsonObject data = doc["data"];
   boolean data_isScheduleMode = data["isScheduleMode"];
 
@@ -233,6 +240,18 @@ void loop()
     scheduleMode();
   }
 
+
+  // if  (WiFi.status() != WL_CONNECTED)
+  // {
+  //   Serial.println("Connecting to WiFi..");
+  // }
+  // else
+  // {
+  //   Serial.println("Connected to WiFi!");
+  //   // Print ESP32 Local IP Address
+  //   Serial.print("The Fabfarm Irrigation system network IP is:");
+  //   Serial.println(WiFi.localIP());
+  // }
 //*****end of loop*****
 }
 
@@ -297,10 +316,10 @@ void scheduleMode(){
     {
       digitalWrite(relays[i]["pin"], ON);
       digitalWrite(pumpPinNumber, ON);
-      Serial.print("Zone ");
+      // Serial.print("Zone ");
       String zoneName = relays[i]["name"];
-      Serial.print(zoneName);
-      Serial.println(" is Enabled!");
+      // Serial.print(zoneName);
+      // Serial.println(" is Enabled!");
     }
     else
     {   
@@ -317,16 +336,16 @@ void scheduleMode(){
           digitalWrite(pumpPinNumber, OFF);
         }
       digitalWrite(relays[i]["pin"], OFF);
-      Serial.print("Zone ");
+      // Serial.print("Zone ");
       String zoneName = relays[i]["name"];
-      Serial.print(zoneName);
-      Serial.println(" is off");
+      // Serial.print(zoneName);
+      // Serial.println(" is off");
     }
   }
 }
 void manualMode()
 {
-  Serial.println("now Manual Mode");
+  
   JsonArray relays = doc["relays"];
   for (int i = 0; i < relays.size(); i++)
   {
@@ -351,10 +370,10 @@ void manualMode()
           digitalWrite(pumpPinNumber, OFF);
         }
       digitalWrite(relays[i]["pin"], OFF);
-      Serial.print("Zone ");
+      // Serial.print("Zone ");
       String zoneName = relays[i]["name"];
-      Serial.print(zoneName);
-      Serial.println(" is off");
+      // Serial.print(zoneName);
+      // Serial.println(" is off");
     }
   }
 }
@@ -553,12 +572,14 @@ void first_rtc_function()
       Serial.println("RTC lost confidence in the DateTime!");
       Rtc.SetDateTime(compiled);
   }
-
+  #ifdef zeroponto1
+  #else
   if (Rtc.GetIsWriteProtected())
   {
-      Serial.println("RTC was write protected, enabling writing now");
-      Rtc.SetIsWriteProtected(false);
+    Serial.println("RTC was write protected, enabling writing now");
+    Rtc.SetIsWriteProtected(false);
   }
+  #endif
 
   if (!Rtc.GetIsRunning())
   {
@@ -608,3 +629,14 @@ void testRtcOnLoop()
   }
   Serial.println("End of data from void testRtcOnLoop()" );
 }
+
+
+// void generalStatusPrint()
+// {
+//   oldValue = isEnabled;
+//   if(oldValue != newValue)
+//   {
+//     Serial.println(newValue);
+//     oldValue = newValue;
+//   }
+// }
