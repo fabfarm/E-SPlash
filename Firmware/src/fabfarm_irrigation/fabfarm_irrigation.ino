@@ -1,4 +1,3 @@
-
 /*
  * This code is part of a Irrigation Sytem developed as my final project,
  * in the Fabacademy course, full documentation can be viewed on the link:
@@ -15,7 +14,7 @@
 #include "AsyncElegantOTA.h"
 #include <WiFi.h>
 
-
+//#include <esp_now.h>
 //Below is already declared in platformio.ini file
 //#include <Arduino.h>
 //#include <AsyncTCP.h>
@@ -27,51 +26,48 @@
 //#include "Adafruit_Sensor.h"
 
 ESP32Time rtc;
-
-// read / write json to save state
-const char *dataFile = "data.json";
-
-// Specify the port of the Async server
-AsyncWebServer server(80);
-
-// Specifing the capacity of the json in bytes.
-int jasonSize = 2048;
+const char *dataFile = "data.json";// read / write json to save state
+AsyncWebServer server(80);// Specify the port of the Async server
+int jasonSize = 2048;// Specifing the capacity of the json in bytes.
 DynamicJsonDocument doc(jasonSize); // from arduinoJson
 
+//chosing the type of board if 0.1 or 1.0
 #define zeroponto1
-
 #ifdef zeroponto1
   #include <Wire.h>
   #include <RtcDS3231.h>
-
   RtcDS3231<TwoWire> Rtc(Wire); 
   //Defining pump pin number
   int pumpPinNumber = 13;
   //Define Voltage read pin number
   int batVolt = 35;
-
 #else
   #include <ThreeWire.h>  
   #include <RtcDS1302.h>
   RtcDS1302<ThreeWire> Rtc(myWire);
+  ThreeWire myWire(14,13,32); // DAT, CLK, RST
   //Defining pump pin number
   int pumpPinNumber = 33;
   //Define Voltage read pin number
   int batVolt = 35;
-  ThreeWire myWire(14,13,32); // DAT, CLK, RST
-
 #endif
 
-// 
-
-
 //Declaring wifi credentials
-const char* ssid = "fabfarm_ele_container";
-const char* password = "imakestuff";
+#define WIFI_SSID "ratinho_do_malandro"
+#define WIFI_PASS "gerryforever2018"
+// Set AP credentials
+#define AP_SSID "irrigation"
+#define AP_PASS "imakestuff"
+#define AP_CHANNEL 1
+// Set IP addresses
+IPAddress local_IP(192,168,4,1);
+IPAddress gateway(192,168,1,1);
+IPAddress subnet(255,255,255,0);
+String hostname = "irrigation";
+
 
 //included option to use relays with TTL Logic LOW. Comment to use high
 //#define TTL_Logic_Low
-
 #ifdef TTL_Logic_Low
   #define ON   LOW
   #define OFF  HIGH
@@ -80,6 +76,7 @@ const char* password = "imakestuff";
   #define OFF  LOW
 #endif
 
+//this data is for the functions that need an interval and use millis to instead of delay 
 unsigned long previousMillis = 0;
 const long printTimeInterval = 1000;
 
@@ -88,16 +85,10 @@ const long printTimeInterval = 1000;
 //**************************************************************************************************************
 
 void setup(){
-  Serial.print("IP Address: ");
-  Serial.println(WiFi.localIP());
-  //defining behaviour of pumpPinNumber and its startup state
-  pinMode (pumpPinNumber, OUTPUT);
-  digitalWrite (pumpPinNumber, OFF);
-  //put all relays in LOW at startup
-  //TODO write to Json as well otherwise it reactivates
-  allRelaysdisable();
-  // Serial port for debugging purposes
   Serial.begin(9600);
+  initWiFi();  //function with wifi settings and initialisation
+  server.begin();// Start server
+  allRelaysdisable();  //put all relays in LOW at startup: (question? does it reactivates unatendelly like previously noted?)
   Serial.println("This program was Compiled on: ");
   Serial.print("date: ");
   Serial.println(__DATE__);
@@ -108,17 +99,14 @@ void setup(){
   Wire.begin(05, 17); // SDA, SCL
   #endif
   Rtc.Begin();
-  //this function will do a series of logical tests on external rtc in order to set its time in case is needed and print then  status
-  first_rtc_function();
-
-  //Initialize SPIFFS
-  //That is the file system.
+  first_rtc_function();  //this function will do a series of logical tests on external rtc in order to set its time in case is needed and print then  status
+  
+  //Initialize SPIFFS (file system)
   if (!SPIFFS.begin(true))
   {
     Serial.println("An Error has occurred while mounting SPIFFS");
     return;
   }
-  
   // we always read the data.json from disk on startup (always!)
   // If freshlly burned we have to send the sample json... TODO: generate json if not existent
   // open the json file with the name "data.json" from SPIFFS ...
@@ -128,8 +116,8 @@ void setup(){
   Serial.println("read file - BEGIN");
   Serial.println(json);
   Serial.println("read file - COMPLETE");
-  //closes the file
-  f.close();
+  f.close();  //closes the file
+
 
   // we take json from memory & create json object
   Serial.println("json deserialize test - BEGIN");
@@ -177,7 +165,7 @@ void setup(){
     serializeJson(doc, jsonString);
 
     //write this to disk
-    // Read json from the file ...
+    //Read json from the file ...
     Serial.println("Saving to disk - BEGIN");
     File f = SPIFFS.open("/data.json", "w");
     if (!f)
@@ -193,30 +181,11 @@ void setup(){
       Serial.println(jsonString);
       Serial.println("-------------------");
     });
-  
   server.addHandler(handler);
 
   // Start ElegantOTA
   AsyncElegantOTA.begin(&server);
 
-
-
-  //Soft Wifi Access point setup
-  WiFi.softAP("Irrigation");
-  IPAddress IP = WiFi.softAPIP();
-  Serial.print("AP IP address: ");
-  Serial.println(IP);
-
-  //start wifi sessions as a client.
-  //Wifi client setup
-  // WiFi.begin(ssid, password);
-  // if (WiFi.waitForConnectResult() != WL_CONNECTED) {
-  //   Serial.printf("WiFi Failed!\n");
-  //   return;
-  // }
-  
-  // Start server here
-  server.begin();
 }
 
 //**************************************************************************************************************
@@ -239,61 +208,12 @@ void loop()
   else{
     scheduleMode();
   }
-
-
-  // if  (WiFi.status() != WL_CONNECTED)
-  // {
-  //   Serial.println("Connecting to WiFi..");
-  // }
-  // else
-  // {
-  //   Serial.println("Connected to WiFi!");
-  //   // Print ESP32 Local IP Address
-  //   Serial.print("The Fabfarm Irrigation system network IP is:");
-  //   Serial.println(WiFi.localIP());
-  // }
 //*****end of loop*****
 }
 
 //**************************************************************************************************************
 //***********Bellow here only functions*************************************************************************
 //**************************************************************************************************************
-
-// void internetOrManualTime()
-// {
-//   // Call function that assigns the array in the json to the rtc of ESP32
-//   Serial.println(rtc.getTime("%A, %B %d %Y %H:%M:%S"));
-//   boolean data_internettime = data["changedtime"][0]["internettime"] ;
-//   //boolean data_manualtimeflag = data["changedtime"][0]["manualtimeenabled"];
-//   if ( data_internettime  == 1)
-//   {
-//     Serial.println("Time updated using internet");
-//       for(static bool first = true;first;first=false)
-//       { 
-//         	AssignLocalTime();
-//       }
-//   }
-//   if ( data_internettime  == 0 )
-//   { 
-//     Serial.println("Time updated using manual input");
-//     for(static bool first = true;first;first=false)
-//     { 
-//       changetime();  
-//     }
-//   }
-// }
-
-void changetime (){
-
- JsonObject data = doc["data"];
- JsonArray data_changedtime = data["changedtime"];
- int mIn = data_changedtime[0]["min"];
- int hOur = data_changedtime[0]["hour"];
- int dAy = data_changedtime[0]["day"];
- int mOnth = data_changedtime[0]["month"];
- int yEar = data_changedtime[0]["year"];
- rtc.setTime(0,mIn,hOur,dAy,mOnth,yEar);
-}
 
 void scheduleMode(){
 
@@ -380,9 +300,11 @@ void manualMode()
 
 //function to deactivate all pins usefull for safe startup not finished yet
 void allRelaysdisable(){
+  pinMode (pumpPinNumber, OUTPUT);  //defining behaviour of pumpPinNumber and its startup state
+  digitalWrite (pumpPinNumber, OFF);
   //JsonObject data = doc["data"];
-    JsonArray relays = doc["relays"];
-    for (int p = 0; p < relays.size(); p++)
+  JsonArray relays = doc["relays"];
+  for (int p = 0; p < relays.size(); p++)
   {
     int pinNumber = relays[p]["pin"];
     pinMode(pinNumber, OUTPUT);
@@ -535,15 +457,13 @@ void updateInternalRTC(const RtcDateTime& dt)
           dt.Second() );
   rtc.setTime(dt.Second(),dt.Minute(),dt.Hour(),dt.Day(),dt.Month(),dt.Year());
 
-  Serial.println("----------------------------------------------------------------------------------");
-  Serial.println("----------------------------------------------------------------------------------");
-  Serial.println("----------------------------------------------------------------------------------");
-  Serial.println("This data comes from void void updateInternalRTC(const RtcDateTime& dt)");
+  Serial.println("--------------------------------------------------------------------------------------");
+  Serial.println("--------------------------------------------------------------------------------------");
+  Serial.println("This data is a data stream from function void updateInternalRTC(const RtcDateTime& dt)");
   Serial.println(datestring);
-  Serial.println("End of data from updateInternalRTC(const RtcDateTime& dt)");
-  Serial.println("----------------------------------------------------------------------------------");
-  Serial.println("----------------------------------------------------------------------------------");
-  Serial.println("----------------------------------------------------------------------------------");
+  Serial.println("End of data from function updateInternalRTC(const RtcDateTime& dt)");
+  Serial.println("--------------------------------------------------------------------------------------");
+  Serial.println("--------------------------------------------------------------------------------------");
 }
 
 
@@ -631,7 +551,31 @@ void testRtcOnLoop()
 }
 
 
-// void generalStatusPrint()
+void initWiFi()
+{
+  WiFi.mode(WIFI_AP_STA);
+  //WiFi.config(INADDR_NONE, INADDR_NONE, INADDR_NONE, INADDR_NONE);
+  WiFi.setHostname(hostname.c_str()); //define hostname
+  //Soft Wifi Access point setup
+  WiFi.softAPConfig(local_IP, gateway, subnet);
+  WiFi.softAP(AP_SSID, AP_PASS, AP_CHANNEL);
+  WiFi.begin(WIFI_SSID, WIFI_PASS);
+  IPAddress IP = WiFi.softAPIP();
+  Serial.print("SoftAP IP address: ");
+  Serial.println(IP);
+
+  // while (WiFi.status() != WL_CONNECTED) {
+  //   delay(1000);
+  //   Serial.println("Setting as a Wi-Fi Station..");
+  // }
+  Serial.print("Station IP Address: ");
+  Serial.println(WiFi.localIP());
+  Serial.print("Wi-Fi Channel: ");
+  Serial.println(WiFi.channel());
+}
+
+// Function in developmentto display status on serial monitor only when changed state
+//void generalStatusPrint()
 // {
 //   oldValue = isEnabled;
 //   if(oldValue != newValue)
@@ -639,4 +583,39 @@ void testRtcOnLoop()
 //     Serial.println(newValue);
 //     oldValue = newValue;
 //   }
+// }
+
+// void internetOrManualTime()
+// {
+//   // Call function that assigns the array in the json to the rtc of ESP32
+//   Serial.println(rtc.getTime("%A, %B %d %Y %H:%M:%S"));
+//   boolean data_internettime = data["changedtime"][0]["internettime"] ;
+//   //boolean data_manualtimeflag = data["changedtime"][0]["manualtimeenabled"];
+//   if ( data_internettime  == 1)
+//   {
+//     Serial.println("Time updated using internet");
+//       for(static bool first = true;first;first=false)
+//       { 
+//         	AssignLocalTime();
+//       }
+//   }
+//   if ( data_internettime  == 0 )
+//   { 
+//     Serial.println("Time updated using manual input");
+//     for(static bool first = true;first;first=false)
+//     { 
+//       changetime();  
+//     }
+//   }
+// }
+
+// void changetime (){
+//  JsonObject data = doc["data"];
+//  JsonArray data_changedtime = data["changedtime"];
+//  int mIn = data_changedtime[0]["min"];
+//  int hOur = data_changedtime[0]["hour"];
+//  int dAy = data_changedtime[0]["day"];
+//  int mOnth = data_changedtime[0]["month"];
+//  int yEar = data_changedtime[0]["year"];
+//  rtc.setTime(0,mIn,hOur,dAy,mOnth,yEar);
 // }
