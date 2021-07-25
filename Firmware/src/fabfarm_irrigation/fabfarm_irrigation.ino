@@ -58,7 +58,7 @@ DynamicJsonDocument doc(jasonSize); // from arduinoJson
 // Set AP credentials
 #define AP_SSID "irrigation"
 #define AP_PASS "imakestuff"
-#define AP_CHANNEL 1
+#define AP_CHANNEL 8
 // Set IP addresses
 IPAddress local_IP(192,168,4,1);
 IPAddress gateway(192,168,1,1);
@@ -138,9 +138,27 @@ void setup(){
   server.on("/all.css", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(SPIFFS, "/all.css", "text/css");
   });
+    server.on("/fa-solid-900.woff2", HTTP_GET, [](AsyncWebServerRequest * request) {
+      Serial.println("Send : fa-solid-900 css");
+    request->send(SPIFFS, "/fa-solid-900.woff2", "application/x-font-woff2");
+      Serial.println("Sended : fa-solid-900 css");
+  });
+    server.on("/fa-solid-900.woff", HTTP_GET, [](AsyncWebServerRequest * request) {
+      Serial.println("Send : fa-solid-900 css");
+    request->send(SPIFFS, "/fa-solid-900.woff", "application/x-font-woff");
+      Serial.println("Sended : fa-solid-900 css");
+  });
+    server.on("/fa-solid-900.ttf", HTTP_GET, [](AsyncWebServerRequest * request) {
+      Serial.println("Send : fa-solid-900 css");
+    request->send(SPIFFS, "/fa-solid-900.ttf", "application/x-font-ttf");
+      Serial.println("Sended : fa-solid-900 css");
+  });
     // Route to load images file
   server.on("/logo.png", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(SPIFFS, "/logo.png", "image/png");
+  });
+  server.on("/script.js", HTTP_GET, [](AsyncWebServerRequest *request) {
+      request->send(SPIFFS, "/script.js", "text/javascript");
   });
   // Route to 
   server.on("/getData", HTTP_GET, [](AsyncWebServerRequest *request)
@@ -554,12 +572,12 @@ void testRtcOnLoop()
 void initWiFi()
 {
   WiFi.mode(WIFI_AP_STA);
-  //WiFi.config(INADDR_NONE, INADDR_NONE, INADDR_NONE, INADDR_NONE);
+  WiFi.config(INADDR_NONE, INADDR_NONE, INADDR_NONE, INADDR_NONE);
   WiFi.setHostname(hostname.c_str()); //define hostname
   //Soft Wifi Access point setup
   WiFi.softAPConfig(local_IP, gateway, subnet);
   WiFi.softAP(AP_SSID, AP_PASS, AP_CHANNEL);
-  WiFi.begin(WIFI_SSID, WIFI_PASS);
+  //WiFi.begin(WIFI_SSID, WIFI_PASS);
   IPAddress IP = WiFi.softAPIP();
   Serial.print("SoftAP IP address: ");
   Serial.println(IP);

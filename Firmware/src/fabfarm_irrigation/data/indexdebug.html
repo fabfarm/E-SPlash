@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta charset="UTF-8" />
     <!-- TODO: grab fontawesomes & server locally -->
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" href="style.css" />
+    <link rel="stylesheet" type="text/css" href="/all.css" />
+    <link rel="stylesheet" type="text/css" href="/style.css"/>
 </head>
 <body>
     <img src="logo.png" style="height:400px;" />
@@ -94,10 +94,11 @@
                         <label class="switch">
                             <input type="checkbox" ${jsonData.data.isScheduleMode ? "checked" : ""} 
                              onChange="update(this);" id="jasonData.data.isScheduleMode"/>
-                            <span class="slider"></span> 
+                            <span class="slider"></span>
                         </label> Automatic`;
 
                 // Build html for relays & their schedulesk
+                
                 for(var i = 0; i  < jsonData.relays.length; i++) {
                     var relay = jsonData.relays[i];
                     html += `<hr/><div>Zone:<b>${relay.name}</b> (pin ${relay.pin})</div>
@@ -109,6 +110,29 @@
                                       <span class="slider"/>
                                     </label>
                                     <!--</span> On (1) / Off (0) = ${relay.isRunning}-->`;
+
+                    // buble with value on it
+                    const allRanges = document.querySelectorAll(".range-wrap");
+                    allRanges.forEach(wrap => {
+                        const range = wrap.querySelector(".range");
+                        const bubble = wrap.querySelector(".bubble");
+
+                        range.addEventListener("input", () => {
+                            setBubble(range, bubble);
+                        });
+                        setBubble(range, bubble);
+                    });
+
+                    function setBubble(range, bubble) {
+                        const val = range.value;
+                        const min = range.min ? range.min : 0;
+                        const max = range.max ? range.max : 100;
+                        const newVal = Number(((val - min) * 100) / (max - min));
+                        bubble.innerHTML = val;
+                        // Sorta magic numbers based on size of the native UI thumb
+                        bubble.style.left = `calc(${newVal}% + (${8 - newVal * 0.15}px))`;
+                    }
+
                     // Build list of schedules for this relay
                     for(var j = 0; j < relay.times.length; j++) {
                         time = relay.times[j];
@@ -119,13 +143,17 @@
                                             <input id="jsonData.relays[${i}].times[${j}].startTime" type="time" style="width:100px;" 
                                                     onChange="update(this);" 
                                                     required value="${time.startTime}" />
+                                        </div>
+                                        <div class="range-wrap">
                                             <input id="jsonData.relays[${i}].times[${j}].duration" type="range" onChange="update(this);" 
-                                                    min="0" max="60" value="${time.duration}" step="1" class="slider2">
+                                                    min="0" max="60" value="${time.duration}" step="1" class="range">
+                                            <output id="jsonData.relays[${i}].times[${j}].duration" class="bubble" onforminput="value = "${time.duration}";"></output>
                                         </div>
                                         `;
                         html += times;
                     }
-                }                    
+                }
+
 
                 var main = document.getElementById("main");
                 main.innerHTML = html; //this will REBUILD the page per ping (?)
