@@ -153,6 +153,9 @@ void setup(){
     request->send(SPIFFS, "/fa-solid-900.ttf", "application/x-font-ttf");
       Serial.println("Sended : fa-solid-900 css");
   });
+  server.on("/favicon.ico", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/logo.png", "image/png");
+  });
     // Route to load images file
   server.on("/logo.png", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(SPIFFS, "/logo.png", "image/png");
