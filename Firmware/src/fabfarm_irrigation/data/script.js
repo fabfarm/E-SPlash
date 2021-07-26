@@ -46,14 +46,11 @@ Convention: the Id of html elements is the path to its value in the json. This l
             on update
 */
 
-//setInterval(function() {
-    //TODO: change the above to make *1* request and get json back
-function refresh() {
-    var r3 = new XMLHttpRequest();
-    r3.onreadystatechange = function() {
+setInterval(function() {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             var response = this.response;
-            //document.getElementById("getData").innerHTML = this.responseText;
             jsonData = JSON.parse(this.responseText);
             document.getElementById("currentTime").innerText = jsonData.data.currentTime;
             document.getElementById("temperature").innerText = jsonData.data.temperature;
@@ -65,7 +62,6 @@ function refresh() {
                             onChange="update(this);" id="jasonData.data.isScheduleMode"/>
                         <span class="slider"></span> 
                     </label> Automatic`;
-
             // Build html for relays & their schedulesk
             for(var i = 0; i  < jsonData.relays.length; i++) {
                 var relay = jsonData.relays[i];
@@ -80,42 +76,35 @@ function refresh() {
                                 <span class="slider"/>
                         </label>
                                 <!--</span> On (1) / Off (0) = ${relay.isRunning}-->`;
-            // Build list of schedules for this relay
-            for(var j = 0; j < relay.times.length; j++) {
-                time = relay.times[j];
-                var times = `
-                    <div style="width:100px;">
-                    </div> 
-                    <label for="time">
-                    </label>
-                    <div>
-                        <span>Time ${j+1}
-                        </span>
-                        <input id="jsonData.relays[${i}].times[${j}].startTime" type="time" style="width:100px;" 
-                            onChange="update(this);" 
-                            required value="${time.startTime}" />
-                        <input id="jsonData.relays[${i}].times[${j}].duration" type="range" onChange="update(this);" 
-                            min="0" max="60" value="${time.duration}" step="1" class="slider2">
-                            Value: <span id="value">
-                            </span> ${time.duration}
-                    </div>`;
-                html += times;
-                }
+                // Build list of schedules for this relay
+                for(var j = 0; j < relay.times.length; j++) {
+                    time = relay.times[j];
+                    var times = `
+                        <div style="width:100px;">
+                        </div> 
+                        <label for="time">
+                        </label>
+                        <div>
+                            <span>Time ${j+1}
+                            </span>
+                            <input id="jsonData.relays[${i}].times[${j}].startTime" type="time" style="width:100px;" 
+                                onChange="update(this);" 
+                                required value="${time.startTime}" />
+                            <input id="jsonData.relays[${i}].times[${j}].duration" type="range" onChange="update(this);" 
+                                min="0" max="60" value="${time.duration}" step="1" class="slider2">
+                                Value: <span id="value">
+                                </span> ${time.duration}
+                        </div>`;
+                    html += times;
+                    }
             }                                   
             var main = document.getElementById("main");
             main.innerHTML = html; //this will REBUILD the page per ping (?)
-        };
+        }
     }; 
-
-    r3.open("GET", "/getData", true);
-    r3.timeout = 2000;
-    r3.ontimeout = function(e) {
-        // retry
-        refresh();
+    xhttp.open("GET", "/getData", true);
+    xhttp.timeout = 2000;
+    xhttp.ontimeout = function(e) {
     };
-    // for testing:
-    //r3.open("GET", "sample.json", true);
-    r3.send();
-}
-refresh();
-//}, 10000);
+    xhttp.send();
+}, 1000);
