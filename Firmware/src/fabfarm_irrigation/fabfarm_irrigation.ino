@@ -32,7 +32,6 @@ int jasonSize = 2048;// Specifing the capacity of the json in bytes.
 DynamicJsonDocument doc(jasonSize); // from arduinoJson
 
 //chosing the type of board if 0.1(_0_point_1) or 1.0(_1_point_0)
-
 #define _0_point_1
 //#define _1_point_0
 #ifdef _0_point_1
@@ -97,7 +96,7 @@ void setup(){
   Serial.print("time: ");
   Serial.println(__TIME__);
   //external rtc initiation
-  #ifdef zeroponto1
+  #ifdef _0_point_1
   Wire.begin(05, 17); // SDA, SCL
   #endif
   Rtc.Begin();
@@ -109,6 +108,9 @@ void setup(){
     Serial.println("An Error has occurred while mounting SPIFFS");
     return;
   }
+
+  createDataJson();//creates a data.json file in case it does not exist
+
   // we always read the data.json from disk on startup (always!)
   // If freshlly burned we have to send the sample json... TODO: generate json if not existent
   // open the json file with the name "data.json" from SPIFFS ...
@@ -237,7 +239,26 @@ void loop()
 //**************************************************************************************************************
 //***********Bellow here only functions*************************************************************************
 //**************************************************************************************************************
-
+void createDataJson() {
+  if (!SPIFFS.begin(true)) {
+    Serial.println("An Error has occurred while mounting SPIFFS");
+    return;
+  }
+  if(!SPIFFS.exists("/data.json")){
+    Serial.println("data.json doe not exist! Creating it now!");
+    File dataJsonReadfile = SPIFFS.open("/sample.json", "r");
+    String fileString = dataJsonReadfile.readString();
+    dataJsonReadfile.close();
+    File dataJsonwritefile = SPIFFS.open("/data.json", "w");  
+    int bytesWriten = dataJsonwritefile.print(fileString);
+    dataJsonwritefile.close();
+    if(!SPIFFS.exists("/data.json")){
+      Serial.println("data.json not created!");
+      return;
+    }
+    return;
+  }
+}
 void scheduleMode(){
 
   //matrix logic test
@@ -515,7 +536,7 @@ void first_rtc_function()
       Serial.println("RTC lost confidence in the DateTime!");
       Rtc.SetDateTime(compiled);
   }
-  #ifdef zeroponto1
+  #ifdef _0_point_1
   #else
   if (Rtc.GetIsWriteProtected())
   {
