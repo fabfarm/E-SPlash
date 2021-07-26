@@ -2,16 +2,19 @@
 <html>
 
 <head>
+    <title>Fabfarm Irrigation Setup Page</title>
+    <link rel="shortcut icon" type="image/png" href="/favicon.ico"/>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta charset="UTF-8" />
     <!-- TODO: grab fontawesomes & server locally -->
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css"
-        integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" href="style.css" />
+    <link rel="stylesheet" type="text/css" href="/all.css" />
+    <link rel="stylesheet" type="text/css" href="/style.css" />
 </head>
 
 <body>
     <img src="logo.png" style="height:400px;" />
+    <hr>
+    <h3>Update <a href="/update">firmware</a> - <a href="/">Back to Control Page</a></h3>
     <hr>
     <h2>Manual data update</h2>
     <hr>
@@ -23,8 +26,18 @@
     <h3>Date and time</h3>
     <div id="main"></div> 
     <br>
+    <h5>Add a relay:</h5>
+    <form id = "relayform" class= "form"></form>
+    <div>
+       <input type="text" id="relayname" style="width:90px" name="inputInt" placeholder = "Relay Name">
+       <input type="number" id="relaypin" style="width:70px" name="inputInt"  placeholder = "Pin number">
+       <input type="text" id="relaystatus" style="width:90px" name="inputInt" placeholder = "Relay status">
+    </div>
+    <input type="submit" name = "submit" onclick="addrelay(this)" value="Add relay">
+    </form>
     <hr>
-    
+    <input type="button"  value="Return to homepage" />
+    <hr>
     <h3>Wifi credentials :</h3>
     <form id = "credentialsform" class= "form">
         SSID: <input type="text" name="ssid" id="ssid"  placeholder = "ssid">
@@ -36,48 +49,10 @@
     <input type="button" style="width:140px" onClick="updatecredentials(this)" value="Change credentials" />
     </form>
     <hr>
-    <h3>Current relays :</h3>
-    <table>
-        <thead>
-            <tr>
-                <th>Relay name </th>
-                <th>Relay Pin </th>
-                <th>Current status</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>x</td>
-                <td>x</td>
-                <td>x</td>
-            </tr>
-            <tr>
-                <td>x</td>
-                <td>x</td>
-                <td>x</td>
-            </tr>
-        </tbody>
-    </table>
-    <h3>New relay :</h3>
-    <div>
-       Relay Name: <input type="number" name="inputInt" placeholder = "Example : 2">
-    </div>    
-    <br>
-    <div>
-        Pin number: <input type="number" name="inputInt"  placeholder = "Example : Garden valve ">
-    </div>
-    <br>
-    <div>
-        Relay status: <input type="number" name="inputInt" placeholder = "Example : 2">
-    </div>
-    <br>
-    <input type="submit" name = "submit" value="Add relay">
-    </form>
-    <hr>
-    <input type="button" onclick="" value="Return to homepage" />
-    <hr>
 </body>
 <script>
+
+
     var jsonData; 
     function updatecredentials(obj){
         var fl1 = document.getElementById("ssid").value;
@@ -93,7 +68,23 @@
         xmlhttp.send(json);
     }
 
+    function updaterelays(obj) {
+        var1 = document.getElementById("relayname").value;
+        var2 = document.getElementById("relaypin").value;
+        var3 = document.getElementById("relaystatus").value;
+        // for(var i = 0; i < jsonData.relays.length; i++) { 
+        //    if var2 = jsonData.relays[i].times.pin ; 
+        // }
+        jsonData.relay[0].name
+        var json = JSON.stringify(jsonData);
+        var xmlhttp = new XMLHttpRequest();   
+        xmlhttp.open("POST", "/updateData");
+        xmlhttp.setRequestHeader("Content-Type", "application/json;");
+        xmlhttp.send(json);
+    }
+
     function updatetime(obj) {       
+        jsonData.data.changedtime[0].manualtimeenabled =0;
         var fl1= document.getElementById("field1").value;
         var fl2= document.getElementById("field2").value;
         jsonData.data.changedtime[0].Ttime = fl2 ;
@@ -125,21 +116,53 @@
             if (this.readyState == 4 && this.status == 200) {
                 jsonData = JSON.parse(this.responseText);
                 document.getElementById("currentTime").innerText = jsonData.data.currentTime;
-                var html=`<form id = "timeform" class= "form">
-                Time : <input id="field2" name="field2" type="time" style="width:70px;" value="02:02"  />
-                Date : <input type="date"  style="width:130px;"  name="field1" id="field1" /><br /><br />
+                var html= `<form id = "timeform" class= "form">
+                Time : <input id="field2" name="field2" type="time" style="width:70px;" value="${jsonData.data.changedtime[0].Ttime}"  />
+                Date : <input type="date"  style="width:130px;"  name="field1" id="field1"/><br /><br />
                 <input type="button" onClick="updatetime(this)" value="Change time and date" />
                 </form>
                  <label class="switch">
                 <input type="checkbox" ${jsonData.data.changedtime[0].internettime ? "checked" : ""} 
                 onClick="enableinternetupdate(this);" id="field3" value="use internet time"/>
                 <span class="slider"></span> 
-                </label> Use internet time;
+                </label> Use internet time
                 <hr>`;
-
-
-                var main = document.getElementById("main");
-                main.innerHTML = html; //this will REBUILD the page per ping (?)    
+ 
+                var htmlrelay = `<h3>Current relays :</h3>
+            <table id="productTable">
+                <thead>
+                    <tr>
+                       <th>Relay name </th>
+                       <th>Relay Pin </th>
+                       <th>Current status</th>
+                    </tr>
+                </thead>
+                <tbody> `
+            for(var i = 0; i  < jsonData.relays.length; i++) {
+                var relay =  jsonData.relays[i];
+                if (relay.isrunning == 1){
+                    var status = "ON";
+                }
+                else{
+                    var status = "OFF";
+                }       
+                if  (relay.active ==1 ){
+                    htmlrelay+=  
+                   `<tr>
+                        <td>${relay.name}</td>
+                        <td>${relay.pin}</td>
+                        <td>${status}</td>
+                        <td><input type="button" value="X " style="width:20px" onclick="deleterelay('this','${i}')"></td>
+                    </tr>`
+                }
+            }
+            
+            htmlrelay+=
+            `   </tbody>
+            </table> `
+        
+                 var main = document.getElementById("main");
+                main.innerHTML = html + htmlrelay; //this will REBUILD the page per ping (?)    
             }
         };                    
 
@@ -155,6 +178,8 @@
     
     };
     refresh();
+
+    
 
     function enableinternetupdate() {
         jsonData.data.changedtime[0].internettime = document.getElementById("field3").checked ? 1 : 0;
@@ -177,15 +202,38 @@
         return;
     }
 
-    // function Relayinfo() {
-
-    //     for(var i = 0; i  < jsonData.relays.length; i++) {
-    //         var relay = jsonData.relays[i];
-    //         relay.name}
-    //         return;   
-    // }
-                
-    // Relayinfo()
+    function deleterelay(obj,relay){
+        jsonData.relays[relay].active = 0;
+        window.location.reload();
+        var json = JSON.stringify(jsonData);
+        var xmlhttp = new XMLHttpRequest();   
+        xmlhttp.open("POST", "/updateData");
+        xmlhttp.setRequestHeader("Content-Type", "application/json;");
+        xmlhttp.send(json);
+        return;
+    }
+    
+    function addrelay(obj){
+        for(var i = 0; i  < jsonData.relays.length; i++) {
+            var relay =  jsonData.relays[i];
+            if (relay.active == 0 ){
+            relay.name =  document.getElementById("relayname").value; 
+            relay.pin = document.getElementById("relaypin").value;
+            relay.active = 1;
+        }
+            else {
+                console.log(" no relays available");
+            }
+        }
+        window.location.reload();
+        var json = JSON.stringify(jsonData);
+        var xmlhttp = new XMLHttpRequest();   
+        xmlhttp.open("POST", "/updateData");
+        xmlhttp.setRequestHeader("Content-Type", "application/json;");
+        xmlhttp.send(json);
+        return;
+    }
+    
 </script>
 
 </html>

@@ -1,22 +1,17 @@
 {
     "data": {
-        "currentTime": "Tuesday, May 04 2021 21:16:44",
+        "currentTime": "Sunday, July 25 2021 16:45:16",
         "temperature": "Failed to read temperator from sensor",
         "humidity": "Failed to read humidity from sensor",
         "isScheduleMode": 0,
         "batLevel": 100,
-        "credentials" : [
-            { "ssid": "fabfarm_ele_container",
-            " password" : "imakestuff"
-            }
-        ],
-    
         "changedtime": [
-            {   "internettime" : 1,
-                "Ttime" : "02:02",
-                "Tdate" : "01/01/2021",
-                "min": 0, 
-                "hour" : 0,
+            {
+                "internettime": 1,
+                "Ttime": "02:02",
+                "Tdate": "01/01/2021",
+                "min": 0,
+                "hour": 0,
                 "day": 0,
                 "month": 0,
                 "year": 0
@@ -25,10 +20,11 @@
     },
     "relays": [
         {
-            "name": "Fruit Tree",
-            "pin": 27,
+            "name": "zone1",
+            "pinnumber": 27,
             "isRunning": 1,
             "isEnabled": 0,
+            "active": 1,
             "times": [
                 {
                     "startTime": "01:01",
@@ -36,13 +32,15 @@
                     "hour": 1,
                     "min": 1
                 }
-            ]
+            ],
+            "pin": "27"
         },
         {
-            "name": "Vegie Garden",
-            "pin": 26,
+            "name": "zone2",
+            "pinnumber": 26,
             "isRunning": 1,
             "isEnabled": 0,
+            "active": 1,
             "times": [
                 {
                     "startTime": "02:02",
@@ -50,13 +48,15 @@
                     "hour": 2,
                     "min": 2
                 }
-            ]
+            ],
+            "pin": "26"
         },
         {
-            "name": "Led1",
-            "pin": 2,
+            "name": "zone3",
+            "pinnumber": 25,
             "isRunning": 1,
             "isEnabled": 0,
+            "active": 1,
             "times": [
                 {
                     "startTime": "02:02",
@@ -64,21 +64,8 @@
                     "hour": 2,
                     "min": 2
                 }
-            ]
-        },
-        {
-            "name": "Led2",
-            "pin": 4,
-            "isRunning": 1,
-            "isEnabled": 0,
-            "times": [
-                {
-                    "startTime": "02:02",
-                    "duration": 32,
-                    "hour": 2,
-                    "min": 2
-                }
-            ]
+            ],
+            "pin": "25"
         }
     ]
 }
