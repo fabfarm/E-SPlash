@@ -31,9 +31,11 @@ AsyncWebServer server(80);// Specify the port of the Async server
 int jasonSize = 2048;// Specifing the capacity of the json in bytes.
 DynamicJsonDocument doc(jasonSize); // from arduinoJson
 
-//chosing the type of board if 0.1 or 1.0
-#define zeroponto1
-#ifdef zeroponto1
+//chosing the type of board if 0.1(_0_point_1) or 1.0(_1_point_0)
+
+#define _0_point_1
+//#define _1_point_0
+#ifdef _0_point_1
   #include <Wire.h>
   #include <RtcDS3231.h>
   RtcDS3231<TwoWire> Rtc(Wire); 
