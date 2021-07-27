@@ -41,7 +41,7 @@ DynamicJsonDocument doc(jasonSize); // from arduinoJson
   //Defining pump pin number
   int pumpPinNumber = 13;
   //Define Voltage read pin number
-  int batVolt = 35;
+  int batVoltPin = 35;
 #else
   #include <ThreeWire.h>  
   #include <RtcDS1302.h>
@@ -50,7 +50,7 @@ DynamicJsonDocument doc(jasonSize); // from arduinoJson
   //Defining pump pin number
   int pumpPinNumber = 33;
   //Define Voltage read pin number
-  int batVolt = 35;
+  int batVoltPin = 35;
 #endif
 
 //Declaring wifi credentials
@@ -90,11 +90,7 @@ void setup(){
   initWiFi();  //function with wifi settings and initialisation
   server.begin();// Start server
   allRelaysdisable();  //put all relays in LOW at startup: (question? does it reactivates unatendelly like previously noted?)
-  Serial.println("This program was Compiled on: ");
-  Serial.print("date: ");
-  Serial.println(__DATE__);
-  Serial.print("time: ");
-  Serial.println(__TIME__);
+  compileTimePrinting(); //prints compile time at serial monitor
   //external rtc initiation
   #ifdef _0_point_1
   Wire.begin(05, 17); // SDA, SCL
@@ -103,12 +99,10 @@ void setup(){
   first_rtc_function();  //this function will do a series of logical tests on external rtc in order to set its time in case is needed and print then  status
   
   //Initialize SPIFFS (file system)
-  if (!SPIFFS.begin(true))
-  {
+  if (!SPIFFS.begin(true)){
     Serial.println("An Error has occurred while mounting SPIFFS");
     return;
   }
-
   createDataJson();//creates a data.json file in case it does not exist
 
   // we always read the data.json from disk on startup (always!)
@@ -217,11 +211,10 @@ void setup(){
 // ********************************Loop Stats here************************************************************** 
 //**************************************************************************************************************
 
-void loop()
-{
-  //uncomment testRtcOnLoop() to display time every second on serial monitor
-  //testRtcOnLoop();
+void loop(){
   
+  //testRtcOnLoop();  //uncomment testRtcOnLoop() to display time every second on serial monitor
+
   AsyncElegantOTA.loop();
 
   JsonObject data = doc["data"];
@@ -239,11 +232,18 @@ void loop()
 //**************************************************************************************************************
 //***********Bellow here only functions*************************************************************************
 //**************************************************************************************************************
+
+//This function simply prints the compile time.
+void compileTimePrinting(){
+  Serial.println("This program was Compiled on: ");
+  Serial.print("date: ");
+  Serial.println(__DATE__);
+  Serial.print("time: ");
+  Serial.println(__TIME__);
+}
+//This function creates a file data.json based on the file sample.json in case the data.json does not exists.
 void createDataJson() {
-  if (!SPIFFS.begin(true)) {
-    Serial.println("An Error has occurred while mounting SPIFFS");
-    return;
-  }
+
   if(!SPIFFS.exists("/data.json")){
     Serial.println("data.json doe not exist! Creating it now!");
     File dataJsonReadfile = SPIFFS.open("/sample.json", "r");
@@ -253,7 +253,7 @@ void createDataJson() {
     int bytesWriten = dataJsonwritefile.print(fileString);
     dataJsonwritefile.close();
     if(!SPIFFS.exists("/data.json")){
-      Serial.println("data.json not created!");
+      Serial.println("data.json was not created!");
       return;
     }
     return;
@@ -356,6 +356,7 @@ void allRelaysdisable(){
   }
 }
 
+//This function reads the temperature sensor data from the DHT
 String readDHTTemperature()
 {
   // Digital pin connected to the DHT sensor
@@ -384,6 +385,7 @@ String readDHTTemperature()
   }
 }
 
+//This function reads the humidity sensor data from the DHT
 String readDHTHumidity()
 {
   // Digital pin connected to the DHT sensor
@@ -407,7 +409,7 @@ String readDHTHumidity()
     return String(h);
   }
 }
-
+// function is used to evaluate if a certain relay should be low or hight depending on the time it was set to run
 int isEnabledFunc (int startTimeInMinutes, int duration)
 {
 
@@ -415,7 +417,7 @@ int isEnabledFunc (int startTimeInMinutes, int duration)
   int onlyHour;
   int onlyMin;
 
-  onlyHour =rtc.getHour(true);
+  onlyHour = rtc.getHour(true);
   onlyMin = rtc.getMinute();
 
   int presentTimeInMinutes = onlyHour*60+onlyMin;
@@ -430,9 +432,10 @@ int isEnabledFunc (int startTimeInMinutes, int duration)
   return isEnabled;
 }
 
+//This function reads the battery level voltage in order to determine battery percentage
 float batLevel(){
-  analogRead(batVolt);
-  float batteryLevel = map(analogRead(batVolt), 0.0f, 1866.0f, 0, 100);
+  analogRead(batVoltPin);
+  float batteryLevel = map(analogRead(batVoltPin), 0.0f, 1866.0f, 0, 100);
   if (batteryLevel >= 100) {
     return 100;
   }
@@ -444,7 +447,7 @@ float batLevel(){
     return batteryLevel;
   }  
 }
-
+//This function assigns local time based on an internet server
 void AssignLocalTime(){
   int THour; 
   int TMin; 
@@ -468,8 +471,8 @@ void AssignLocalTime(){
   return ;
 }
 
+//
 #define countof(a) (sizeof(a) / sizeof(a[0]))
-
 void printDateTime(const RtcDateTime& dt)
 {
   char datestring[20];
@@ -485,6 +488,7 @@ void printDateTime(const RtcDateTime& dt)
           dt.Second() );
   Serial.println(datestring);
 }
+
 //Function to update internal RTC using External RTC
 void updateInternalRTC(const RtcDateTime& dt)
 {
@@ -510,7 +514,7 @@ void updateInternalRTC(const RtcDateTime& dt)
   Serial.println("--------------------------------------------------------------------------------------");
 }
 
-
+//This function
 void first_rtc_function()
 { 
   Serial.println("**********************************************************************************");
@@ -573,7 +577,7 @@ void first_rtc_function()
   Serial.println("**********************************************************************************");
 
 }
-
+//This function prints the clock on serial monitor with a predetermined interval
 void testRtcOnLoop()
 {
   Serial.println("This data comes from void testRtcOnLoop() time will apear only every 1 second" );
@@ -594,7 +598,7 @@ void testRtcOnLoop()
   Serial.println("End of data from void testRtcOnLoop()" );
 }
 
-
+//This function initiates wifi
 void initWiFi()
 {
   WiFi.mode(WIFI_AP_STA);
@@ -618,6 +622,43 @@ void initWiFi()
   Serial.println(WiFi.channel());
 }
 
+// This function will select to update time either from the internet or from a manual entry in the html that populates the json
+void internetOrManualTime()
+{
+  // Call function that assigns the array in the json to the rtc of ESP32
+  Serial.println(rtc.getTime("%A, %B %d %Y %H:%M:%S"));
+  boolean data_internettime = data["changedtime"][0]["internettime"] ;
+  //boolean data_manualtimeflag = data["changedtime"][0]["manualtimeenabled"];
+  if ( data_internettime  == 1)
+  {
+    Serial.println("Time updated using internet");
+      for(static bool first = true;first;first=false)
+      { 
+        	AssignLocalTime();
+      }
+  }
+  if ( data_internettime  == 0 )
+  { 
+    Serial.println("Time updated using manual input");
+    for(static bool first = true;first;first=false)
+    { 
+      changetime();  
+    }
+  }
+}
+
+// function to change time using the time that was input in the json
+void changetime (){
+ JsonObject data = doc["data"];
+ JsonArray data_changedtime = data["changedtime"];
+ int mIn = data_changedtime[0]["min"];
+ int hOur = data_changedtime[0]["hour"];
+ int dAy = data_changedtime[0]["day"];
+ int mOnth = data_changedtime[0]["month"];
+ int yEar = data_changedtime[0]["year"];
+ rtc.setTime(0,mIn,hOur,dAy,mOnth,yEar);
+}
+
 // Function in developmentto display status on serial monitor only when changed state
 //void generalStatusPrint()
 // {
@@ -629,37 +670,5 @@ void initWiFi()
 //   }
 // }
 
-// void internetOrManualTime()
-// {
-//   // Call function that assigns the array in the json to the rtc of ESP32
-//   Serial.println(rtc.getTime("%A, %B %d %Y %H:%M:%S"));
-//   boolean data_internettime = data["changedtime"][0]["internettime"] ;
-//   //boolean data_manualtimeflag = data["changedtime"][0]["manualtimeenabled"];
-//   if ( data_internettime  == 1)
-//   {
-//     Serial.println("Time updated using internet");
-//       for(static bool first = true;first;first=false)
-//       { 
-//         	AssignLocalTime();
-//       }
-//   }
-//   if ( data_internettime  == 0 )
-//   { 
-//     Serial.println("Time updated using manual input");
-//     for(static bool first = true;first;first=false)
-//     { 
-//       changetime();  
-//     }
-//   }
-// }
 
-// void changetime (){
-//  JsonObject data = doc["data"];
-//  JsonArray data_changedtime = data["changedtime"];
-//  int mIn = data_changedtime[0]["min"];
-//  int hOur = data_changedtime[0]["hour"];
-//  int dAy = data_changedtime[0]["day"];
-//  int mOnth = data_changedtime[0]["month"];
-//  int yEar = data_changedtime[0]["year"];
-//  rtc.setTime(0,mIn,hOur,dAy,mOnth,yEar);
-// }
+
