@@ -1,8 +1,8 @@
 {
     "data": {
-        "currentTime": "Sunday, July 25 2021 16:45:16",
-        "temperature": "Failed to read temperator from sensor",
-        "humidity": "Failed to read humidity from sensor",
+        "currentTime": "Sunday, July 25 2021 16:46:17",
+        "temperature": 20,
+        "humidity": 50,
         "isScheduleMode": 0,
         "batLevel": 100,
         "changedtime": [

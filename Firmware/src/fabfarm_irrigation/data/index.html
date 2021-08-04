@@ -1,38 +1,35 @@
 <!DOCTYPE HTML>
 <html>
-<head>
-    <title>Fabfarm Irrigation</title>
-    <link rel="shortcut icon" type="image/png" href="/favicon.ico"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta charset="UTF-8" />
-    <!-- TODO: grab fontawesomes & server locally -->
-    <link rel="stylesheet" type="text/css" href="/all.css" />
-    <link rel="stylesheet" type="text/css" href="/style.css" />
-</head>
-<body>
-    <img src="/logo.png" style="height:400px;"></img>
-    <hr>
+    <head>
+        <title>Fabfarm Irrigation</title>
+        <link rel="shortcut icon" type="image/png" href="/favicon.ico"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta charset="UTF-8" />
+        <link rel="stylesheet" type="text/css" href="/all.css" />
+        <link rel="stylesheet" type="text/css" href="/style.css" />
+    </head>
+    <body>
+        <img src="/logo.png" style="height:400px;"></img>
+        <hr>
         <i class="fas fa-clock"></i>
         <span id="currentTime" class="dht-labels"></span>
         <hr>
-
         <i class="fas fa-thermometer-half"></i>
         <span id="temperature" class="dht-labels">Temperature</span>
         <sup class="units">&deg;C</sup>
-
-        <i class="fas fa-tint"></i><span class="dht-labels">Humidity</span>
+        <i class="fas fa-tint"></i>
+        <span class="dht-labels">Humidity</span>
         <span id="humidity"></span>
         <sup class="units">%</sup>
-        
-        <i class="fas fa-battery-full"></i><span class="dht-labels">Battery</span>
+        <i class="fas fa-battery-full"></i>
+        <span class="dht-labels">Battery</span>
         <span id="batLevel"></span>
         <sup class="units">%</sup>
-        
-    <hr>
-    <h3>Irrigation System</h3>
-    <div id="main"></div>
-    <hr>
-    <input type="button" style="width:140px" onClick= "location.href='/setuppage.html';" value="Setup Page" />
-    <script src="/script.js"></script>
-</body>
+        <hr>
+        <h3>Irrigation System</h3>
+        <div id="main"></div>
+        <hr>
+        <input type="button" style="width:140px" onClick= "location.href='/setuppage.html';" value="Setup Page" />
+        <script src="/script.js"></script>
+    </body>
 </html>

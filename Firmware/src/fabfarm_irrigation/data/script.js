@@ -1,33 +1,5 @@
 // keep global json object - we'll update this on element change
 var jsonData;
-// gets called anytime anything changes
-function update(obj) {
-    jsonData.data.isScheduleMode = document.getElementById("jasonData.data.isScheduleMode").checked ? 1 : 0;
-    console.log(document.getElementById("jasonData.data.isScheduleMode"));
-    for(var i = 0; i < jsonData.relays.length; i++) { 
-        jsonData.relays[i].isEnabled = document.getElementById(`jsonData.relays[${i}].isEnabled`).checked ? 1 : 0;
-        for(j = 0; j < jsonData.relays[i].times.length; j++) {
-            //first part of code parses value to the json
-            jsonData.relays[i].times[j].duration  = parseInt(document.getElementById(`jsonData.relays[${i}].times[${j}].duration`).value);
-            jsonData.relays[i].times[j].startTime = document.getElementById(`jsonData.relays[${i}].times[${j}].startTime`).value;
-            //here I hack my way into separating hours and minutes into a int to the json!
-            var time = document.getElementById(`jsonData.relays[${i}].times[${j}].startTime`).value;
-            var timex = (new Date(" Jan 01 2020 " + time));
-            //console.log(timex);
-            var hour = timex.getHours();
-            var min = timex.getMinutes();
-            // console.log(hour)
-            // console.log(min)
-            jsonData.relays[i].times[j].hour = hour;
-            jsonData.relays[i].times[j].min = min;
-        }
-    }
-    var json = JSON.stringify(jsonData);
-    var xmlhttp = new XMLHttpRequest();   
-    xmlhttp.open("POST", "/updateData");
-    xmlhttp.setRequestHeader("Content-Type", "application/json;");
-    xmlhttp.send(json);
-}
 
 setInterval(function() {
     var xhttp = new XMLHttpRequest();
@@ -43,8 +15,7 @@ setInterval(function() {
         }; 
         xhttp.open("GET", "/getData", true);
         xhttp.timeout = 2000;
-        xhttp.ontimeout = function(e) {
-        };
+        xhttp.ontimeout = function() {};
         xhttp.send();
     }, 1000);
 
@@ -110,3 +81,32 @@ function refresh() {
         r3.send();
     }
 refresh();
+
+// gets called anytime anything changes
+function update() {
+    jsonData.data.isScheduleMode = document.getElementById("jasonData.data.isScheduleMode").checked ? 1 : 0;
+    console.log(document.getElementById("jasonData.data.isScheduleMode"));
+    for(var i = 0; i < jsonData.relays.length; i++) { 
+        jsonData.relays[i].isEnabled = document.getElementById(`jsonData.relays[${i}].isEnabled`).checked ? 1 : 0;
+        for(j = 0; j < jsonData.relays[i].times.length; j++) {
+            //first part of code parses value to the json
+            jsonData.relays[i].times[j].duration  = parseInt(document.getElementById(`jsonData.relays[${i}].times[${j}].duration`).value);
+            jsonData.relays[i].times[j].startTime = document.getElementById(`jsonData.relays[${i}].times[${j}].startTime`).value;
+            //here I hack my way into separating hours and minutes into a int to the json!
+            var time = document.getElementById(`jsonData.relays[${i}].times[${j}].startTime`).value;
+            var timex = (new Date(" Jan 01 2021 " + time));
+            //console.log(timex);
+            var hour = timex.getHours();
+            var min = timex.getMinutes();
+            // console.log(hour)
+            // console.log(min)
+            jsonData.relays[i].times[j].hour = hour;
+            jsonData.relays[i].times[j].min = min;
+        }
+    }
+    var json = JSON.stringify(jsonData);
+    var xmlhttp = new XMLHttpRequest();   
+    xmlhttp.open("POST", "/updateData");
+    xmlhttp.setRequestHeader("Content-Type", "application/json;");
+    xmlhttp.send(json);
+}
