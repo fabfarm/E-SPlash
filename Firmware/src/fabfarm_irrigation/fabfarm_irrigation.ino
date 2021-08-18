@@ -243,7 +243,10 @@ void compileTimePrinting(){
 }
 //This function creates a file data.json based on the file sample.json in case the data.json does not exists.
 void createDataJson() {
-
+  if (!SPIFFS.begin(true)) {
+    Serial.println("An Error has occurred while mounting SPIFFS");
+    return;
+  }
   if(!SPIFFS.exists("/data.json")){
     Serial.println("data.json doe not exist! Creating it now!");
     File dataJsonReadfile = SPIFFS.open("/sample.json", "r");
@@ -623,29 +626,29 @@ void initWiFi()
 }
 
 // This function will select to update time either from the internet or from a manual entry in the html that populates the json
-void internetOrManualTime()
-{
-  // Call function that assigns the array in the json to the rtc of ESP32
-  Serial.println(rtc.getTime("%A, %B %d %Y %H:%M:%S"));
-  boolean data_internettime = data["changedtime"][0]["internettime"] ;
-  //boolean data_manualtimeflag = data["changedtime"][0]["manualtimeenabled"];
-  if ( data_internettime  == 1)
-  {
-    Serial.println("Time updated using internet");
-      for(static bool first = true;first;first=false)
-      { 
-        	AssignLocalTime();
-      }
-  }
-  if ( data_internettime  == 0 )
-  { 
-    Serial.println("Time updated using manual input");
-    for(static bool first = true;first;first=false)
-    { 
-      changetime();  
-    }
-  }
-}
+// void internetOrManualTime()
+// {
+//   // Call function that assigns the array in the json to the rtc of ESP32
+//   Serial.println(rtc.getTime("%A, %B %d %Y %H:%M:%S"));
+//   boolean data_internettime = data["changedtime"][0]["internettime"] ;
+//   //boolean data_manualtimeflag = data["changedtime"][0]["manualtimeenabled"];
+//   if ( data_internettime  == 1)
+//   {
+//     Serial.println("Time updated using internet");
+//       for(static bool first = true;first;first=false)
+//       { 
+//         	AssignLocalTime();
+//       }
+//   }
+//   if ( data_internettime  == 0 )
+//   { 
+//     Serial.println("Time updated using manual input");
+//     for(static bool first = true;first;first=false)
+//     { 
+//       changetime();  
+//     }
+//   }
+// }
 
 // function to change time using the time that was input in the json
 void changetime (){
