@@ -1,10 +1,10 @@
 {
     "data": {
-        "currentTime": "Sunday, July 25 2021 16:45:16",
-        "temperature": "Failed to read temperator from sensor",
-        "humidity": "Failed to read humidity from sensor",
+        "currentTime": null,
+        "temperature": null,
+        "humidity": null,
         "isScheduleMode": 0,
-        "batLevel": 100,
+        "batLevel": 0,
         "changedtime": [
             {
                 "internettime": 1,
@@ -20,52 +20,52 @@
     },
     "relays": [
         {
-            "name": "zone1",
+            "name": "Fruit",
             "pinnumber": 27,
+            "pin": "27",
             "isRunning": 1,
             "isEnabled": 0,
             "active": 1,
             "times": [
                 {
-                    "startTime": "01:01",
-                    "duration": 0,
-                    "hour": 1,
-                    "min": 1
+                    "startTime": "12:30",
+                    "duration": 30,
+                    "hour": 12,
+                    "min": 30
                 }
-            ],
-            "pin": "27"
+            ]
         },
         {
-            "name": "zone2",
+            "name": "Vegetable",
             "pinnumber": 26,
+            "pin": "26",
             "isRunning": 1,
             "isEnabled": 0,
             "active": 1,
             "times": [
                 {
-                    "startTime": "02:02",
-                    "duration": 32,
-                    "hour": 2,
-                    "min": 2
+                    "startTime": "13:00",
+                    "duration": 30,
+                    "hour": 13,
+                    "min": 0
                 }
-            ],
-            "pin": "26"
+            ]
         },
         {
-            "name": "zone3",
+            "name": "Cypress",
             "pinnumber": 25,
+            "pin": "25",
             "isRunning": 1,
             "isEnabled": 0,
             "active": 1,
             "times": [
                 {
-                    "startTime": "02:02",
-                    "duration": 32,
-                    "hour": 2,
-                    "min": 2
+                    "startTime": "15:40",
+                    "duration": 30,
+                    "hour": 15,
+                    "min": 40
                 }
-            ],
-            "pin": "25"
+            ]
         }
     ]
 }

@@ -28,7 +28,7 @@
 ESP32Time rtc;
 const char *dataFile = "data.json";// read / write json to save state
 AsyncWebServer server(80);// Specify the port of the Async server
-int jasonSize = 2048;// Specifing the capacity of the json in bytes.
+int jasonSize = 1800;// Specifing the capacity of the json in bytes.
 DynamicJsonDocument doc(jasonSize); // from arduinoJson
 
 //chosing the type of board if 0.1(_0_point_1) or 1.0(_1_point_0)
@@ -53,6 +53,16 @@ DynamicJsonDocument doc(jasonSize); // from arduinoJson
   int batVolt = 35;
 #endif
 
+//included option to use relays with TTL Logic LOW. Comment to use high
+#define TTL_Logic_Low
+#ifdef TTL_Logic_Low
+  #define ON   LOW
+  #define OFF  HIGH
+#else
+  #define ON   HIGH
+  #define OFF  LOW
+#endif
+
 //Declaring wifi credentials
 #define WIFI_SSID "ratinho_do_malandro"
 #define WIFI_PASS "gerryforever2018"
@@ -65,17 +75,6 @@ IPAddress local_IP(192,168,4,1);
 IPAddress gateway(192,168,1,1);
 IPAddress subnet(255,255,255,0);
 String hostname = "irrigation";
-
-
-//included option to use relays with TTL Logic LOW. Comment to use high
-//#define TTL_Logic_Low
-#ifdef TTL_Logic_Low
-  #define ON   LOW
-  #define OFF  HIGH
-#else
-  #define ON   HIGH
-  #define OFF  LOW
-#endif
 
 //this data is for the functions that need an interval and use millis to instead of delay 
 unsigned long previousMillis = 0;
@@ -176,7 +175,7 @@ void setup(){
     data["temperature"] = readDHTTemperature();
     data["humidity"] = readDHTHumidity();
     data["batLevel"] = batLevel();
-    char json[1520];
+    char json[1800];
     Serial.println("Serialize json & return to caller - BEGIN");
     serializeJson(doc, json);
     Serial.println("Serialize json & return to caller - COMPLETE");
@@ -250,7 +249,7 @@ void createDataJson() {
     String fileString = dataJsonReadfile.readString();
     dataJsonReadfile.close();
     File dataJsonwritefile = SPIFFS.open("/data.json", "w");  
-    int bytesWriten = dataJsonwritefile.print(fileString);
+    //int bytesWriten = dataJsonwritefile.print(fileString); //unused
     dataJsonwritefile.close();
     if(!SPIFFS.exists("/data.json")){
       Serial.println("data.json not created!");
