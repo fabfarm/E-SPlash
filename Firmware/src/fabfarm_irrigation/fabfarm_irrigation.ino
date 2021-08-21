@@ -25,7 +25,7 @@ DynamicJsonDocument doc(jasonSize); // from arduinoJson
 //#define _1_point_0
 #ifdef _0_point_1
   //Defining pump pin number
-  int pumpPinNumber = 13;
+  int pumpPinNumber = 33;
   //Define Voltage read pin number
   int batVolt = 35;
 #else
@@ -36,8 +36,8 @@ DynamicJsonDocument doc(jasonSize); // from arduinoJson
 #endif
 
 //define the tipe of external RTC
-//#define ds_3231
-#define ds_1302
+#define ds_3231
+//#define ds_1302
 #ifdef ds_3231
   #include <Wire.h>
   #include <RtcDS3231.h>
@@ -66,7 +66,7 @@ DynamicJsonDocument doc(jasonSize); // from arduinoJson
 #define WIFI_SSID "ratinho_do_malandro"
 #define WIFI_PASS "gerryforever2018"
 // Set AP credentials
-#define AP_SSID "irrigation_main"
+#define AP_SSID "irrigation_test"
 #define AP_PASS ""
 #define AP_CHANNEL 3
 // Set IP addresses
@@ -90,7 +90,7 @@ void setup(){
   allRelaysdisable();  //put all relays in LOW at startup: (question? does it reactivates unatendelly like previously noted?)
   Serial.println("This program was Compiled on: ");
   Serial.print("date: ");
-  Serial.println(__DATE__);
+  Serial.print(__DATE__);
   Serial.print("time: ");
   Serial.println(__TIME__);
 
@@ -240,6 +240,7 @@ void loop()
 //***********Bellow here only functions*************************************************************************
 //**************************************************************************************************************
 void createDataJson() {
+  Serial.println("Starting looking for Json file");
   if (!SPIFFS.begin(true)) {
     Serial.println("An Error has occurred while mounting SPIFFS");
     return;
@@ -250,7 +251,7 @@ void createDataJson() {
     String fileString = dataJsonReadfile.readString();
     dataJsonReadfile.close();
     File dataJsonwritefile = SPIFFS.open("/data.json", "w");  
-    //int bytesWriten = dataJsonwritefile.print(fileString); //unused
+    dataJsonwritefile.print(fileString);
     dataJsonwritefile.close();
     if(!SPIFFS.exists("/data.json")){
       Serial.println("data.json not created!");
@@ -607,27 +608,15 @@ void initWiFi()
   IPAddress IP = WiFi.softAPIP();
   Serial.print("SoftAP IP address: ");
   Serial.println(IP);
-
   // while (WiFi.status() != WL_CONNECTED) {
   //   delay(1000);
   //   Serial.println("Setting as a Wi-Fi Station..");
   // }
-  Serial.print("Station IP Address: ");
-  Serial.println(WiFi.localIP());
+  // Serial.print("Station IP Address: ");
+  // Serial.println(WiFi.localIP());
   Serial.print("Wi-Fi Channel: ");
   Serial.println(WiFi.channel());
 }
-
-// Function in developmentto display status on serial monitor only when changed state
-//void generalStatusPrint()
-// {
-//   oldValue = isEnabled;
-//   if(oldValue != newValue)
-//   {
-//     Serial.println(newValue);
-//     oldValue = newValue;
-//   }
-// }
 
 // void internetOrManualTime()
 // {
