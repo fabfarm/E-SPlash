@@ -35,22 +35,32 @@ DynamicJsonDocument doc(jasonSize); // from arduinoJson
 #define _0_point_1
 //#define _1_point_0
 #ifdef _0_point_1
-  #include <Wire.h>
-  #include <RtcDS3231.h>
-  RtcDS3231<TwoWire> Rtc(Wire); 
   //Defining pump pin number
   int pumpPinNumber = 13;
   //Define Voltage read pin number
   int batVolt = 35;
 #else
-  #include <ThreeWire.h>  
-  #include <RtcDS1302.h>
-  RtcDS1302<ThreeWire> Rtc(myWire);
-  ThreeWire myWire(14,13,32); // DAT, CLK, RST
   //Defining pump pin number
   int pumpPinNumber = 33;
   //Define Voltage read pin number
   int batVolt = 35;
+#endif
+
+//define the tipe of external RTC
+//#define ds_3231
+#define ds_1302
+#ifdef ds_3231
+  #include <Wire.h>
+  #include <RtcDS3231.h>
+  RtcDS3231<TwoWire> Rtc(Wire); 
+  int sdaPin = 05;//SDA
+  int sclPin = 17;//SCL
+#endif
+#ifdef ds_1302
+  #include <ThreeWire.h>
+  #include <RtcDS1302.h>
+  ThreeWire myWire(14,13,32); // DAT, CLK, RST
+  RtcDS1302<ThreeWire> Rtc(myWire);
 #endif
 
 //included option to use relays with TTL Logic LOW. Comment to use high
@@ -67,9 +77,9 @@ DynamicJsonDocument doc(jasonSize); // from arduinoJson
 #define WIFI_SSID "ratinho_do_malandro"
 #define WIFI_PASS "gerryforever2018"
 // Set AP credentials
-#define AP_SSID "irrigation"
-#define AP_PASS "imakestuff"
-#define AP_CHANNEL 8
+#define AP_SSID "irrigation_main"
+#define AP_PASS ""
+#define AP_CHANNEL 3
 // Set IP addresses
 IPAddress local_IP(192,168,4,1);
 IPAddress gateway(192,168,1,1);
@@ -94,10 +104,12 @@ void setup(){
   Serial.println(__DATE__);
   Serial.print("time: ");
   Serial.println(__TIME__);
+
   //external rtc initiation
-  #ifdef _0_point_1
-  Wire.begin(05, 17); // SDA, SCL
+  #ifdef ds_3231
+  Wire.begin(sdaPin, sclPin); // SDA, SCL
   #endif
+
   Rtc.Begin();
   first_rtc_function();  //this function will do a series of logical tests on external rtc in order to set its time in case is needed and print then  status
   
