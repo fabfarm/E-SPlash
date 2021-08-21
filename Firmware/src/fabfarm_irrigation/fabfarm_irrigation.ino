@@ -14,17 +14,6 @@
 #include "AsyncElegantOTA.h"
 #include <WiFi.h>
 
-//#include <esp_now.h>
-//Below is already declared in platformio.ini file
-//#include <Arduino.h>
-//#include <AsyncTCP.h>
-//#include <ESPAsyncWebServer.h>
-//#include <fstream>
-//#include <iostream>
-//#include <sstream>
-//#include <streambuf>
-//#include "Adafruit_Sensor.h"
-
 ESP32Time rtc;
 const char *dataFile = "data.json";// read / write json to save state
 AsyncWebServer server(80);// Specify the port of the Async server
