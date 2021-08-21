@@ -1,8 +1,8 @@
 {
     "data": {
-        "currentTime": null,
-        "temperature": null,
-        "humidity": null,
+        "currentTime": "Sunday, July 25 2021 16:46:17",
+        "temperature": 20,
+        "humidity": 50,
         "isScheduleMode": 0,
         "batLevel": 0,
         "changedtime": [
