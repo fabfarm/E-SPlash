@@ -77,7 +77,6 @@ const char *soft_ap_password = "imakestuff";
 
 void setup(){
   Serial.begin(9600);
-
   initWiFi();  //function with wifi settings and initialisation
   server.begin();// Start server
   allRelaysdisable();  //put all relays in LOW at startup: (question? does it reactivates unatendelly like previously noted?)
@@ -219,7 +218,7 @@ void loop(){
     scheduleMode();
   }
 
-  reconnectToWifi();
+  //reconnectToWifi();
   //*****end of loop*****
 }
 
@@ -618,19 +617,39 @@ void testRtcOnLoop(){
   Serial.println("End of data from void testRtcOnLoop()" );
 }
 
+void Wifi_connected(WiFiEvent_t event, WiFiEventInfo_t info){
+  Serial.println("Successfully connected to Access Point");
+}
+
+void Get_IPAddress(WiFiEvent_t event, WiFiEventInfo_t info){
+  Serial.println("WIFI is connected!");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
+}
+
+void Wifi_disconnected(WiFiEvent_t event, WiFiEventInfo_t info){
+  Serial.println("Disconnected from WIFI access point");
+  Serial.print("WiFi lost connection. Reason: ");
+  Serial.println(info.disconnected.reason);
+  Serial.println("Reconnecting...");
+  WiFi.begin(wifi_network_ssid, wifi_network_password);
+}
 //This function initiates wifi
 void initWiFi()
 {
   WiFi.mode(WIFI_MODE_APSTA);
+  WiFi.disconnect(true);
+  WiFi.onEvent(Wifi_connected,SYSTEM_EVENT_STA_CONNECTED);
+  WiFi.onEvent(Get_IPAddress, SYSTEM_EVENT_STA_GOT_IP);
+  WiFi.onEvent(Wifi_disconnected, SYSTEM_EVENT_STA_DISCONNECTED); 
+  WiFi.begin(wifi_network_ssid, wifi_network_password);
+  Serial.println("Waiting for WIFI network...");
+
   WiFi.softAP(soft_ap_ssid, soft_ap_password);
   WiFi.begin(wifi_network_ssid, wifi_network_password);
  
   Serial.print("ESP32 IP as soft AP: ");
   Serial.println(WiFi.softAPIP());
- 
-  Serial.print("ESP32 IP on the WiFi network: ");
-  Serial.println(WiFi.localIP());
-     
 }
 
 // This function will select to update time either from the internet or from a manual entry in the html that populates the json
