@@ -23,23 +23,70 @@ int jasonSize = 1800;// Specifing the capacity of the json in bytes.
 DynamicJsonDocument doc(jasonSize); // from arduinoJson
 
 //chosing the type of board if 0.1(_0_point_1) or 1.0(_1_point_0)
-#define _0_point_1
-//#define _1_point_0
-#ifdef _0_point_1
+//#define _0_point_1_main
+#define _0_point_greenhouse
+//#define _0_point// prototype relays on board pcb designed with eagle
+//#define _1_point_0// second prototype no relays on board pcb designed with eagle
+#ifdef _0_point
+  #define ds_1302
+  #define TTL_Logic_Low
   //Defining pump pin number
   int pumpPinNumber = 33;
   //Define Voltage read pin number
   int batVoltPin = 35;
-#else
+
+  const char* wifi_network_ssid = "caravan";
+  const char* wifi_network_password =  "imakestuff";
+  
+  const char *soft_ap_ssid = "irrigation_main";
+  const char *soft_ap_password = "";
+#endif
+#ifdef _0_point_1_main
+  #define ds_1302
+  #define TTL_Logic_Low
   //Defining pump pin number
   int pumpPinNumber = 33;
   //Define Voltage read pin number
   int batVoltPin = 35;
+
+  const char* wifi_network_ssid = "caravan";
+  const char* wifi_network_password =  "imakestuff";
+  
+  const char *soft_ap_ssid = "irrigation_main";
+  const char *soft_ap_password = "";
+#endif
+#ifdef _1_point_0
+  #define ds_3231
+  #define TTL_Logic_Low
+  //Defining pump pin number
+  int pumpPinNumber = 33;
+  //Define Voltage read pin number
+  int batVoltPin = 35;
+
+  const char* wifi_network_ssid = "fabfarm_ele_container";
+  const char* wifi_network_password =  "gerryforever2018";
+  
+  const char *soft_ap_ssid = "irrigation_test";
+  const char *soft_ap_password = "";
+#endif
+#ifdef _0_point_greenhouse
+  #define ds_3231
+  #define TTL_Logic_Low
+  //Defining pump pin number
+  int pumpPinNumber = 13;
+  //Define Voltage read pin number
+  int batVoltPin = 35;
+
+  const char* wifi_network_ssid = "ratinho_do_malandro";
+  const char* wifi_network_password =  "gerryforever2018";
+  
+  const char *soft_ap_ssid = "irrigation_greenhouse";
+  const char *soft_ap_password = "";
 #endif
 
 //define the tipe of external RTC
-#define ds_3231
-//#define ds_1302
+
+//
 #ifdef ds_3231
   #include <Wire.h>
   #include <RtcDS3231.h>
@@ -55,7 +102,7 @@ DynamicJsonDocument doc(jasonSize); // from arduinoJson
 #endif
 
 //included option to use relays with TTL Logic LOW. Comment to use high
-#define TTL_Logic_Low
+
 #ifdef TTL_Logic_Low
   #define ON   LOW
   #define OFF  HIGH
@@ -63,13 +110,6 @@ DynamicJsonDocument doc(jasonSize); // from arduinoJson
   #define ON   HIGH
   #define OFF  LOW
 #endif
-
-
-const char* wifi_network_ssid = "router";
-const char* wifi_network_password =  "imakestuff";
- 
-const char *soft_ap_ssid = "irrigation_test";
-const char *soft_ap_password = "imakestuff";
 
 //**************************************************************************************************************
 // *****************************************Setup starts here***************************************************
@@ -218,31 +258,12 @@ void loop(){
     scheduleMode();
   }
 
-  //reconnectToWifi();
   //*****end of loop*****
 }
 
 //**************************************************************************************************************
 //***********Bellow here only functions*************************************************************************
 //**************************************************************************************************************
-
-
-void reconnectToWifi(){
-
-  unsigned long previousReconnectMillis = 0;
-  const long reconnectPrintTimeInterval = 20000;
-  unsigned long currentMillis = millis(); // number of milliseconds since the upload
-  // checking for WIFI connection
-  if ((WiFi.status() != WL_CONNECTED) && (currentMillis - previousReconnectMillis >=reconnectPrintTimeInterval)) {
-    Serial.println("Reconnecting to WIFI network");
-    WiFi.disconnect();
-    WiFi.reconnect();
-    Serial.print("ESP32 IP on the WiFi network: ");
-    Serial.println(WiFi.localIP());
-  }
-  previousReconnectMillis = currentMillis;
-
-}
 
 //This function simply prints the compile time.
 void compileTimePrinting(){
@@ -555,7 +576,7 @@ void first_rtc_function()
       Serial.println("RTC lost confidence in the DateTime!");
       Rtc.SetDateTime(compiled);
   }
-  #ifdef _0_point_1
+  #ifdef ds_3231
   #else
   if (Rtc.GetIsWriteProtected())
   {

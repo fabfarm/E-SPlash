@@ -1,10 +1,10 @@
 {
     "data": {
-        "currentTime": "Sunday, July 25 2021 16:46:17",
-        "temperature": 20,
-        "humidity": 50,
-        "isScheduleMode": 0,
-        "batLevel": 0,
+        "currentTime": null,
+        "temperature": null,
+        "humidity": null,
+        "isScheduleMode": 1,
+        "batLevel": 14,
         "changedtime": [
             {
                 "internettime": 1,
@@ -60,16 +60,16 @@
             "active": 1,
             "times": [
                 {
-                    "startTime": "13:00",
+                    "startTime": "11:00",
                     "duration": 30,
-                    "hour": 13,
+                    "hour": 11,
                     "min": 0
                 },
                 {
-                    "startTime": "18:00",
-                    "duration": 30,
-                    "hour": 18,
-                    "min": 0
+                    "startTime": "19:40",
+                    "duration": 40,
+                    "hour": 19,
+                    "min": 40
                 }
             ]
         }
