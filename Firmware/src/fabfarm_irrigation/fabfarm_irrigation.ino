@@ -6,6 +6,8 @@
  * Project page: http://github.com/fabfarm/esplash
  */
 
+
+
 #include "ArduinoJson.h"
 #include "AsyncJson.h"
 #include "DHT.h"
@@ -62,22 +64,12 @@ DynamicJsonDocument doc(jasonSize); // from arduinoJson
   #define OFF  LOW
 #endif
 
-//Declaring wifi credentials
-#define WIFI_SSID "ratinho_do_malandro"
-#define WIFI_PASS "gerryforever2018"
-// Set AP credentials
-#define AP_SSID "irrigation_test"
-#define AP_PASS ""
-#define AP_CHANNEL 3
-// Set IP addresses
-IPAddress local_IP(192,168,4,1);
-IPAddress gateway(192,168,1,1);
-IPAddress subnet(255,255,255,0);
-String hostname = "irrigation";
 
-//this data is for the functions that need an interval and use millis to instead of delay 
-unsigned long previousMillis = 0;
-const long printTimeInterval = 1000;
+const char* wifi_network_ssid = "router";
+const char* wifi_network_password =  "imakestuff";
+ 
+const char *soft_ap_ssid = "irrigation_test";
+const char *soft_ap_password = "imakestuff";
 
 //**************************************************************************************************************
 // *****************************************Setup starts here***************************************************
@@ -85,6 +77,7 @@ const long printTimeInterval = 1000;
 
 void setup(){
   Serial.begin(9600);
+
   initWiFi();  //function with wifi settings and initialisation
   server.begin();// Start server
   allRelaysdisable();  //put all relays in LOW at startup: (question? does it reactivates unatendelly like previously noted?)
@@ -225,12 +218,32 @@ void loop(){
   else{
     scheduleMode();
   }
-//*****end of loop*****
+
+  reconnectToWifi();
+  //*****end of loop*****
 }
 
 //**************************************************************************************************************
 //***********Bellow here only functions*************************************************************************
 //**************************************************************************************************************
+
+
+void reconnectToWifi(){
+
+  unsigned long previousReconnectMillis = 0;
+  const long reconnectPrintTimeInterval = 20000;
+  unsigned long currentMillis = millis(); // number of milliseconds since the upload
+  // checking for WIFI connection
+  if ((WiFi.status() != WL_CONNECTED) && (currentMillis - previousReconnectMillis >=reconnectPrintTimeInterval)) {
+    Serial.println("Reconnecting to WIFI network");
+    WiFi.disconnect();
+    WiFi.reconnect();
+    Serial.print("ESP32 IP on the WiFi network: ");
+    Serial.println(WiFi.localIP());
+  }
+  previousReconnectMillis = currentMillis;
+
+}
 
 //This function simply prints the compile time.
 void compileTimePrinting(){
@@ -581,8 +594,12 @@ void first_rtc_function()
 
 }
 //This function prints the clock on serial monitor with a predetermined interval
-void testRtcOnLoop()
-{
+
+void testRtcOnLoop(){
+  //this data is for the functions that need an interval and use millis to instead of delay 
+  unsigned long previousMillis = 0;
+  const long printTimeInterval = 10000;
+
   Serial.println("This data comes from void testRtcOnLoop() time will apear only every 1 second" );
   unsigned long currentMillis = millis();
   if (currentMillis - previousMillis >= printTimeInterval) 
@@ -604,24 +621,16 @@ void testRtcOnLoop()
 //This function initiates wifi
 void initWiFi()
 {
-  WiFi.mode(WIFI_AP_STA);
-  WiFi.config(INADDR_NONE, INADDR_NONE, INADDR_NONE, INADDR_NONE);
-  WiFi.setHostname(hostname.c_str()); //define hostname
-  //Soft Wifi Access point setup
-  WiFi.softAPConfig(local_IP, gateway, subnet);
-  WiFi.softAP(AP_SSID, AP_PASS, AP_CHANNEL);
-  //WiFi.begin(WIFI_SSID, WIFI_PASS);
-  IPAddress IP = WiFi.softAPIP();
-  Serial.print("SoftAP IP address: ");
-  Serial.println(IP);
-  // while (WiFi.status() != WL_CONNECTED) {
-  //   delay(1000);
-  //   Serial.println("Setting as a Wi-Fi Station..");
-  // }
-  // Serial.print("Station IP Address: ");
-  // Serial.println(WiFi.localIP());
-  Serial.print("Wi-Fi Channel: ");
-  Serial.println(WiFi.channel());
+  WiFi.mode(WIFI_MODE_APSTA);
+  WiFi.softAP(soft_ap_ssid, soft_ap_password);
+  WiFi.begin(wifi_network_ssid, wifi_network_password);
+ 
+  Serial.print("ESP32 IP as soft AP: ");
+  Serial.println(WiFi.softAPIP());
+ 
+  Serial.print("ESP32 IP on the WiFi network: ");
+  Serial.println(WiFi.localIP());
+     
 }
 
 // This function will select to update time either from the internet or from a manual entry in the html that populates the json
@@ -671,6 +680,3 @@ void changetime (){
 //     oldValue = newValue;
 //   }
 // }
-
-
-
