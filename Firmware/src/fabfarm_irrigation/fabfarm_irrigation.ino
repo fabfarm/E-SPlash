@@ -35,11 +35,15 @@ DynamicJsonDocument doc(jasonSize); // from arduinoJson
   //Define Voltage read pin number
   int batVoltPin = 35;
 
+  const char* wifi_network_hostname = "test";
+
   const char* wifi_network_ssid = "caravan";
   const char* wifi_network_password =  "imakestuff";
   
   const char *soft_ap_ssid = "irrigation_main";
   const char *soft_ap_password = "";
+  // Set your Static IP address
+  IPAddress local_IP(192, 168, 1, 22);
 #endif
 #ifdef _0_point_1_main
   #define ds_1302
@@ -49,11 +53,15 @@ DynamicJsonDocument doc(jasonSize); // from arduinoJson
   //Define Voltage read pin number
   int batVoltPin = 35;
 
+  const char* wifi_network_hostname = "irrigationmain";
+
   const char* wifi_network_ssid = "caravan";
   const char* wifi_network_password =  "imakestuff";
   
   const char *soft_ap_ssid = "irrigation_main";
   const char *soft_ap_password = "";
+  // Set your Static IP address
+  IPAddress local_IP(192, 168, 1, 23);
 #endif
 #ifdef _1_point_0
   #define ds_3231
@@ -63,11 +71,15 @@ DynamicJsonDocument doc(jasonSize); // from arduinoJson
   //Define Voltage read pin number
   int batVoltPin = 35;
 
+  const char* wifi_network_hostname = "test";
+
   const char* wifi_network_ssid = "fabfarm_ele_container";
   const char* wifi_network_password =  "gerryforever2018";
   
   const char *soft_ap_ssid = "irrigation_test";
   const char *soft_ap_password = "";
+  // Set your Static IP address
+  IPAddress local_IP(192, 168, 1, 24);
 #endif
 #ifdef _0_point_greenhouse
   #define ds_3231
@@ -77,11 +89,15 @@ DynamicJsonDocument doc(jasonSize); // from arduinoJson
   //Define Voltage read pin number
   int batVoltPin = 35;
 
-  const char* wifi_network_ssid = "ratinho_do_malandro";
+  const char* wifi_network_hostname = "greenhousetestboard";
+
+  const char* wifi_network_ssid = "ratinha_do_malandro";
   const char* wifi_network_password =  "gerryforever2018";
   
   const char *soft_ap_ssid = "irrigation_greenhouse";
   const char *soft_ap_password = "";
+  // Set your Static IP address
+  IPAddress local_IP(192, 168, 1, 25);
 #endif
 
 //define the tipe of external RTC
@@ -110,6 +126,14 @@ DynamicJsonDocument doc(jasonSize); // from arduinoJson
   #define ON   HIGH
   #define OFF  LOW
 #endif
+
+
+// Set your Gateway IP address
+IPAddress gateway(192, 168, 1, 1);
+
+IPAddress subnet(255, 255, 255, 0);
+IPAddress primaryDNS(8, 8, 8, 8);   //optional
+IPAddress secondaryDNS(8, 8, 4, 4); //optional
 
 //**************************************************************************************************************
 // *****************************************Setup starts here***************************************************
@@ -646,6 +670,9 @@ void Get_IPAddress(WiFiEvent_t event, WiFiEventInfo_t info){
   Serial.println("WIFI is connected!");
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
+  Serial.println("hostname: ");
+  Serial.println(WiFi.getHostname());
+
 }
 
 void Wifi_disconnected(WiFiEvent_t event, WiFiEventInfo_t info){
@@ -663,14 +690,15 @@ void initWiFi()
   WiFi.onEvent(Wifi_connected,SYSTEM_EVENT_STA_CONNECTED);
   WiFi.onEvent(Get_IPAddress, SYSTEM_EVENT_STA_GOT_IP);
   WiFi.onEvent(Wifi_disconnected, SYSTEM_EVENT_STA_DISCONNECTED); 
-  WiFi.begin(wifi_network_ssid, wifi_network_password);
-  Serial.println("Waiting for WIFI network...");
-
-  WiFi.softAP(soft_ap_ssid, soft_ap_password);
-  WiFi.begin(wifi_network_ssid, wifi_network_password);
- 
+  WiFi.softAP(soft_ap_ssid, soft_ap_password, 3);
   Serial.print("ESP32 IP as soft AP: ");
   Serial.println(WiFi.softAPIP());
+  if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS)) {
+    Serial.println("STA Failed to configure");
+  }
+  WiFi.begin(wifi_network_ssid, wifi_network_password);
+  WiFi.setHostname(wifi_network_hostname);
+  Serial.println("Waiting for WIFI network...");
 }
 
 // This function will select to update time either from the internet or from a manual entry in the html that populates the json
