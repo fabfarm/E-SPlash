@@ -1,5 +1,5 @@
 // keep global json object - we'll update this on element change
-var jsonData;
+var jsonData; 
 
 setInterval(function() {
     var xhttp = new XMLHttpRequest();
@@ -17,7 +17,7 @@ setInterval(function() {
         xhttp.timeout = 2000;
         xhttp.ontimeout = function() {};
         xhttp.send();
-    }, 1000);
+    }, 15000);
 
 function refresh() {
     var r3 = new XMLHttpRequest();
@@ -49,26 +49,36 @@ function refresh() {
                 for(var j = 0; j < relay.times.length; j++) {
                     time = relay.times[j];
                     var times = `
-                        <div style="width:100px;">
-                        </div> 
-                        <label for="time">
-                        </label>
-                        <div>
-                            <span>Time ${j+1}
+                        <div style="width:100px;"></div> 
+                        <label for="time"></label>
+                        <div class="relaysContainer">
+                            <span>
+                                Time ${j+1} 
                             </span>
+
                             <input id="jsonData.relays[${i}].times[${j}].startTime" type="time" style="width:100px;" 
                                 onChange="update(this);" 
                                 required value="${time.startTime}" />
                             <input id="jsonData.relays[${i}].times[${j}].duration" type="range" onChange="update(this);" 
                                 min="0" max="60" value="${time.duration}" step="1" class="slider2">
-                                Value: <span id="value">
-                                </span> ${time.duration}
+
+                            minutes: <span></span>
                         </div>`;
                     html += times;
                     }
                 }                                   
                 var main = document.getElementById("main");
                 main.innerHTML = html; //this will REBUILD the page per ping (?)
+
+                var sliders = document.getElementsByClassName("relaysContainer"); // get every slider on the page related to a relay and add the oninput property
+                for (let denRelays=0; denRelays< sliders.length; denRelays++) {
+                    sliders[denRelays].children[3].innerHTML = sliders[denRelays].children[2].value; // for the initialisation of the value
+                    
+                    sliders[denRelays].children[2].oninput = function() {
+                        sliders[denRelays].children[3].innerHTML = this.value; // for the realtime updating of the slider value
+                        }
+                }
+
             };
         }; 
         r3.open("GET", "/getData", true);
