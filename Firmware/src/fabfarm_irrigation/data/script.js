@@ -5,9 +5,10 @@ setInterval(function() {
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-            var response = this.response;
+            console.log(this);
             jsonData = JSON.parse(this.responseText);
             document.getElementById("currentTime").innerText = jsonData.data.currentTime;
+            console.log(jsonData.data.currentTime);
             document.getElementById("temperature").innerText = jsonData.data.temperature;
             document.getElementById("humidity").innerText = jsonData.data.humidity;
             document.getElementById("batLevel").innerText = jsonData.data.batLevel;
@@ -17,7 +18,7 @@ setInterval(function() {
         xhttp.timeout = 2000;
         xhttp.ontimeout = function() {};
         xhttp.send();
-    }, 15000);
+    }, 10000);
 
 function refresh() {
     var r3 = new XMLHttpRequest();

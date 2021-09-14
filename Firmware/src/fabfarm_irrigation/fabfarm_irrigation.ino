@@ -91,13 +91,13 @@ DynamicJsonDocument doc(jasonSize); // from arduinoJson
 
   const char* wifi_network_hostname = "greenhousetestboard";
 
-  const char* wifi_network_ssid = "ratinha_do_malandro";
-  const char* wifi_network_password =  "gerryforever2018";
+  const char* wifi_network_ssid = "fabfarm_ele_container";
+  const char* wifi_network_password =  "imakestuff";
   
   const char *soft_ap_ssid = "irrigation_greenhouse";
   const char *soft_ap_password = "";
   // Set your Static IP address
-  IPAddress local_IP(192, 168, 1, 25);
+  IPAddress local_IP(192, 168, 0, 25);
 #endif
 
 //define the tipe of external RTC
@@ -220,16 +220,20 @@ void setup(){
   server.on("/getData", HTTP_GET, [](AsyncWebServerRequest *request)
   {
     Serial.println("/getData");
-    JsonObject data = doc["data"];
-    data["currentTime"] = rtc.getTime("%A, %B %d %Y %H:%M:%S");
-    data["temperature"] = readDHTTemperature();
-    data["humidity"] = readDHTHumidity();
-    data["batLevel"] = batLevel();
-    char json[1800];
+    DynamicJsonDocument data = doc;
+    // create a copy of the data set, modify it, serialize it and then send to the browser
+    // this had to be changed as the serialization cleared the content of the jsondocument "doc"
+
+    data["data"]["currentTime"] = rtc.getTime("%A, %B %d %Y %H:%M:%S");
+    data["data"]["temperature"] = readDHTTemperature();
+    data["data"]["humidity"] = readDHTHumidity();
+    data["data"]["batLevel"] = batLevel();
+    char jsonReply[1800];
     Serial.println("Serialize json & return to caller - BEGIN");
-    serializeJson(doc, json);
+    serializeJson(data, jsonReply);
+    Serial.println(jsonReply);
     Serial.println("Serialize json & return to caller - COMPLETE");
-    request->send(200, "application/json", json);
+    request->send(200, "application/json", jsonReply);
   });
   
   AsyncCallbackJsonWebHandler *handler = new AsyncCallbackJsonWebHandler("/updateData", 
