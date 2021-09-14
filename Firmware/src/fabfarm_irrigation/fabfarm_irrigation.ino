@@ -224,7 +224,7 @@ void setup(){
     // create a copy of the data set, modify it, serialize it and then send to the browser
     // this had to be changed as the serialization cleared the content of the jsondocument "doc"
 
-    data["data"]["currentTime"] = rtc.getTime("%A, %B %d %Y %H:%M:%S");
+    data["data"]["currentTime"] = rtc.getTime("%A, %B %d %Y %H:%M");
     data["data"]["temperature"] = readDHTTemperature();
     data["data"]["humidity"] = readDHTHumidity();
     data["data"]["batLevel"] = batLevel();
