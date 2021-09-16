@@ -130,7 +130,6 @@ DynamicJsonDocument doc(jasonSize); // from arduinoJson
 
 // Set your Gateway IP address
 IPAddress gateway(192, 168, 1, 1);
-
 IPAddress subnet(255, 255, 255, 0);
 IPAddress primaryDNS(8, 8, 8, 8);   //optional
 IPAddress secondaryDNS(8, 8, 4, 4); //optional
@@ -295,11 +294,13 @@ void loop(){
 
 //This function simply prints the compile time.
 void compileTimePrinting(){
-  Serial.println("This program was Compiled on: ");
-  Serial.print("date: ");
-  Serial.println(__DATE__);
-  Serial.print("time: ");
+  Serial.println("*****************************************************");
+  Serial.print("* This program was Compiled on: ");
+  Serial.print(__DATE__);
+  Serial.print(" at ");
   Serial.println(__TIME__);
+  Serial.println("*****************************************************");
+  Serial.println();
 }
 //This function creates a file data.json based on the file sample.json in case the data.json does not exists.
 void createDataJson() {
@@ -569,30 +570,30 @@ void updateInternalRTC(const RtcDateTime& dt)
           dt.Second() );
   rtc.setTime(dt.Second(),dt.Minute(),dt.Hour(),dt.Day(),dt.Month(),dt.Year());
 
-  Serial.println("--------------------------------------------------------------------------------------");
-  Serial.println("--------------------------------------------------------------------------------------");
-  Serial.println("This data is a data stream from function void updateInternalRTC(const RtcDateTime& dt)");
+  Serial.println("*****************************************************");
+  Serial.println("* Function updateInternalRTC()");
+  Serial.print("* Time from external RTC:");
   Serial.println(datestring);
-  Serial.println("End of data from function updateInternalRTC(const RtcDateTime& dt)");
-  Serial.println("--------------------------------------------------------------------------------------");
-  Serial.println("--------------------------------------------------------------------------------------");
+  Serial.println("* This function updates the internal RTC with the time");
+  Serial.println("* from the external RTC");
+  Serial.println("*****************************************************");
 }
 
 //This function
 void first_rtc_function()
 { 
-  Serial.println("**********************************************************************************");
-  Serial.println("**********************************************************************************");
-  Serial.println("**********************************************************************************");
-  Serial.println("This data comes from void first_rtc_function()");
+  Serial.println("*****************************************************");
+  Serial.println("* Running function first_rtc_function()");
   RtcDateTime compiled = RtcDateTime(__DATE__, __TIME__);
   // Print the Time before updated from external RTC
-  Serial.println("Time is from from internal RTC on boot");
+  Serial.println("* ");
+  Serial.print("* Time from internal RTC on boot:");
   Serial.println(rtc.getTime("%A, %B %d %Y %H:%M:%S"));
   // Configure internal RTC from external rtc time
   updateInternalRTC(Rtc.GetDateTime());
   // Print the Time updated from external RTC
-  Serial.println("Time from internal RTC after external RTC update");
+  Serial.println("* ");
+  Serial.print("* Time from internal RTC after external RTC update: ");
   Serial.println(rtc.getTime("%A, %B %d %Y %H:%M:%S"));
 
   if (!Rtc.IsDateTimeValid()) 
@@ -601,7 +602,7 @@ void first_rtc_function()
       //    1) first time you ran and the device wasn't running yet
       //    2) the battery on the device is low or even missing
 
-      Serial.println("RTC lost confidence in the DateTime!");
+      Serial.println("* RTC lost confidence in the DateTime!");
       Rtc.SetDateTime(compiled);
   }
   #ifdef ds_3231
@@ -615,31 +616,28 @@ void first_rtc_function()
 
   if (!Rtc.GetIsRunning())
   {
-      Serial.println("RTC was not actively running, starting now");
+      Serial.println("* RTC was not actively running, starting now");
       Rtc.SetIsRunning(true);
   }
 
   RtcDateTime now = Rtc.GetDateTime();
   if (now < compiled) 
   {
-      Serial.println("RTC is older than compile time!  (Updating DateTime)");
+      Serial.println("* RTC is older than compile time!  (Updating DateTime)");
       Rtc.SetDateTime(compiled);
   }
   else if (now > compiled) 
   {
-      Serial.println("RTC is newer than compile time. (this is expected)");
+      Serial.println("* RTC is newer than compile time. (this is expected)");
   }
   else if (now == compiled) 
   {
-      Serial.println("RTC is the same as compile time! (not expected but all is fine)");
+      Serial.println("* RTC is the same as compile time! (not expected but all is fine)");
   }
-      Serial.println();
+      Serial.println("*");
 
-  Serial.println("END of data from first external RTC function");
-  Serial.println("**********************************************************************************");
-  Serial.println("**********************************************************************************");
-  Serial.println("**********************************************************************************");
-
+  Serial.println("* END of data from first external RTC function");
+  Serial.println("*****************************************************");
 }
 //This function prints the clock on serial monitor with a predetermined interval
 
@@ -671,20 +669,27 @@ void Wifi_connected(WiFiEvent_t event, WiFiEventInfo_t info){
 }
 
 void Get_IPAddress(WiFiEvent_t event, WiFiEventInfo_t info){
-  Serial.println("WIFI is connected!");
-  Serial.println("IP address: ");
+  Serial.println("");
+  Serial.println("*****************************************************");
+  Serial.println("* WIFI is connected!");
+  Serial.print("* The IP address is: ");
   Serial.println(WiFi.localIP());
-  Serial.println("hostname: ");
+  Serial.print("* The hostname is: ");
   Serial.println(WiFi.getHostname());
-
+  Serial.println("*****************************************************");
+  Serial.println("");
 }
 
 void Wifi_disconnected(WiFiEvent_t event, WiFiEventInfo_t info){
-  Serial.println("Disconnected from WIFI access point");
-  Serial.print("WiFi lost connection. Reason: ");
+  Serial.println("");
+  Serial.println("*****************************************************");
+  Serial.println("* Disconnected from WIFI access point");
+  Serial.print("* WiFi lost connection. Reason: ");
   Serial.println(info.disconnected.reason);
-  Serial.println("Reconnecting...");
+  Serial.println("* Reconnecting...");
   WiFi.begin(wifi_network_ssid, wifi_network_password);
+  Serial.println("*****************************************************");
+
 }
 //This function initiates wifi
 void initWiFi()
@@ -695,14 +700,20 @@ void initWiFi()
   WiFi.onEvent(Get_IPAddress, SYSTEM_EVENT_STA_GOT_IP);
   WiFi.onEvent(Wifi_disconnected, SYSTEM_EVENT_STA_DISCONNECTED); 
   WiFi.softAP(soft_ap_ssid, soft_ap_password, 3);
-  Serial.print("ESP32 IP as soft AP: ");
+  Serial.println();
+  Serial.println("*****************************************************");
+  Serial.print("* SoftAP IP is: ");
   Serial.println(WiFi.softAPIP());
   if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS)) {
-    Serial.println("STA Failed to configure");
+    Serial.println("* STA Failed to configure");
   }
   WiFi.begin(wifi_network_ssid, wifi_network_password);
   WiFi.setHostname(wifi_network_hostname);
-  Serial.println("Waiting for WIFI network...");
+  Serial.println("* Waiting for WIFI network...");
+  Serial.println("*****************************************************");
+  Serial.println();
+
+  //delay(2000);
 }
 
 // This function will select to update time either from the internet or from a manual entry in the html that populates the json
