@@ -28,19 +28,19 @@ DynamicJsonDocument doc(jasonSize); // from arduinoJson
 //#define _0_point// prototype relays on board pcb designed with eagle
 //#define _1_point_0// second prototype no relays on board pcb designed with eagle
 #ifdef _0_point
-  #define ds_1302
-  #define TTL_Logic_Low
+  #define ds_3231
+  //#define TTL_Logic_Low
   //Defining pump pin number
-  int pumpPinNumber = 33;
+  int pumpPinNumber = 13;
   //Define Voltage read pin number
   int batVoltPin = 35;
 
   const char* wifi_network_hostname = "test";
 
-  const char* wifi_network_ssid = "caravan";
-  const char* wifi_network_password =  "imakestuff";
+  const char* wifi_network_ssid = "ratinho_do_malandro";
+  const char* wifi_network_password =  "gerryforever2018";
   
-  const char *soft_ap_ssid = "irrigation_main";
+  const char *soft_ap_ssid = "irrigation_main_prototype";
   const char *soft_ap_password = "";
   // Set your Static IP address
   IPAddress local_IP(192, 168, 1, 22);
