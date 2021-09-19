@@ -37,8 +37,16 @@ DynamicJsonDocument doc(jasonSize); // from arduinoJson
 
   const char* wifi_network_hostname = "test";
 
+  #define casa
+  //#define container
+  #ifdef casa
   const char* wifi_network_ssid = "ratinho_do_malandro";
   const char* wifi_network_password =  "gerryforever2018";
+  #endif
+  #ifdef container
+  const char* wifi_network_ssid = "fabfarm_ele_container";
+  const char* wifi_network_password =  "imakestuff";
+  #endif
   
   const char *soft_ap_ssid = "irrigation_main_prototype";
   const char *soft_ap_password = "";
@@ -90,10 +98,16 @@ DynamicJsonDocument doc(jasonSize); // from arduinoJson
   int batVoltPin = 35;
 
   const char* wifi_network_hostname = "greenhousetestboard";
-
+  #define casa
+  //#define container
+  #ifdef casa
+  const char* wifi_network_ssid = "ratinho_do_malandro";
+  const char* wifi_network_password =  "gerryforever2018";
+  #endif
+  #ifdef container
   const char* wifi_network_ssid = "fabfarm_ele_container";
   const char* wifi_network_password =  "imakestuff";
-  
+  #endif
   const char *soft_ap_ssid = "irrigation_greenhouse";
   const char *soft_ap_password = "";
   // Set your Static IP address
@@ -133,6 +147,13 @@ IPAddress gateway(192, 168, 1, 1);
 IPAddress subnet(255, 255, 255, 0);
 IPAddress primaryDNS(8, 8, 8, 8);   //optional
 IPAddress secondaryDNS(8, 8, 4, 4); //optional
+
+// Digital pin connected to the DHT sensor
+#define DHTPIN 21
+// Uncomment the type of sensor in use:
+#define DHTTYPE DHT11 // DHT 22
+//#define DHTTYPE    DHT22     // DHT 22 (AM2302)
+//#define DHTTYPE    DHT21     // DHT 21 (AM2301)
 
 //**************************************************************************************************************
 // *****************************************Setup starts here***************************************************
@@ -424,12 +445,6 @@ void allRelaysdisable(){
 //This function reads the temperature sensor data from the DHT
 String readDHTTemperature()
 {
-  // Digital pin connected to the DHT sensor
-  #define DHTPIN 14
-  // Uncomment the type of sensor in use:
-  #define DHTTYPE DHT22 // DHT 11
-  //#define DHTTYPE    DHT22     // DHT 22 (AM2302)
-  //#define DHTTYPE    DHT21     // DHT 21 (AM2301)
   //Send the pin and type of sensor
   DHT dht(DHTPIN, DHTTYPE);
   // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
@@ -453,13 +468,6 @@ String readDHTTemperature()
 //This function reads the humidity sensor data from the DHT
 String readDHTHumidity()
 {
-  // Digital pin connected to the DHT sensor
-  #define DHTPIN 14
-  // Uncomment the type of sensor in use:
-  #define DHTTYPE DHT22 // DHT 11
-  //#define DHTTYPE    DHT22     // DHT 22 (AM2302)
-  //#define DHTTYPE    DHT21     // DHT 21 (AM2301)
-  //Send the pin and type of sensor
   DHT dht(DHTPIN, DHTTYPE);
   // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
   float h = dht.readHumidity();
@@ -572,7 +580,7 @@ void updateInternalRTC(const RtcDateTime& dt)
 
   Serial.println("*****************************************************");
   Serial.println("* Function updateInternalRTC()");
-  Serial.print("* Time from external RTC:");
+  Serial.print("* Time from external RTC: ");
   Serial.println(datestring);
   Serial.println("* This function updates the internal RTC with the time");
   Serial.println("* from the external RTC");
