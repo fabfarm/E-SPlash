@@ -98,8 +98,8 @@ DynamicJsonDocument doc(jasonSize); // from arduinoJson
   int batVoltPin = 35;
 
   const char* wifi_network_hostname = "greenhousetestboard";
-  #define casa
-  //#define container
+  // #define casa
+  #define container
   #ifdef casa
   const char* wifi_network_ssid = "ratinho_do_malandro";
   const char* wifi_network_password =  "gerryforever2018";
@@ -111,7 +111,7 @@ DynamicJsonDocument doc(jasonSize); // from arduinoJson
   const char *soft_ap_ssid = "irrigation_greenhouse";
   const char *soft_ap_password = "";
   // Set your Static IP address
-  IPAddress local_IP(192, 168, 0, 25);
+  IPAddress local_IP(192, 168, 1, 25);
 #endif
 
 //define the tipe of external RTC
@@ -456,7 +456,7 @@ String readDHTTemperature()
   if (isnan(t))
   {
     Serial.println("Failed to read from DHT sensor!");
-    return "Failed to read temperator from sensor";
+    return "N/A";
   }
   else
   {
@@ -474,7 +474,7 @@ String readDHTHumidity()
   if (isnan(h))
   {
     Serial.println("Failed to read from DHT sensor!");
-    return "Failed to read humidity from sensor";
+    return "N/A";
   }
   else
   {
