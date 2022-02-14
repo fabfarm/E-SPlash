@@ -208,6 +208,12 @@ void setup(){
   server.on("/style.css", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(SPIFFS, "/style.css", "text/css");
   });
+  server.on("/bootstrap.min.css", HTTP_GET, [](AsyncWebServerRequest *request) {
+    request->send(SPIFFS, "/bootstrap.min.css", "text/css");
+  });
+  server.on("/bootstrap.min.js", HTTP_GET, [](AsyncWebServerRequest *request) {
+    request->send(SPIFFS, "/bootstrap.min.js", "text/js");
+  });
   server.on("/all.css", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(SPIFFS, "/all.css", "text/css");
   });
