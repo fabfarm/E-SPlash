@@ -27,6 +27,7 @@ DynamicJsonDocument doc(jasonSize); // from arduinoJson
 #define _0_point_greenhouse
 //#define _0_point// prototype relays on board pcb designed with eagle
 //#define _1_point_0// second prototype no relays on board pcb designed with eagle
+
 #ifdef _0_point
   #define ds_3231
   //#define TTL_Logic_Low
@@ -52,6 +53,8 @@ DynamicJsonDocument doc(jasonSize); // from arduinoJson
   const char *soft_ap_password = "";
   // Set your Static IP address
   IPAddress local_IP(192, 168, 1, 22);
+  // Set your Static IP address also need to enable on the function
+  //IPAddress local_IP(192, 168, 1, 22);
 #endif
 #ifdef _0_point_1_main
   #define ds_1302
@@ -68,8 +71,8 @@ DynamicJsonDocument doc(jasonSize); // from arduinoJson
   
   const char *soft_ap_ssid = "irrigation_main";
   const char *soft_ap_password = "";
-  // Set your Static IP address
-  IPAddress local_IP(192, 168, 1, 23);
+  // Set your Static IP address also need to enable on the function
+  //IPAddress local_IP(192, 168, 1, 23);
 #endif
 #ifdef _1_point_0
   #define ds_3231
@@ -82,12 +85,12 @@ DynamicJsonDocument doc(jasonSize); // from arduinoJson
   const char* wifi_network_hostname = "test";
 
   const char* wifi_network_ssid = "fabfarm_ele_container";
-  const char* wifi_network_password =  "gerryforever2018";
+  const char* wifi_network_password =  "imakestuff";
   
   const char *soft_ap_ssid = "irrigation_test";
   const char *soft_ap_password = "";
-  // Set your Static IP address
-  IPAddress local_IP(192, 168, 1, 24);
+  // Set your Static IP address also need to enable on the function
+  //IPAddress local_IP(192, 168, 1, 24);
 #endif
 #ifdef _0_point_greenhouse
   #define ds_3231
@@ -108,10 +111,10 @@ DynamicJsonDocument doc(jasonSize); // from arduinoJson
   const char* wifi_network_ssid = "fabfarm_ele_container";
   const char* wifi_network_password =  "imakestuff";
   #endif
-  const char *soft_ap_ssid = "irrigation_greenhouse";
+  const char *soft_ap_ssid = "irrigation_greenhousetest";
   const char *soft_ap_password = "";
-  // Set your Static IP address
-  IPAddress local_IP(192, 168, 1, 25);
+  // Set your Static IP address also need to enable on the function
+  //IPAddress local_IP(192, 168, 1, 25);
 #endif
 
 //define the tipe of external RTC
@@ -718,9 +721,10 @@ void initWiFi()
   Serial.println("*****************************************************");
   Serial.print("* SoftAP IP is: ");
   Serial.println(WiFi.softAPIP());
-  if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS)) {
-    Serial.println("* STA Failed to configure");
-  }
+  // enable for Static IP address
+  //if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS)) {
+  //  Serial.println("* STA Failed to configure");
+  //}
   WiFi.begin(wifi_network_ssid, wifi_network_password);
   WiFi.setHostname(wifi_network_hostname);
   Serial.println("* Waiting for WIFI network...");
