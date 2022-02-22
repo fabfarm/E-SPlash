@@ -15,7 +15,9 @@
     />
   </head>
   <body>
-    <div class="container-fluid d-flex align-items-center flex-column">
+    <div
+      class="container-fluid position-relative d-flex align-items-center flex-column"
+    >
       <img src="/logo.png" class="rounded mx-auto d-block p-10 m-5" />
       <h1 class="display-1 main-title"><strong>Irrigation System</strong></h1>
       <div class="d-flex align-items-stretch w-100">
@@ -62,6 +64,46 @@
         onClick="location.href='/setuppage.html';"
         value="Setup Page"
       />
+      <div class="toast-container position-fixed">
+        <div
+          id="toast-error"
+          class="toast p-1 text-white bg-danger align-items-center"
+          style="display: none"
+        >
+          <div class="d-flex w-100">
+            <div class="toast-body" id="toast-error-body"></div>
+            <button
+              type="button"
+              class="btn-close btn-close-white me-2 m-auto"
+              data-bs-dismiss="toast-error"
+              aria-label="Close"
+              onClick="closeErrorToast()"
+            ></button>
+          </div>
+        </div>
+        <div
+          class="spinner-border spinner-container text-primary"
+          id="spinner-bottom-right"
+          role="status"
+        >
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <div
+          id="toast-success"
+          class="toast p-1 text-white bg-success align-items-center"
+          style="display: none"
+        >
+          <div class="d-flex w-100">
+            <div class="toast-body" id="toast-success-body">Success</div>
+            <button
+              type="button"
+              class="btn-close btn-close-white me-2 m-auto"
+              aria-label="Close"
+              onClick="closeSuccessToast()"
+            ></button>
+          </div>
+        </div>
+      </div>
     </div>
   </body>
   <script src="/script.js"></script>
@@ -74,5 +116,16 @@
   }
   .main-title {
     font-weight: bold;
+  }
+  .toast {
+    bottom: 0;
+    right: 5px;
+    position: fixed;
+  }
+  .spinner-container {
+    position: fixed;
+    bottom: 0;
+    right: 5px;
+    display: none;
   }
 </style>

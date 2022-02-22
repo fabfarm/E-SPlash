@@ -1,11 +1,12 @@
 {
-    "files.associations": {
-        "*.cps": "javascript",
-        "functional": "cpp",
-        "iosfwd": "cpp",
-        "sstream": "cpp",
-        "fstream": "cpp",
-        "string": "cpp",
-        "iostream": "cpp"
-    }
+  "files.associations": {
+    "*.cps": "javascript",
+    "functional": "cpp",
+    "iosfwd": "cpp",
+    "sstream": "cpp",
+    "fstream": "cpp",
+    "string": "cpp",
+    "iostream": "cpp"
+  },
+  "C_Cpp.errorSquiggles": "Disabled"
 }

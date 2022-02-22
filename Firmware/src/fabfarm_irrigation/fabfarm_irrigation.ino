@@ -265,7 +265,8 @@ void setup(){
     request->send(200, "application/json", jsonReply);
   });
   
-  AsyncCallbackJsonWebHandler *handler = new AsyncCallbackJsonWebHandler("/updateData", 
+  // Update data general
+  AsyncCallbackJsonWebHandler *updateData = new AsyncCallbackJsonWebHandler("/updateData", 
   [](AsyncWebServerRequest *request, JsonVariant &json) {
     doc = json.as<JsonObject>();
     String jsonString;
@@ -288,7 +289,216 @@ void setup(){
       Serial.println(jsonString);
       Serial.println("-------------------");
     });
-  server.addHandler(handler);
+
+  // Update scheduling mode
+    AsyncCallbackJsonWebHandler *updateSchedulingMode = new AsyncCallbackJsonWebHandler("/update/scheduling-mode", 
+  [](AsyncWebServerRequest *request, JsonVariant &json) {
+    doc["data"]["isScheduleMode"].set(json["value"]);
+    String jsonString;
+    serializeJson(doc, jsonString);
+
+    //write this to disk
+    //Read json from the file ...
+    Serial.println("Saving to disk - BEGIN");
+    File f = SPIFFS.open("/data.json", "w");
+    if (!f)
+    {
+      Serial.println("Failed to open file for writing");
+    }
+      int bytesWritten = f.print(jsonString);
+      f.close();
+      Serial.printf("Saving to disk - COMPLETE(%d bytes)\n", bytesWritten);
+
+      request->send(200); // "application/json", jsonString);
+      Serial.println("-------------------");
+      Serial.println(jsonString);
+      Serial.println("-------------------");
+    });
+
+  // Update relay enabled - MANUAL MODE
+    AsyncCallbackJsonWebHandler *updateRelayEnabled = new AsyncCallbackJsonWebHandler("/update/relay-enable", 
+  [](AsyncWebServerRequest *request, JsonVariant &json) {
+    doc["relays"][json["relayIndex"]]["isEnabled"].set(json["enabled"]);
+    String jsonString;
+    serializeJson(doc, jsonString);
+
+    //write this to disk
+    //Read json from the file ...
+    Serial.println("Saving to disk - BEGIN");
+    File f = SPIFFS.open("/data.json", "w");
+    if (!f)
+    {
+      Serial.println("Failed to open file for writing");
+    }
+      int bytesWritten = f.print(jsonString);
+      f.close();
+      Serial.printf("Saving to disk - COMPLETE(%d bytes)\n", bytesWritten);
+
+      request->send(200); // "application/json", jsonString);
+      Serial.println("-------------------");
+      Serial.println(jsonString);
+      Serial.println("-------------------");
+    });
+  
+  // Update relay times - AUTOMATIC MODE
+    AsyncCallbackJsonWebHandler *updateRelayTime = new AsyncCallbackJsonWebHandler("/update/relay-time", 
+  [](AsyncWebServerRequest *request, JsonVariant &json) {
+    doc["relays"][json["relayIndex"]]["times"][json["timeIndex"]]["startTime"].set(json["startTime"]);
+    doc["relays"][json["relayIndex"]]["times"][json["timeIndex"]]["duration"].set(json["duration"]);
+    String jsonString;
+    serializeJson(doc, jsonString);
+
+    //write this to disk
+    //Read json from the file ...
+    Serial.println("Saving to disk - BEGIN");
+    File f = SPIFFS.open("/data.json", "w");
+    if (!f)
+    {
+      Serial.println("Failed to open file for writing");
+    }
+      int bytesWritten = f.print(jsonString);
+      f.close();
+      Serial.printf("Saving to disk - COMPLETE(%d bytes)\n", bytesWritten);
+
+      request->send(200); // "application/json", jsonString);
+      Serial.println("-------------------");
+      Serial.println(jsonString);
+      Serial.println("-------------------");
+    });
+
+  // Add new relay time
+  AsyncCallbackJsonWebHandler *addRelayTime = new AsyncCallbackJsonWebHandler("/add/relay-time", 
+  [](AsyncWebServerRequest *request, JsonVariant &json) {
+    JsonObject nested = doc["relays"][json["relayIndex"]]["times"].as<JsonArray>().createNestedObject();
+    nested["startTime"] = "10:00";
+    nested["duration"] = 30;
+
+    String jsonString;
+    serializeJson(doc, jsonString);
+
+    //write this to disk
+    //Read json from the file ...
+    Serial.println("Saving to disk - BEGIN");
+    File f = SPIFFS.open("/data.json", "w");
+    if (!f)
+    {
+      Serial.println("Failed to open file for writing");
+    }
+      int bytesWritten = f.print(jsonString);
+      f.close();
+      Serial.printf("Saving to disk - COMPLETE(%d bytes)\n", bytesWritten);
+
+      request->send(200); // "application/json", jsonString);
+      Serial.println("-------------------");
+      Serial.println(jsonString);
+      Serial.println("-------------------");
+    });
+  
+  // Remove relay time
+  AsyncCallbackJsonWebHandler *removeRelayTime = new AsyncCallbackJsonWebHandler("/remove/relay-time", 
+  [](AsyncWebServerRequest *request, JsonVariant &json) {
+    doc["relays"][json["relayIndex"]]["times"].as<JsonArray>().remove(json["timeIndex"].as<size_t>());
+
+    String jsonString;
+    serializeJson(doc, jsonString);
+
+    //write this to disk
+    //Read json from the file ...
+    Serial.println("Saving to disk - BEGIN");
+    File f = SPIFFS.open("/data.json", "w");
+    if (!f)
+    {
+      Serial.println("Failed to open file for writing");
+    }
+      int bytesWritten = f.print(jsonString);
+      f.close();
+      Serial.printf("Saving to disk - COMPLETE(%d bytes)\n", bytesWritten);
+
+      request->send(200); // "application/json", jsonString);
+      Serial.println("-------------------");
+      Serial.println(jsonString);
+      Serial.println("-------------------");
+    });
+
+  // Add new relay
+  AsyncCallbackJsonWebHandler *addRelay = new AsyncCallbackJsonWebHandler("/add/relay", 
+  [](AsyncWebServerRequest *request, JsonVariant &json) {
+    JsonObject nested = doc["relays"].as<JsonArray>().createNestedObject();
+
+    // compute the required size
+    const size_t CAPACITY = JSON_ARRAY_SIZE(3);
+
+    // allocate the memory for the document
+    StaticJsonDocument<CAPACITY> newArray;
+
+    // create an empty array
+    JsonArray array = newArray.to<JsonArray>();
+    JsonObject newTime = array.createNestedObject();
+    // create an empty array
+    newTime["startTime"] = "10:00";
+    newTime["duration"] = 30;
+    nested["times"] = array;
+
+
+    nested["name"] = json["name"];
+    nested["pin"] = json["pin"];
+    nested["isEnabled"] = 0;
+
+    String jsonString;
+    serializeJson(doc, jsonString);
+
+    //write this to disk
+    //Read json from the file ...
+    Serial.println("Saving to disk - BEGIN");
+    File f = SPIFFS.open("/data.json", "w");
+    if (!f)
+    {
+      Serial.println("Failed to open file for writing");
+    }
+      int bytesWritten = f.print(jsonString);
+      f.close();
+      Serial.printf("Saving to disk - COMPLETE(%d bytes)\n", bytesWritten);
+
+      request->send(200); // "application/json", jsonString);
+      Serial.println("-------------------");
+      Serial.println(jsonString);
+      Serial.println("-------------------");
+    });
+  
+  // Remove relay
+  AsyncCallbackJsonWebHandler *removeRelay = new AsyncCallbackJsonWebHandler("/remove/relay", 
+  [](AsyncWebServerRequest *request, JsonVariant &json) {
+    doc["relays"].as<JsonArray>().remove(json["relayIndex"].as<size_t>());
+
+    String jsonString;
+    serializeJson(doc, jsonString);
+
+    //write this to disk
+    //Read json from the file ...
+    Serial.println("Saving to disk - BEGIN");
+    File f = SPIFFS.open("/data.json", "w");
+    if (!f)
+    {
+      Serial.println("Failed to open file for writing");
+    }
+      int bytesWritten = f.print(jsonString);
+      f.close();
+      Serial.printf("Saving to disk - COMPLETE(%d bytes)\n", bytesWritten);
+
+      request->send(200); // "application/json", jsonString);
+      Serial.println("-------------------");
+      Serial.println(jsonString);
+      Serial.println("-------------------");
+    });
+
+  server.addHandler(updateData);
+  server.addHandler(updateSchedulingMode);
+  server.addHandler(updateRelayEnabled);
+  server.addHandler(updateRelayTime);
+  server.addHandler(addRelayTime);
+  server.addHandler(removeRelayTime);
+  server.addHandler(addRelay);
+  server.addHandler(removeRelay);
 
   // Start ElegantOTA
   AsyncElegantOTA.begin(&server);
