@@ -167,7 +167,7 @@ void setup(){
   Serial.begin(9600);
 
   // Initialize WiFi
-  void initWiFi();
+  initWiFi();
 
   // Start the HTTP server
   server.begin();
