@@ -17,16 +17,18 @@
 #include <WiFi.h>
 
 ESP32Time rtc;
+
+//#define stactic_IP                //uncommment to define IP as stactic
 const char *dataFile = "data.json"; // read / write JSON to save state
 AsyncWebServer server(80);          // Specify the port of the Async server
 int jasonSize = 1800;               // Specifying the capacity of the JSON in bytes.
 DynamicJsonDocument doc(jasonSize); // from arduinoJson
 
 // Choosing the type of board if 0.1(_0_point_1) or 1.0(_1_point_0)
-//#define _0_point_1_main
-#define _0_point_greenhouse
-//#define _0_point    // prototype relays on board pcb designed with eagle
-//#define _1_point_0  // second prototype no relays on board pcb designed with eagle
+//#define _0_point_1_main   // breadboard deployed in the lake irrigation
+#define _0_point_greenhouse // breadboard deployed in the greenhouse irrigation
+//#define _0_point          // prototype relays on board pcb designed with eagle
+//#define _1_point_0        // second prototype no relays on board pcb designed with eagle
 
 // Board specific configuration settings
 #ifdef _0_point
@@ -54,7 +56,9 @@ DynamicJsonDocument doc(jasonSize); // from arduinoJson
   const char *soft_ap_ssid = "irrigation_main_prototype";
   const char *soft_ap_password = "";
   // Set your Static IP address
+  #ifdef stactic_IP
   IPAddress local_IP(192, 168, 1, 22);
+  #endif
 #endif
 #ifdef _0_point_1_main
   // Define the type of external RTC
@@ -73,7 +77,9 @@ DynamicJsonDocument doc(jasonSize); // from arduinoJson
   const char *soft_ap_ssid = "irrigation_main";
   const char *soft_ap_password = "";
   // Set your Static IP address
+  #ifdef stacticIP
   IPAddress local_IP(192, 168, 1, 23);
+  #endif
 #endif
 #ifdef _1_point_0
   // Define the type of external RTC
@@ -92,7 +98,9 @@ DynamicJsonDocument doc(jasonSize); // from arduinoJson
   const char *soft_ap_ssid = "irrigation_test";
   const char *soft_ap_password = "";
   // Set your Static IP address
+  #ifdef stacticIP
   IPAddress local_IP(192, 168, 1, 24);
+  #endif
 #endif
 #ifdef _0_point_greenhouse
   // Define the type of external RTC
@@ -104,8 +112,8 @@ DynamicJsonDocument doc(jasonSize); // from arduinoJson
   int batVoltPin = 35;
 
   const char* wifi_network_hostname = "greenhousetestboard";
-  // #define casa
-  #define container
+  #define casa
+  //#define container
   #ifdef casa
   const char* wifi_network_ssid = "ratinho_do_malandro";
   const char* wifi_network_password =  "gerryforever2018";
@@ -116,8 +124,10 @@ DynamicJsonDocument doc(jasonSize); // from arduinoJson
   #endif
   const char *soft_ap_ssid = "irrigation_greenhouse";
   const char *soft_ap_password = "";
-  // Set your Static IP address
+  // uncoment to set your Static IP address
+  #ifdef stactic_IP
   IPAddress local_IP(192, 168, 1, 25);
+  #endif
 #endif
 
 // External RTC specific configuration settings
@@ -786,9 +796,11 @@ void initWiFi()
   Serial.println("*****************************************************");
   Serial.print(  "* SoftAP IP is: ");
   Serial.println(WiFi.softAPIP());
-  if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS)) {
+  #ifdef stacticIP
+    if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS)) {
     Serial.println("* STA Failed to configure");
-  }
+    }
+  #endif
   WiFi.begin(wifi_network_ssid, wifi_network_password);
   WiFi.setHostname(wifi_network_hostname);
   Serial.println("* Waiting for WIFI network...");
