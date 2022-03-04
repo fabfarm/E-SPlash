@@ -1,5 +1,5 @@
 /*
- * This code is part of a Irrigation Sytem developed as my final project,
+ * This code is part of a Irrigation System developed as my final project,
  * in the Fabacademy course, full documentation can be viewed on the link:
  * http://fabacademy.org/2020/labs/algarve/students/lucio/index.html
  * 
@@ -17,23 +17,27 @@
 #include <WiFi.h>
 
 ESP32Time rtc;
-const char *dataFile = "data.json";// read / write json to save state
-AsyncWebServer server(80);// Specify the port of the Async server
-int jasonSize = 1800;// Specifing the capacity of the json in bytes.
+
+//#define stactic_IP                //uncommment to define IP as stactic
+const char *dataFile = "data.json"; // read / write JSON to save state
+AsyncWebServer server(80);          // Specify the port of the Async server
+int jasonSize = 1800;               // Specifying the capacity of the JSON in bytes.
 DynamicJsonDocument doc(jasonSize); // from arduinoJson
 
-//chosing the type of board if 0.1(_0_point_1) or 1.0(_1_point_0)
-//#define _0_point_1_main
-#define _0_point_greenhouse
-//#define _0_point// prototype relays on board pcb designed with eagle
-//#define _1_point_0// second prototype no relays on board pcb designed with eagle
+// Choosing the type of board if 0.1(_0_point_1) or 1.0(_1_point_0)
+//#define _0_point_1_main   // breadboard deployed in the lake irrigation
+#define _0_point_greenhouse // breadboard deployed in the greenhouse irrigation
+//#define _0_point          // prototype relays on board pcb designed with eagle
+//#define _1_point_0        // second prototype no relays on board pcb designed with eagle
 
+// Board specific configuration settings
 #ifdef _0_point
+  // Define the type of external RTC
   #define ds_3231
   //#define TTL_Logic_Low
-  //Defining pump pin number
+  // Defining pump pin number
   int pumpPinNumber = 13;
-  //Define Voltage read pin number
+  // Define Voltage read pin number
   int batVoltPin = 35;
 
   const char* wifi_network_hostname = "test";
@@ -52,16 +56,17 @@ DynamicJsonDocument doc(jasonSize); // from arduinoJson
   const char *soft_ap_ssid = "irrigation_main_prototype";
   const char *soft_ap_password = "";
   // Set your Static IP address
+  #ifdef stactic_IP
   IPAddress local_IP(192, 168, 1, 22);
-  // Set your Static IP address also need to enable on the function
-  //IPAddress local_IP(192, 168, 1, 22);
+  #endif
 #endif
 #ifdef _0_point_1_main
+  // Define the type of external RTC
   #define ds_1302
   #define TTL_Logic_Low
-  //Defining pump pin number
+  // Defining pump pin number
   int pumpPinNumber = 33;
-  //Define Voltage read pin number
+  // Define Voltage read pin number
   int batVoltPin = 35;
 
   const char* wifi_network_hostname = "irrigationmain";
@@ -71,15 +76,18 @@ DynamicJsonDocument doc(jasonSize); // from arduinoJson
   
   const char *soft_ap_ssid = "irrigation_main";
   const char *soft_ap_password = "";
-  // Set your Static IP address also need to enable on the function
-  //IPAddress local_IP(192, 168, 1, 23);
+  // Set your Static IP address
+  #ifdef stacticIP
+  IPAddress local_IP(192, 168, 1, 23);
+  #endif
 #endif
 #ifdef _1_point_0
+  // Define the type of external RTC
   #define ds_3231
   #define TTL_Logic_Low
-  //Defining pump pin number
+  // Defining pump pin number
   int pumpPinNumber = 33;
-  //Define Voltage read pin number
+  // Define Voltage read pin number
   int batVoltPin = 35;
 
   const char* wifi_network_hostname = "test";
@@ -89,20 +97,23 @@ DynamicJsonDocument doc(jasonSize); // from arduinoJson
   
   const char *soft_ap_ssid = "irrigation_test";
   const char *soft_ap_password = "";
-  // Set your Static IP address also need to enable on the function
-  //IPAddress local_IP(192, 168, 1, 24);
+  // Set your Static IP address
+  #ifdef stacticIP
+  IPAddress local_IP(192, 168, 1, 24);
+  #endif
 #endif
 #ifdef _0_point_greenhouse
+  // Define the type of external RTC
   #define ds_3231
   #define TTL_Logic_Low
-  //Defining pump pin number
+  // Defining pump pin number
   int pumpPinNumber = 13;
-  //Define Voltage read pin number
+  // Define Voltage read pin number
   int batVoltPin = 35;
 
   const char* wifi_network_hostname = "greenhousetestboard";
-  // #define casa
-  #define container
+  #define casa
+  //#define container
   #ifdef casa
   const char* wifi_network_ssid = "ratinho_do_malandro";
   const char* wifi_network_password =  "gerryforever2018";
@@ -113,13 +124,13 @@ DynamicJsonDocument doc(jasonSize); // from arduinoJson
   #endif
   const char *soft_ap_ssid = "irrigation_greenhousetest";
   const char *soft_ap_password = "";
-  // Set your Static IP address also need to enable on the function
-  //IPAddress local_IP(192, 168, 1, 25);
+  // uncoment to set your Static IP address
+  #ifdef stactic_IP
+  IPAddress local_IP(192, 168, 1, 25);
+  #endif
 #endif
 
-//define the tipe of external RTC
-
-//
+// External RTC specific configuration settings
 #ifdef ds_3231
   #include <Wire.h>
   #include <RtcDS3231.h>
@@ -134,8 +145,7 @@ DynamicJsonDocument doc(jasonSize); // from arduinoJson
   RtcDS1302<ThreeWire> Rtc(myWire);
 #endif
 
-//included option to use relays with TTL Logic LOW. Comment to use high
-
+// Included option to use relays with TTL Logic LOW. Comment to use high
 #ifdef TTL_Logic_Low
   #define ON   LOW
   #define OFF  HIGH
@@ -163,51 +173,71 @@ IPAddress secondaryDNS(8, 8, 4, 4); //optional
 //**************************************************************************************************************
 
 void setup(){
+  // Configure the serial monitor
   Serial.begin(9600);
-  initWiFi();  //function with wifi settings and initialisation
-  server.begin();// Start server
-  allRelaysdisable();  //put all relays in LOW at startup: (question? does it reactivates unatendelly like previously noted?)
-  compileTimePrinting(); //prints compile time at serial monitor
-  //external rtc initiation
+
+  // Initialize WiFi
+  initWiFi();
+
+  // Start the HTTP server
+  server.begin();
+
+  // Put all relays in LOW at startup
+  //TODO: (question? does it reactivates unatendelly like previously noted?)
+  allRelaysdisable();
+
+  // Prints compile time to serial monitor
+  compileTimePrinting();
+
+  // Initialize external Real Time Clock
   #ifdef ds_3231
   Wire.begin(sdaPin, sclPin); // SDA, SCL
   #endif
-
   Rtc.Begin();
-  first_rtc_function();  //this function will do a series of logical tests on external rtc in order to set its time in case is needed and print then  status
+
+  // Setup Real Time Clock
+  setupRTC();
   
-  //Initialize SPIFFS (file system)
+  // Initialize SPIFFS (file system)
   if (!SPIFFS.begin(true)){
     Serial.println("An Error has occurred while mounting SPIFFS");
     return;
   }
-  createDataJson();//creates a data.json file in case it does not exist
+  // Create a data.json file in case it does not exist
+  createDataJson();
 
-  // we always read the data.json from disk on startup (always!)
-  // If freshlly burned we have to send the sample json... TODO: generate json if not existent
-  // open the json file with the name "data.json" from SPIFFS ...
+  // We always read the data.json from disk on startup (always!)
+  // If freshlly burned we have to send the sample JSON...
+  //TODO: generate JSON if not existent
+
+  // Open the JSON file with the name "data.json" from SPIFFS ...
   File f = SPIFFS.open("/data.json", "r");
-  // Declares a String named json from the data contained in f????
+  // Read JSON string from JSON file into memory
+  Serial.println("Read JSON file - BEGIN");
   String json = f.readString();
-  Serial.println("read file - BEGIN");
   Serial.println(json);
-  Serial.println("read file - COMPLETE");
-  f.close();  //closes the file
+  Serial.println("Read JSON file - COMPLETE");
+  // Close the JSON file
+  f.close();
 
-
-  // we take json from memory & create json object
-  Serial.println("json deserialize test - BEGIN");
+  // We take JSON from memory & create JSON object
+  Serial.println("JSON deserialize - BEGIN");
   deserializeJson(doc, json);
+  Serial.println("JSON deserialize - COMPLETE");
 
+  /*
+   * Define HTTP server paths
+   */
   // Route for root / web page
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(SPIFFS, "/index.html", String(), false);
   });
   // Route for setup page / web page
   server.on("/setuppage.html", HTTP_GET, [] (AsyncWebServerRequest *request) {
-    request->send(SPIFFS,"/setuppage.html", String(), false);
+    request->send(SPIFFS, "/setuppage.html", String(), false);
   });
-  // Route to load style.css file
+
+  // Routes to CSS, fonts and image files
   server.on("/style.css", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(SPIFFS, "/style.css", "text/css");
   });
@@ -220,49 +250,52 @@ void setup(){
   server.on("/all.css", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(SPIFFS, "/all.css", "text/css");
   });
-    server.on("/fa-solid-900.woff2", HTTP_GET, [](AsyncWebServerRequest * request) {
-      Serial.println("Send : fa-solid-900 css");
+  server.on("/fa-solid-900.woff2", HTTP_GET, [](AsyncWebServerRequest * request) {
+    Serial.println("Send : fa-solid-900 css");
     request->send(SPIFFS, "/fa-solid-900.woff2", "application/x-font-woff2");
-      Serial.println("Sended : fa-solid-900 css");
+    Serial.println("Sended : fa-solid-900 css");
   });
-    server.on("/fa-solid-900.woff", HTTP_GET, [](AsyncWebServerRequest * request) {
-      Serial.println("Send : fa-solid-900 css");
+  server.on("/fa-solid-900.woff", HTTP_GET, [](AsyncWebServerRequest * request) {
+    Serial.println("Send : fa-solid-900 css");
     request->send(SPIFFS, "/fa-solid-900.woff", "application/x-font-woff");
-      Serial.println("Sended : fa-solid-900 css");
+    Serial.println("Sended : fa-solid-900 css");
   });
-    server.on("/fa-solid-900.ttf", HTTP_GET, [](AsyncWebServerRequest * request) {
-      Serial.println("Send : fa-solid-900 css");
+  server.on("/fa-solid-900.ttf", HTTP_GET, [](AsyncWebServerRequest * request) {
+    Serial.println("Send : fa-solid-900 css");
     request->send(SPIFFS, "/fa-solid-900.ttf", "application/x-font-ttf");
-      Serial.println("Sended : fa-solid-900 css");
+    Serial.println("Sended : fa-solid-900 css");
   });
   server.on("/favicon.ico", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(SPIFFS, "/logo.png", "image/png");
   });
-    // Route to load images file
   server.on("/logo.png", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(SPIFFS, "/logo.png", "image/png");
   });
+
+  // Route to javaScript file
   server.on("/script.js", HTTP_GET, [](AsyncWebServerRequest *request) {
-      request->send(SPIFFS, "/script.js", "text/javascript");
+    request->send(SPIFFS, "/script.js", "text/javascript");
   });
-  // Route to 
+
+  // Routes to data end-points
   server.on("/getData", HTTP_GET, [](AsyncWebServerRequest *request)
   {
     Serial.println("/getData");
     DynamicJsonDocument data = doc;
-    // create a copy of the data set, modify it, serialize it and then send to the browser
-    // this had to be changed as the serialization cleared the content of the jsondocument "doc"
 
+    // Create a copy of the data set, modify it, serialize it and then send to the browser
+    // this had to be changed as the serialization cleared the content of the jsondocument "doc"
     data["data"]["currentTime"] = rtc.getTime("%A, %B %d %Y %H:%M");
     data["data"]["temperature"] = readDHTTemperature();
-    data["data"]["humidity"] = readDHTHumidity();
-    data["data"]["batLevel"] = batLevel();
+    data["data"]["humidity"]    = readDHTHumidity();
+    data["data"]["batLevel"]    = batLevel();
+
     char jsonReply[1800];
-    Serial.println("Serialize json & return to caller - BEGIN");
+    Serial.println("Serialize JSON & return to caller - BEGIN");
     serializeJson(data, jsonReply);
     Serial.println(jsonReply);
-    Serial.println("Serialize json & return to caller - COMPLETE");
-    request->send(200, "application/json", jsonReply);
+    request->send(200, "application/json", jsonReply); // OK
+    Serial.println("Serialize JSON & return to caller - COMPLETE");
   });
   
   // Update data general
@@ -272,17 +305,23 @@ void setup(){
     String jsonString;
     serializeJson(doc, jsonString);
 
-    //write this to disk
-    //Read json from the file ...
+    // Write this to disk
+    // Read JSON from the file ...
     Serial.println("Saving to disk - BEGIN");
     File f = SPIFFS.open("/data.json", "w");
     if (!f)
     {
       Serial.println("Failed to open file for writing");
+      Serial.println("Saving to disk - FAILED");
+      request->send(500); // Internal Server Error
     }
+    else
+    {
       int bytesWritten = f.print(jsonString);
       f.close();
       Serial.printf("Saving to disk - COMPLETE(%d bytes)\n", bytesWritten);
+      request->send(200); // OK
+    }
 
       request->send(200); // "application/json", jsonString);
       Serial.println("-------------------");
@@ -500,9 +539,8 @@ void setup(){
   server.addHandler(addRelay);
   server.addHandler(removeRelay);
 
-  // Start ElegantOTA
+  // Start ElegantOTA for Over The Air updates
   AsyncElegantOTA.begin(&server);
-
 }
 
 //**************************************************************************************************************
@@ -510,8 +548,7 @@ void setup(){
 //**************************************************************************************************************
 
 void loop(){
-  
-  //testRtcOnLoop();  //uncomment testRtcOnLoop() to display time every second on serial monitor
+  //testRtcOnLoop();  // Uncomment testRtcOnLoop() to display time every second on serial monitor
 
   AsyncElegantOTA.loop();
 
@@ -532,25 +569,30 @@ void loop(){
 //***********Bellow here only functions*************************************************************************
 //**************************************************************************************************************
 
-//This function simply prints the compile time.
+/*
+ * This function simply prints the compile time to serial monitor
+ */
 void compileTimePrinting(){
   Serial.println("*****************************************************");
-  Serial.print("* This program was Compiled on: ");
-  Serial.print(__DATE__);
-  Serial.print(" at ");
+  Serial.print(  "* This program was Compiled on: ");
+  Serial.print(   __DATE__);
+  Serial.print(  " at ");
   Serial.println(__TIME__);
   Serial.println("*****************************************************");
   Serial.println();
 }
-//This function creates a file data.json based on the file sample.json in case the data.json does not exists.
+
+/*
+ * This function creates a file data.json based on the file sample.json in case the data.json does not exists.
+ */
 void createDataJson() {
-  Serial.println("Starting looking for Json file");
+  Serial.println("Starting looking for JSON file");
   if (!SPIFFS.begin(true)) {
     Serial.println("An Error has occurred while mounting SPIFFS");
     return;
   }
   if(!SPIFFS.exists("/data.json")){
-    Serial.println("data.json doe not exist! Creating it now!");
+    Serial.println("data.json does not exist! Creating it now!");
     File dataJsonReadfile = SPIFFS.open("/sample.json", "r");
     String fileString = dataJsonReadfile.readString();
     dataJsonReadfile.close();
@@ -564,9 +606,9 @@ void createDataJson() {
     return;
   }
 }
-void scheduleMode(){
 
-  //matrix logic test
+void scheduleMode() {
+  // matrix logic test
   JsonArray relays = doc["relays"];
   for (int i = 0; i < relays.size(); i++){
     int flagEnableRelay = 0;
@@ -575,7 +617,7 @@ void scheduleMode(){
       int hOurs = relays[i]["times"][j]["hour"];
       int mIns = relays[i]["times"][j]["min"];
       int cycleDuration = relays[i]["times"][j]["duration"];
-      //Probabilly should learn about bitwise... https://playground.arduino.cc/Code/BitMath/
+      // Probably should learn about bitwise... https://playground.arduino.cc/Code/BitMath/
       if (isEnabledFunc(hOurs*60+mIns, cycleDuration) == 1)
       {
         ++flagEnableRelay;
@@ -612,9 +654,9 @@ void scheduleMode(){
     }
   }
 }
+
 void manualMode()
 {
-  
   JsonArray relays = doc["relays"];
   for (int i = 0; i < relays.size(); i++)
   {
@@ -647,10 +689,13 @@ void manualMode()
   }
 }
 
-//function to deactivate all pins usefull for safe startup not finished yet
+/*
+ * Function to deactivate all pins useful for safe startup not finished yet
+ */
 void allRelaysdisable(){
-  pinMode (pumpPinNumber, OUTPUT);  //defining behaviour of pumpPinNumber and its startup state
-  digitalWrite (pumpPinNumber, OFF);
+  // Defining behaviour of pumpPinNumber and its startup state
+  pinMode(pumpPinNumber, OUTPUT);
+  digitalWrite(pumpPinNumber, OFF);
   //JsonObject data = doc["data"];
   JsonArray relays = doc["relays"];
   for (int p = 0; p < relays.size(); p++)
@@ -661,10 +706,12 @@ void allRelaysdisable(){
   }
 }
 
-//This function reads the temperature sensor data from the DHT
+/*
+ * This function reads the temperature sensor data from the DHT
+ */
 String readDHTTemperature()
 {
-  //Send the pin and type of sensor
+  // Send the pin and type of sensor
   DHT dht(DHTPIN, DHTTYPE);
   // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
   // Read temperature as Celsius (the default)
@@ -684,7 +731,9 @@ String readDHTTemperature()
   }
 }
 
-//This function reads the humidity sensor data from the DHT
+/*
+ * This function reads the humidity sensor data from the DHT
+ */
 String readDHTHumidity()
 {
   DHT dht(DHTPIN, DHTTYPE);
@@ -701,11 +750,12 @@ String readDHTHumidity()
     return String(h);
   }
 }
-// function is used to evaluate if a certain relay should be low or hight depending on the time it was set to run
+
+/*
+ * Function is used to evaluate if a certain relay should be low or high depending on the time it was set to run
+ */
 int isEnabledFunc (int startTimeInMinutes, int duration)
 {
-
-
   int onlyHour;
   int onlyMin;
 
@@ -724,22 +774,31 @@ int isEnabledFunc (int startTimeInMinutes, int duration)
   return isEnabled;
 }
 
-//This function reads the battery level voltage in order to determine battery percentage
+/*
+ * This function reads the battery level voltage in order to determine battery percentage
+ */
 float batLevel(){
   analogRead(batVoltPin);
+
+  // Calculate the battery percentage
   float batteryLevel = map(analogRead(batVoltPin), 0.0f, 1866.0f, 0, 100);
+
   if (batteryLevel >= 100) {
-    return 100;
+	  return 100;
   }
   else
   {
-    Serial.print("Batery Level: ");
-    Serial.print(batteryLevel);
+    // Print the battery level to the serial monitor
+    Serial.print(  "Battery Level: ");
+    Serial.print(  batteryLevel);
     Serial.println("%");
     return batteryLevel;
-  }  
+  }
 }
-//This function assigns local time based on an internet server
+
+/*
+ * This function assigns local time based on an internet server
+ */
 void AssignLocalTime(){
   int THour; 
   int TMin; 
@@ -781,7 +840,13 @@ void printDateTime(const RtcDateTime& dt)
   Serial.println(datestring);
 }
 
-//Function to update internal RTC using External RTC
+/*
+ * Real Time Clock (RTC) functions
+ */
+
+/*
+ * Function to update the internal RTC with the time from the external RTC
+ */
 void updateInternalRTC(const RtcDateTime& dt)
 {
   char datestring[20];
@@ -799,28 +864,31 @@ void updateInternalRTC(const RtcDateTime& dt)
 
   Serial.println("*****************************************************");
   Serial.println("* Function updateInternalRTC()");
-  Serial.print("* Time from external RTC: ");
+  Serial.print(  "* Time from external RTC: ");
   Serial.println(datestring);
   Serial.println("* This function updates the internal RTC with the time");
   Serial.println("* from the external RTC");
   Serial.println("*****************************************************");
 }
 
-//This function
-void first_rtc_function()
+/*
+ * This function will do a series of logical tests on the external Real Time Clock
+ * in order to set its time in case is needed and print then status
+ */
+void setupRTC()
 { 
   Serial.println("*****************************************************");
-  Serial.println("* Running function first_rtc_function()");
+  Serial.println("* Running function setupRTC()");
   RtcDateTime compiled = RtcDateTime(__DATE__, __TIME__);
   // Print the Time before updated from external RTC
   Serial.println("* ");
-  Serial.print("* Time from internal RTC on boot:");
+  Serial.print(  "* Time from internal RTC on boot:");
   Serial.println(rtc.getTime("%A, %B %d %Y %H:%M:%S"));
   // Configure internal RTC from external rtc time
   updateInternalRTC(Rtc.GetDateTime());
   // Print the Time updated from external RTC
   Serial.println("* ");
-  Serial.print("* Time from internal RTC after external RTC update: ");
+  Serial.print(  "* Time from internal RTC after external RTC update: ");
   Serial.println(rtc.getTime("%A, %B %d %Y %H:%M:%S"));
 
   if (!Rtc.IsDateTimeValid()) 
@@ -861,19 +929,21 @@ void first_rtc_function()
   {
       Serial.println("* RTC is the same as compile time! (not expected but all is fine)");
   }
-      Serial.println("*");
+  Serial.println("*");
 
   Serial.println("* END of data from first external RTC function");
   Serial.println("*****************************************************");
 }
-//This function prints the clock on serial monitor with a predetermined interval
 
+/*
+ * This function prints the clock on serial monitor with a predetermined interval
+ */
 void testRtcOnLoop(){
-  //this data is for the functions that need an interval and use millis to instead of delay 
+  // This data is for the functions that need an interval and use millis to instead of delay
   unsigned long previousMillis = 0;
   const long printTimeInterval = 10000;
 
-  Serial.println("This data comes from void testRtcOnLoop() time will apear only every 1 second" );
+  Serial.println("This data comes from void testRtcOnLoop() time will appear only every 1 second" );
   unsigned long currentMillis = millis();
   if (currentMillis - previousMillis >= printTimeInterval) 
   {
@@ -899,9 +969,9 @@ void Get_IPAddress(WiFiEvent_t event, WiFiEventInfo_t info){
   Serial.println("");
   Serial.println("*****************************************************");
   Serial.println("* WIFI is connected!");
-  Serial.print("* The IP address is: ");
+  Serial.print(  "* The IP address is: ");
   Serial.println(WiFi.localIP());
-  Serial.print("* The hostname is: ");
+  Serial.print(  "* The hostname is: ");
   Serial.println(WiFi.getHostname());
   Serial.println("*****************************************************");
   Serial.println("");
@@ -910,31 +980,38 @@ void Get_IPAddress(WiFiEvent_t event, WiFiEventInfo_t info){
 void Wifi_disconnected(WiFiEvent_t event, WiFiEventInfo_t info){
   Serial.println("");
   Serial.println("*****************************************************");
-  Serial.println("* Disconnected from WIFI access point");
-  Serial.print("* WiFi lost connection. Reason: ");
+  Serial.println("* Disconnected from WIFI Access Point");
+  Serial.print(  "* WiFi lost connection. Reason: ");
   Serial.println(info.disconnected.reason);
   Serial.println("* Reconnecting...");
   WiFi.begin(wifi_network_ssid, wifi_network_password);
   Serial.println("*****************************************************");
-
 }
-//This function initiates wifi
+
+/*
+ * Function with WiFi settings and initialisation
+ */
 void initWiFi()
 {
   WiFi.mode(WIFI_MODE_APSTA);
+
+  // Disconnect the WiFi
   WiFi.disconnect(true);
   WiFi.onEvent(Wifi_connected,SYSTEM_EVENT_STA_CONNECTED);
   WiFi.onEvent(Get_IPAddress, SYSTEM_EVENT_STA_GOT_IP);
   WiFi.onEvent(Wifi_disconnected, SYSTEM_EVENT_STA_DISCONNECTED); 
   WiFi.softAP(soft_ap_ssid, soft_ap_password, 3);
+
+  // Print WiFi configuration to serial monitor
   Serial.println();
   Serial.println("*****************************************************");
-  Serial.print("* SoftAP IP is: ");
+  Serial.print(  "* SoftAP IP is: ");
   Serial.println(WiFi.softAPIP());
-  // enable for Static IP address
-  //if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS)) {
-  //  Serial.println("* STA Failed to configure");
-  //}
+  #ifdef stacticIP
+    if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS)) {
+    Serial.println("* STA Failed to configure");
+    }
+  #endif
   WiFi.begin(wifi_network_ssid, wifi_network_password);
   WiFi.setHostname(wifi_network_hostname);
   Serial.println("* Waiting for WIFI network...");
@@ -944,10 +1021,16 @@ void initWiFi()
   //delay(2000);
 }
 
-// This function will select to update time either from the internet or from a manual entry in the html that populates the json
+/*
+ * Time functions
+ */
+
+/*
+ * This function will select to update time either from the internet or from a manual entry in the html that populates the JSON
+ */
 // void internetOrManualTime()
 // {
-//   // Call function that assigns the array in the json to the rtc of ESP32
+//   // Call function that assigns the array in the JSON to the rtc of ESP32
 //   Serial.println(rtc.getTime("%A, %B %d %Y %H:%M:%S"));
 //   boolean data_internettime = data["changedtime"][0]["internettime"] ;
 //   //boolean data_manualtimeflag = data["changedtime"][0]["manualtimeenabled"];
@@ -964,24 +1047,28 @@ void initWiFi()
 //     Serial.println("Time updated using manual input");
 //     for(static bool first = true;first;first=false)
 //     { 
-//       changetime();  
+//       changeTimeFromJSON();
 //     }
 //   }
 // }
 
-// function to change time using the time that was input in the json
-void changetime (){
- JsonObject data = doc["data"];
- JsonArray data_changedtime = data["changedtime"];
- int mIn = data_changedtime[0]["min"];
- int hOur = data_changedtime[0]["hour"];
- int dAy = data_changedtime[0]["day"];
- int mOnth = data_changedtime[0]["month"];
- int yEar = data_changedtime[0]["year"];
- rtc.setTime(0,mIn,hOur,dAy,mOnth,yEar);
+/*
+ * Function to change time using the time that was input in the JSON
+ */
+void changeTimeFromJSON(){
+  JsonObject data = doc["data"];
+  JsonArray data_changedtime = data["changedtime"];
+  int mIn = data_changedtime[0]["min"];
+  int hOur = data_changedtime[0]["hour"];
+  int dAy = data_changedtime[0]["day"];
+  int mOnth = data_changedtime[0]["month"];
+  int yEar = data_changedtime[0]["year"];
+  rtc.setTime(0,mIn,hOur,dAy,mOnth,yEar);
 }
 
-// Function in developmentto display status on serial monitor only when changed state
+/*
+ * Function in development to display status on serial monitor only when changed state
+ */
 //void generalStatusPrint()
 // {
 //   oldValue = isEnabled;
