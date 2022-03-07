@@ -32,9 +32,9 @@ DynamicJsonDocument doc(jasonSize); // From arduinoJson
 
 // Chose the network
 //#define casa
-#define container
+//#define container
 //#define caravan
-//#define kitchen
+#define kitchen
 
 // Board specific configuration settings
 #ifdef _0_point
@@ -290,10 +290,10 @@ void setup(){
       request->send(200); // OK
     }
 
-      request->send(200); // "application/json", jsonString);
-      Serial.println("-------------------");
-      Serial.println(jsonString);
-      Serial.println("-------------------");
+    request->send(200); // "application/json", jsonString);
+    Serial.println("-------------------");
+    Serial.println(jsonString);
+    Serial.println("-------------------");
   });
 
   // Update scheduling mode
@@ -303,8 +303,8 @@ void setup(){
     String jsonString;
     serializeJson(doc, jsonString);
 
-    //write this to disk
-    //Read json from the file ...
+    // Write this to disk
+    // Read json from the file ...
     Serial.println("Saving to disk - BEGIN");
     File f = SPIFFS.open("/data.json", "w");
     if (!f)
@@ -348,30 +348,31 @@ void setup(){
   });
   
   // Update relay times - AUTOMATIC MODE
-    AsyncCallbackJsonWebHandler *updateRelayTime = new AsyncCallbackJsonWebHandler("/update/relay-time", 
+  AsyncCallbackJsonWebHandler *updateRelayTime = new AsyncCallbackJsonWebHandler("/update/relay-time",
   [](AsyncWebServerRequest *request, JsonVariant &json) {
     doc["relays"][json["relayIndex"]]["times"][json["timeIndex"]]["startTime"].set(json["startTime"]);
     doc["relays"][json["relayIndex"]]["times"][json["timeIndex"]]["duration"].set(json["duration"]);
     String jsonString;
     serializeJson(doc, jsonString);
 
-    //write this to disk
-    //Read json from the file ...
+    // Write this to disk
+    // Read json from the file ...
     Serial.println("Saving to disk - BEGIN");
     File f = SPIFFS.open("/data.json", "w");
     if (!f)
     {
       Serial.println("Failed to open file for writing");
     }
-      int bytesWritten = f.print(jsonString);
-      f.close();
-      Serial.printf("Saving to disk - COMPLETE(%d bytes)\n", bytesWritten);
 
-      request->send(200); // "application/json", jsonString);
-      Serial.println("-------------------");
-      Serial.println(jsonString);
-      Serial.println("-------------------");
-    });
+    int bytesWritten = f.print(jsonString);
+    f.close();
+    Serial.printf("Saving to disk - COMPLETE(%d bytes)\n", bytesWritten);
+
+    request->send(200); // "application/json", jsonString);
+    Serial.println("-------------------");
+    Serial.println(jsonString);
+    Serial.println("-------------------");
+  });
 
   // Add new relay time
   AsyncCallbackJsonWebHandler *addRelayTime = new AsyncCallbackJsonWebHandler("/add/relay-time", 
@@ -383,23 +384,24 @@ void setup(){
     String jsonString;
     serializeJson(doc, jsonString);
 
-    //write this to disk
-    //Read json from the file ...
+    // Write this to disk
+    // Read json from the file ...
     Serial.println("Saving to disk - BEGIN");
     File f = SPIFFS.open("/data.json", "w");
     if (!f)
     {
       Serial.println("Failed to open file for writing");
     }
-      int bytesWritten = f.print(jsonString);
-      f.close();
-      Serial.printf("Saving to disk - COMPLETE(%d bytes)\n", bytesWritten);
 
-      request->send(200); // "application/json", jsonString);
-      Serial.println("-------------------");
-      Serial.println(jsonString);
-      Serial.println("-------------------");
-    });
+    int bytesWritten = f.print(jsonString);
+    f.close();
+    Serial.printf("Saving to disk - COMPLETE(%d bytes)\n", bytesWritten);
+
+    request->send(200); // OK
+    Serial.println("-------------------");
+    Serial.println(jsonString);
+    Serial.println("-------------------");
+  });
   
   // Remove relay time
   AsyncCallbackJsonWebHandler *removeRelayTime = new AsyncCallbackJsonWebHandler("/remove/relay-time", 
@@ -409,23 +411,24 @@ void setup(){
     String jsonString;
     serializeJson(doc, jsonString);
 
-    //write this to disk
-    //Read json from the file ...
+    // Write this to disk
+    // Read json from the file ...
     Serial.println("Saving to disk - BEGIN");
     File f = SPIFFS.open("/data.json", "w");
     if (!f)
     {
       Serial.println("Failed to open file for writing");
     }
-      int bytesWritten = f.print(jsonString);
-      f.close();
-      Serial.printf("Saving to disk - COMPLETE(%d bytes)\n", bytesWritten);
 
-      request->send(200); // "application/json", jsonString);
-      Serial.println("-------------------");
-      Serial.println(jsonString);
-      Serial.println("-------------------");
-    });
+    int bytesWritten = f.print(jsonString);
+    f.close();
+    Serial.printf("Saving to disk - COMPLETE(%d bytes)\n", bytesWritten);
+
+    request->send(200); // OK
+    Serial.println("-------------------");
+    Serial.println(jsonString);
+    Serial.println("-------------------");
+  });
 
   // Add new relay
   AsyncCallbackJsonWebHandler *addRelay = new AsyncCallbackJsonWebHandler("/add/relay", 
@@ -446,7 +449,6 @@ void setup(){
     newTime["duration"] = 30;
     nested["times"] = array;
 
-
     nested["name"] = json["name"];
     nested["pin"] = json["pin"];
     nested["isEnabled"] = 0;
@@ -454,23 +456,24 @@ void setup(){
     String jsonString;
     serializeJson(doc, jsonString);
 
-    //write this to disk
-    //Read json from the file ...
+    // Write this to disk
+    // Read json from the file ...
     Serial.println("Saving to disk - BEGIN");
     File f = SPIFFS.open("/data.json", "w");
     if (!f)
     {
       Serial.println("Failed to open file for writing");
     }
-      int bytesWritten = f.print(jsonString);
-      f.close();
-      Serial.printf("Saving to disk - COMPLETE(%d bytes)\n", bytesWritten);
 
-      request->send(200); // "application/json", jsonString);
-      Serial.println("-------------------");
-      Serial.println(jsonString);
-      Serial.println("-------------------");
-    });
+    int bytesWritten = f.print(jsonString);
+    f.close();
+    Serial.printf("Saving to disk - COMPLETE(%d bytes)\n", bytesWritten);
+
+    request->send(200); // OK
+    Serial.println("-------------------");
+    Serial.println(jsonString);
+    Serial.println("-------------------");
+  });
   
   // Remove relay
   AsyncCallbackJsonWebHandler *removeRelay = new AsyncCallbackJsonWebHandler("/remove/relay", 
@@ -480,23 +483,24 @@ void setup(){
     String jsonString;
     serializeJson(doc, jsonString);
 
-    //write this to disk
-    //Read json from the file ...
+    // Write this to disk
+    // Read json from the file ...
     Serial.println("Saving to disk - BEGIN");
     File f = SPIFFS.open("/data.json", "w");
     if (!f)
     {
       Serial.println("Failed to open file for writing");
     }
-      int bytesWritten = f.print(jsonString);
-      f.close();
-      Serial.printf("Saving to disk - COMPLETE(%d bytes)\n", bytesWritten);
 
-      request->send(200); // "application/json", jsonString);
-      Serial.println("-------------------");
-      Serial.println(jsonString);
-      Serial.println("-------------------");
-    });
+    int bytesWritten = f.print(jsonString);
+    f.close();
+    Serial.printf("Saving to disk - COMPLETE(%d bytes)\n", bytesWritten);
+
+    request->send(200); // OK
+    Serial.println("-------------------");
+    Serial.println(jsonString);
+    Serial.println("-------------------");
+  });
 
   server.addHandler(updateData);
   server.addHandler(updateSchedulingMode);
@@ -605,13 +609,15 @@ void scheduleMode() {
       pinMode(relays[i]["pin"], OUTPUT);
       int hOurs = relays[i]["times"][j]["hour"];
       int mIns = relays[i]["times"][j]["min"];
+      int startTimeInMinutes = (hOurs * 60) + mIns;
       int cycleDuration = relays[i]["times"][j]["duration"];
       // Probably should learn about bitwise... https://playground.arduino.cc/Code/BitMath/
-      if (isEnabledFunc(hOurs*60+mIns, cycleDuration) == 1)
+      if (isWithinTimeslot(startTimeInMinutes, cycleDuration))
       {
         ++flagEnableRelay;
       }
     }
+
     if (flagEnableRelay >= 1)
     {
       digitalWrite(relays[i]["pin"], ON);
@@ -701,7 +707,26 @@ void disableAllRelays(){
 }
 
 /*
- * This function reads the temperature sensor data from the DHT
+ * Function is used to evaluate if a certain relay should be low or high depending on the time it was set to run
+ */
+bool isWithinTimeslot (int startTimeInMinutes, int duration)
+{
+  // Get current time from RTC
+  int onlyHour = rtc.getHour(true);
+  int onlyMin = rtc.getMinute();
+  // Calculate present time in minutes since midnight
+  int presentTimeInMinutes = (onlyHour * 60) + onlyMin;
+
+  int isEnabled = false;
+  if (startTimeInMinutes <= presentTimeInMinutes && presentTimeInMinutes <= startTimeInMinutes + duration){
+    isEnabled = true;
+  }
+
+  return isEnabled;
+}
+
+/*
+ * This function reads the temperature sensor data from the DHT in Celsius
  */
 float readDHTTemperature()
 {
@@ -710,18 +735,19 @@ float readDHTTemperature()
 
   // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
   // Read temperature as Celsius (the default)
-  float t = dht.readTemperature();
+  float temperature = dht.readTemperature();
 
-  // Check if any reads failed and exit early (to try again).
-  if (isnan(t))
+  // Check if any reads failed
+  if (isnan(temperature))
   {
     Serial.println("Failed to read from DHT sensor!");
   }
   else
   {
-    Serial.println(t);
+    Serial.printf("Temperature: %d\n", temperature);
   }
-  return t;
+
+  return temperature;
 }
 
 /*
@@ -731,40 +757,19 @@ float readDHTHumidity()
 {
   DHT dht(DHTPIN, DHTTYPE);
   // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
-  float h = dht.readHumidity();
-  if (isnan(h))
+  float humidity = dht.readHumidity();
+
+  // Check if any reads failed
+  if (isnan(humidity))
   {
     Serial.println("Failed to read from DHT sensor!");
   }
   else
   {
-    Serial.println(h);
+    Serial.printf("Humidity: %d\n", humidity);
   }
 
-  return h;
-}
-
-/*
- * Function is used to evaluate if a certain relay should be low or high depending on the time it was set to run
- */
-int isEnabledFunc (int startTimeInMinutes, int duration)
-{
-  int onlyHour;
-  int onlyMin;
-
-  onlyHour = rtc.getHour(true);
-  onlyMin = rtc.getMinute();
-
-  int presentTimeInMinutes = onlyHour*60+onlyMin;
-  int isEnabled;
-    if (startTimeInMinutes <= presentTimeInMinutes && presentTimeInMinutes <= startTimeInMinutes+duration){
-    isEnabled = 1;
-  }
-    else
-    {
-      isEnabled = 0;
-    }
-  return isEnabled;
+  return humidity;
 }
 
 /*
@@ -777,22 +782,21 @@ float getBatteryLevel(){
   float batteryLevel = map(analogRead(batVoltPin), 0.0f, 1866.0f, 0, 100);
 
   if (batteryLevel >= 100) {
-	  return 100;
+      batteryLevel = 100;
   }
   else
   {
     // Print the battery level to the serial monitor
-    Serial.print(  "Battery Level: ");
-    Serial.print(  batteryLevel);
-    Serial.println("%");
-    return batteryLevel;
+    Serial.printf("Battery Level: %d\n", batteryLevel);
   }
+
+  return batteryLevel;
 }
 
 /*
  * This function assigns local time based on an internet server
  */
-void AssignLocalTime(){
+void assignLocalTime(){
   int THour; 
   int TMin; 
   int TSec; 
@@ -805,14 +809,13 @@ void AssignLocalTime(){
   configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
   struct tm timeinfo;
   getLocalTime(&timeinfo);
-  TYear = timeinfo.tm_year + 1900;
+  TYear  = timeinfo.tm_year + 1900;
   TMonth = timeinfo.tm_mon + 1;
-  TDay = timeinfo.tm_mday;
-  THour = timeinfo.tm_hour;
-  TMin = timeinfo.tm_min;
-  TSec = timeinfo.tm_sec;
+  TDay   = timeinfo.tm_mday;
+  THour  = timeinfo.tm_hour;
+  TMin   = timeinfo.tm_min;
+  TSec   = timeinfo.tm_sec;
   rtc.setTime(TSec,TMin,THour,TDay,TMonth,TYear);
-  return ;
 }
 
 //
@@ -893,12 +896,12 @@ void setupRTC()
 
   if (!Rtc.IsDateTimeValid()) 
   {
-      // Common Causes:
-      //    1) first time you ran and the device wasn't running yet
-      //    2) the battery on the device is low or even missing
+    // Common Causes:
+    //    1) first time you ran and the device wasn't running yet
+    //    2) the battery on the device is low or even missing
 
-      Serial.println("* RTC lost confidence in the DateTime!");
-      Rtc.SetDateTime(compiled);
+    Serial.println("* RTC lost confidence in the DateTime!");
+    Rtc.SetDateTime(compiled);
   }
   #ifdef ds_3231
   #else
@@ -911,23 +914,23 @@ void setupRTC()
 
   if (!Rtc.GetIsRunning())
   {
-      Serial.println("* RTC was not actively running, starting now");
-      Rtc.SetIsRunning(true);
+    Serial.println("* RTC was not actively running, starting now");
+    Rtc.SetIsRunning(true);
   }
 
   RtcDateTime now = Rtc.GetDateTime();
   if (now < compiled) 
   {
-      Serial.println("* RTC is older than compile time!  (Updating DateTime)");
-      Rtc.SetDateTime(compiled);
+    Serial.println("* RTC is older than compile time!  (Updating DateTime)");
+    Rtc.SetDateTime(compiled);
   }
   else if (now > compiled) 
   {
-      Serial.println("* RTC is newer than compile time. (this is expected)");
+    Serial.println("* RTC is newer than compile time. (this is expected)");
   }
   else if (now == compiled) 
   {
-      Serial.println("* RTC is the same as compile time! (not expected but all is fine)");
+    Serial.println("* RTC is the same as compile time! (not expected but all is fine)");
   }
   Serial.println("*");
 
@@ -1007,11 +1010,13 @@ void setupWifi()
   Serial.println("*****************************************************");
   Serial.print(  "* SoftAP IP is: ");
   Serial.println(WiFi.softAPIP());
+
   #ifdef stacticIP
     if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS)) {
     Serial.println("* STA Failed to configure");
     }
   #endif
+
   WiFi.begin(wifi_network_ssid, wifi_network_password);
   WiFi.setHostname(wifi_network_hostname);
   Serial.println("* Waiting for WIFI network...");
@@ -1039,7 +1044,7 @@ void setupWifi()
 //     Serial.println("Time updated using internet");
 //       for(static bool first = true;first;first=false)
 //       { 
-//         	AssignLocalTime();
+//         	assignLocalTime();
 //       }
 //   }
 //   if ( data_internettime  == 0 )
