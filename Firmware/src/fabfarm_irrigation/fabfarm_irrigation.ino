@@ -30,6 +30,12 @@ DynamicJsonDocument doc(jasonSize); // From arduinoJson
 //#define _0_point          // Prototype relays on board pcb designed with eagle
 //#define _1_point_0        // Second prototype no relays on board pcb designed with eagle
 
+// Chose the network
+//#define casa
+#define container
+//#define caravan
+//#define kitchen
+
 // Board specific configuration settings
 #ifdef _0_point
   // Define the type of external RTC
@@ -41,20 +47,9 @@ DynamicJsonDocument doc(jasonSize); // From arduinoJson
   int batVoltPin = 35;
 
   const char* wifi_network_hostname = "test";
-
-  #define casa
-  //#define container
-  #ifdef casa
-  const char* wifi_network_ssid = "ratinho_do_malandro";
-  const char* wifi_network_password =  "gerryforever2018";
-  #endif
-  #ifdef container
-  const char* wifi_network_ssid = "fabfarm_ele_container";
-  const char* wifi_network_password =  "imakestuff";
-  #endif
-  
   const char *soft_ap_ssid = "irrigation_main_prototype";
   const char *soft_ap_password = "";
+
   // Set your Static IP address
   #ifdef stactic_IP
   IPAddress local_IP(192, 168, 1, 22);
@@ -70,15 +65,12 @@ DynamicJsonDocument doc(jasonSize); // From arduinoJson
   int batVoltPin = 35;
 
   const char* wifi_network_hostname = "irrigationmain";
-
-  const char* wifi_network_ssid = "caravan";
-  const char* wifi_network_password =  "imakestuff";
-  
   const char *soft_ap_ssid = "irrigation_main";
   const char *soft_ap_password = "";
+
   // Set your Static IP address
   #ifdef stacticIP
-  IPAddress local_IP(192, 168, 1, 23);
+  	IPAddress local_IP(192, 168, 1, 23);
   #endif
 #endif
 #ifdef _1_point_0
@@ -91,15 +83,12 @@ DynamicJsonDocument doc(jasonSize); // From arduinoJson
   int batVoltPin = 35;
 
   const char* wifi_network_hostname = "test";
-
-  const char* wifi_network_ssid = "fabfarm_ele_container";
-  const char* wifi_network_password =  "imakestuff";
-  
   const char *soft_ap_ssid = "irrigation_test";
   const char *soft_ap_password = "";
+
   // Set your Static IP address
   #ifdef stacticIP
-  IPAddress local_IP(192, 168, 1, 24);
+  	IPAddress local_IP(192, 168, 1, 24);
   #endif
 #endif
 #ifdef _0_point_greenhouse
@@ -112,21 +101,12 @@ DynamicJsonDocument doc(jasonSize); // From arduinoJson
   int batVoltPin = 35;
 
   const char* wifi_network_hostname = "greenhousetestboard";
-  #define casa
-  //#define container
-  #ifdef casa
-  const char* wifi_network_ssid = "ratinho_do_malandro";
-  const char* wifi_network_password =  "gerryforever2018";
-  #endif
-  #ifdef container
-  const char* wifi_network_ssid = "fabfarm_ele_container";
-  const char* wifi_network_password =  "imakestuff";
-  #endif
   const char *soft_ap_ssid = "irrigation_greenhousetest";
   const char *soft_ap_password = "";
-  // uncoment to set your Static IP address
+
+  // Set your Static IP address
   #ifdef stactic_IP
-  IPAddress local_IP(192, 168, 1, 25);
+    IPAddress local_IP(192, 168, 1, 25);
   #endif
 #endif
 
@@ -154,12 +134,30 @@ DynamicJsonDocument doc(jasonSize); // From arduinoJson
   #define OFF  LOW
 #endif
 
-
-// Set your Gateway IP address
+// Set your Gateway and Subnet IP addresses
 IPAddress gateway(192, 168, 1, 1);
 IPAddress subnet(255, 255, 255, 0);
-IPAddress primaryDNS(8, 8, 8, 8);   //optional
-IPAddress secondaryDNS(8, 8, 4, 4); //optional
+// Set optional DNS IP addresses
+IPAddress primaryDNS(  8, 8, 8, 8);
+IPAddress secondaryDNS(8, 8, 4, 4);
+
+// WiFi specific configuration settings
+#ifdef casa
+  const char* wifi_network_ssid = "ratinho_do_malandro";
+  const char* wifi_network_password =  "gerryforever2018";
+#endif
+#ifdef container
+  const char* wifi_network_ssid = "fabfarm_ele_container";
+  const char* wifi_network_password =  "imakestuff";
+#endif
+#ifdef caravan
+  const char* wifi_network_ssid = "caravan";
+  const char* wifi_network_password =  "imakestuff";
+#endif
+#ifdef kitchen
+  const char* wifi_network_ssid = "fabfarm";
+  const char* wifi_network_password =  "imakestuff";
+#endif
 
 // Digital pin connected to the DHT sensor
 #define DHTPIN 21
