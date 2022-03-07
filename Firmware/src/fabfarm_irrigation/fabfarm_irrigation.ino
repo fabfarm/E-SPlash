@@ -18,17 +18,17 @@
 
 ESP32Time rtc;
 
-//#define stactic_IP                //uncommment to define IP as stactic
-const char *dataFile = "data.json"; // read / write JSON to save state
+//#define stactic_IP                // Uncomment to define IP as static
+const char *dataFile = "data.json"; // Read / write JSON to save state
 AsyncWebServer server(80);          // Specify the port of the Async server
 int jasonSize = 1800;               // Specifying the capacity of the JSON in bytes.
-DynamicJsonDocument doc(jasonSize); // from arduinoJson
+DynamicJsonDocument doc(jasonSize); // From arduinoJson
 
 // Choosing the type of board if 0.1(_0_point_1) or 1.0(_1_point_0)
-//#define _0_point_1_main   // breadboard deployed in the lake irrigation
-#define _0_point_greenhouse // breadboard deployed in the greenhouse irrigation
-//#define _0_point          // prototype relays on board pcb designed with eagle
-//#define _1_point_0        // second prototype no relays on board pcb designed with eagle
+//#define _0_point_1_main   // Breadboard deployed in the lake irrigation
+#define _0_point_greenhouse // Breadboard deployed in the greenhouse irrigation
+//#define _0_point          // Prototype relays on board pcb designed with eagle
+//#define _1_point_0        // Second prototype no relays on board pcb designed with eagle
 
 // Board specific configuration settings
 #ifdef _0_point
@@ -176,54 +176,23 @@ void setup(){
   // Configure the serial monitor
   Serial.begin(9600);
 
-  // Initialize WiFi
-  initWiFi();
-
-  // Start the HTTP server
-  server.begin();
+  // Setup WiFi
+  setupWifi();
 
   // Put all relays in LOW at startup
-  //TODO: (question? does it reactivates unatendelly like previously noted?)
-  allRelaysdisable();
+  disableAllRelays();
 
   // Prints compile time to serial monitor
-  compileTimePrinting();
-
-  // Initialize external Real Time Clock
-  #ifdef ds_3231
-  Wire.begin(sdaPin, sclPin); // SDA, SCL
-  #endif
-  Rtc.Begin();
+  printCompileTime();
 
   // Setup Real Time Clock
   setupRTC();
   
-  // Initialize SPIFFS (file system)
-  if (!SPIFFS.begin(true)){
-    Serial.println("An Error has occurred while mounting SPIFFS");
-    return;
-  }
-  // Create a data.json file in case it does not exist
-  createDataJson();
+  // Setup storage
+  setupStorage();
 
-  // We always read the data.json from disk on startup (always!)
-  // If freshlly burned we have to send the sample JSON...
-  //TODO: generate JSON if not existent
-
-  // Open the JSON file with the name "data.json" from SPIFFS ...
-  File f = SPIFFS.open("/data.json", "r");
-  // Read JSON string from JSON file into memory
-  Serial.println("Read JSON file - BEGIN");
-  String json = f.readString();
-  Serial.println(json);
-  Serial.println("Read JSON file - COMPLETE");
-  // Close the JSON file
-  f.close();
-
-  // We take JSON from memory & create JSON object
-  Serial.println("JSON deserialize - BEGIN");
-  deserializeJson(doc, json);
-  Serial.println("JSON deserialize - COMPLETE");
+  // Start the HTTP server
+  server.begin();
 
   /*
    * Define HTTP server paths
@@ -288,7 +257,7 @@ void setup(){
     data["data"]["currentTime"] = rtc.getTime("%A, %B %d %Y %H:%M");
     data["data"]["temperature"] = readDHTTemperature();
     data["data"]["humidity"]    = readDHTHumidity();
-    data["data"]["batLevel"]    = batLevel();
+    data["data"]["batLevel"]    = getBatteryLevel();
 
     char jsonReply[1800];
     Serial.println("Serialize JSON & return to caller - BEGIN");
@@ -300,7 +269,7 @@ void setup(){
   
   // Update data general
   AsyncCallbackJsonWebHandler *updateData = new AsyncCallbackJsonWebHandler("/updateData", 
-  [](AsyncWebServerRequest *request, JsonVariant &json) {
+    [](AsyncWebServerRequest *request, JsonVariant &json) {
     doc = json.as<JsonObject>();
     String jsonString;
     serializeJson(doc, jsonString);
@@ -327,11 +296,11 @@ void setup(){
       Serial.println("-------------------");
       Serial.println(jsonString);
       Serial.println("-------------------");
-    });
+  });
 
   // Update scheduling mode
-    AsyncCallbackJsonWebHandler *updateSchedulingMode = new AsyncCallbackJsonWebHandler("/update/scheduling-mode", 
-  [](AsyncWebServerRequest *request, JsonVariant &json) {
+  AsyncCallbackJsonWebHandler *updateSchedulingMode = new AsyncCallbackJsonWebHandler("/update/scheduling-mode",
+    [](AsyncWebServerRequest *request, JsonVariant &json) {
     doc["data"]["isScheduleMode"].set(json["value"]);
     String jsonString;
     serializeJson(doc, jsonString);
@@ -344,40 +313,41 @@ void setup(){
     {
       Serial.println("Failed to open file for writing");
     }
-      int bytesWritten = f.print(jsonString);
-      f.close();
-      Serial.printf("Saving to disk - COMPLETE(%d bytes)\n", bytesWritten);
+    int bytesWritten = f.print(jsonString);
+    f.close();
+    Serial.printf("Saving to disk - COMPLETE(%d bytes)\n", bytesWritten);
 
-      request->send(200); // "application/json", jsonString);
-      Serial.println("-------------------");
-      Serial.println(jsonString);
-      Serial.println("-------------------");
-    });
+    request->send(200); // "application/json", jsonString);
+    Serial.println("-------------------");
+    Serial.println(jsonString);
+    Serial.println("-------------------");
+  });
 
   // Update relay enabled - MANUAL MODE
-    AsyncCallbackJsonWebHandler *updateRelayEnabled = new AsyncCallbackJsonWebHandler("/update/relay-enable", 
+  AsyncCallbackJsonWebHandler *updateRelayEnabled = new AsyncCallbackJsonWebHandler("/update/relay-enable",
   [](AsyncWebServerRequest *request, JsonVariant &json) {
     doc["relays"][json["relayIndex"]]["isEnabled"].set(json["enabled"]);
     String jsonString;
     serializeJson(doc, jsonString);
 
-    //write this to disk
-    //Read json from the file ...
+    // Write this to disk
+    // Read json from the file ...
     Serial.println("Saving to disk - BEGIN");
     File f = SPIFFS.open("/data.json", "w");
     if (!f)
     {
       Serial.println("Failed to open file for writing");
     }
-      int bytesWritten = f.print(jsonString);
-      f.close();
-      Serial.printf("Saving to disk - COMPLETE(%d bytes)\n", bytesWritten);
 
-      request->send(200); // "application/json", jsonString);
-      Serial.println("-------------------");
-      Serial.println(jsonString);
-      Serial.println("-------------------");
-    });
+    int bytesWritten = f.print(jsonString);
+    f.close();
+    Serial.printf("Saving to disk - COMPLETE(%d bytes)\n", bytesWritten);
+
+    request->send(200); // "application/json", jsonString);
+    Serial.println("-------------------");
+    Serial.println(jsonString);
+    Serial.println("-------------------");
+  });
   
   // Update relay times - AUTOMATIC MODE
     AsyncCallbackJsonWebHandler *updateRelayTime = new AsyncCallbackJsonWebHandler("/update/relay-time", 
@@ -570,9 +540,9 @@ void loop(){
 //**************************************************************************************************************
 
 /*
- * This function simply prints the compile time to serial monitor
+ * This function simply prints the compile time to the serial monitor
  */
-void compileTimePrinting(){
+void printCompileTime() {
   Serial.println("*****************************************************");
   Serial.print(  "* This program was Compiled on: ");
   Serial.print(   __DATE__);
@@ -583,28 +553,49 @@ void compileTimePrinting(){
 }
 
 /*
- * This function creates a file data.json based on the file sample.json in case the data.json does not exists.
+ * Initialize the file system and create jSON file if missing
  */
-void createDataJson() {
-  Serial.println("Starting looking for JSON file");
-  if (!SPIFFS.begin(true)) {
+void setupStorage() {
+  // Initialize SPIFFS (file system)
+  if (!SPIFFS.begin(true)){
     Serial.println("An Error has occurred while mounting SPIFFS");
     return;
   }
-  if(!SPIFFS.exists("/data.json")){
-    Serial.println("data.json does not exist! Creating it now!");
-    File dataJsonReadfile = SPIFFS.open("/sample.json", "r");
-    String fileString = dataJsonReadfile.readString();
-    dataJsonReadfile.close();
-    File dataJsonwritefile = SPIFFS.open("/data.json", "w");  
-    dataJsonwritefile.print(fileString);
-    dataJsonwritefile.close();
-    if(!SPIFFS.exists("/data.json")){
-      Serial.println("data.json was not created!");
-      return;
-    }
-    return;
+
+  readDataJson();
+}
+
+/*
+ * This function reads the settings file data.json or if this file does not exist yet the file sample.json
+ * We always read the data.json from disk on startup (always!)
+ * If freshly burned we have to send the sample JSON...
+ */
+void readDataJson() {
+  Serial.println("Starting looking for JSON file");
+
+  File f;
+  if(SPIFFS.exists("/data.json")) {
+    f = SPIFFS.open("/data.json", "r");
   }
+  else
+  {
+    Serial.println("data.json does not exist yet, reading sample.json instead!");
+    f = SPIFFS.open("/sample.json", "r");
+  }
+
+  // Read JSON string from JSON file into memory
+  Serial.println("Read JSON file - BEGIN");
+  String json = f.readString();
+  Serial.println(json);
+  Serial.println("Read JSON file - COMPLETE");
+
+  // Close the JSON file
+  f.close();
+
+  // We take JSON from memory & create JSON object
+  Serial.println("JSON deserialize - BEGIN");
+  deserializeJson(doc, json);
+  Serial.println("JSON deserialize - COMPLETE");
 }
 
 void scheduleMode() {
@@ -691,17 +682,22 @@ void manualMode()
 
 /*
  * Function to deactivate all pins useful for safe startup not finished yet
+ * TODO: (question? does it reactivates unintendedly like previously noted?)
  */
-void allRelaysdisable(){
-  // Defining behaviour of pumpPinNumber and its startup state
+void disableAllRelays(){
+  // Defining behavior of pumpPinNumber and its startup state
   pinMode(pumpPinNumber, OUTPUT);
   digitalWrite(pumpPinNumber, OFF);
-  //JsonObject data = doc["data"];
+
+  // Loop over configured relays and set to off
   JsonArray relays = doc["relays"];
   for (int p = 0; p < relays.size(); p++)
   {
+    // Get GPIO pin number for relay
     int pinNumber = relays[p]["pin"];
+    // Set GPIO pin to output
     pinMode(pinNumber, OUTPUT);
+    // Set GPIO pin to off
     digitalWrite(pinNumber, OFF);
   }
 }
@@ -709,32 +705,31 @@ void allRelaysdisable(){
 /*
  * This function reads the temperature sensor data from the DHT
  */
-String readDHTTemperature()
+float readDHTTemperature()
 {
   // Send the pin and type of sensor
   DHT dht(DHTPIN, DHTTYPE);
+
   // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
   // Read temperature as Celsius (the default)
   float t = dht.readTemperature();
-  // Read temperature as Fahrenheit (isFahrenheit = true)
-  // float t = dht.readTemperature(true);
+
   // Check if any reads failed and exit early (to try again).
   if (isnan(t))
   {
     Serial.println("Failed to read from DHT sensor!");
-    return "N/A";
   }
   else
   {
     Serial.println(t);
-    return String(t);
   }
+  return t;
 }
 
 /*
  * This function reads the humidity sensor data from the DHT
  */
-String readDHTHumidity()
+float readDHTHumidity()
 {
   DHT dht(DHTPIN, DHTTYPE);
   // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
@@ -742,13 +737,13 @@ String readDHTHumidity()
   if (isnan(h))
   {
     Serial.println("Failed to read from DHT sensor!");
-    return "N/A";
   }
   else
   {
     Serial.println(h);
-    return String(h);
   }
+
+  return h;
 }
 
 /*
@@ -775,9 +770,9 @@ int isEnabledFunc (int startTimeInMinutes, int duration)
 }
 
 /*
- * This function reads the battery level voltage in order to determine battery percentage
+ * Determine battery percentage based on the battery level voltage
  */
-float batLevel(){
+float getBatteryLevel(){
   analogRead(batVoltPin);
 
   // Calculate the battery percentage
@@ -879,6 +874,13 @@ void setupRTC()
 { 
   Serial.println("*****************************************************");
   Serial.println("* Running function setupRTC()");
+
+  // Initialize external Real Time Clock
+  #ifdef ds_3231
+  Wire.begin(sdaPin, sclPin); // SDA, SCL
+  #endif
+  Rtc.Begin();
+
   RtcDateTime compiled = RtcDateTime(__DATE__, __TIME__);
   // Print the Time before updated from external RTC
   Serial.println("* ");
@@ -961,11 +963,11 @@ void testRtcOnLoop(){
   Serial.println("End of data from void testRtcOnLoop()" );
 }
 
-void Wifi_connected(WiFiEvent_t event, WiFiEventInfo_t info){
+void onWifiConnected(WiFiEvent_t event, WiFiEventInfo_t info){
   Serial.println("Successfully connected to Access Point");
 }
 
-void Get_IPAddress(WiFiEvent_t event, WiFiEventInfo_t info){
+void onGetIPAddress(WiFiEvent_t event, WiFiEventInfo_t info){
   Serial.println("");
   Serial.println("*****************************************************");
   Serial.println("* WIFI is connected!");
@@ -977,7 +979,7 @@ void Get_IPAddress(WiFiEvent_t event, WiFiEventInfo_t info){
   Serial.println("");
 }
 
-void Wifi_disconnected(WiFiEvent_t event, WiFiEventInfo_t info){
+void onWifiDisconnected(WiFiEvent_t event, WiFiEventInfo_t info){
   Serial.println("");
   Serial.println("*****************************************************");
   Serial.println("* Disconnected from WIFI Access Point");
@@ -991,15 +993,15 @@ void Wifi_disconnected(WiFiEvent_t event, WiFiEventInfo_t info){
 /*
  * Function with WiFi settings and initialisation
  */
-void initWiFi()
+void setupWifi()
 {
   WiFi.mode(WIFI_MODE_APSTA);
 
   // Disconnect the WiFi
   WiFi.disconnect(true);
-  WiFi.onEvent(Wifi_connected,SYSTEM_EVENT_STA_CONNECTED);
-  WiFi.onEvent(Get_IPAddress, SYSTEM_EVENT_STA_GOT_IP);
-  WiFi.onEvent(Wifi_disconnected, SYSTEM_EVENT_STA_DISCONNECTED); 
+  WiFi.onEvent(onWifiConnected,SYSTEM_EVENT_STA_CONNECTED);
+  WiFi.onEvent(onGetIPAddress, SYSTEM_EVENT_STA_GOT_IP);
+  WiFi.onEvent(onWifiDisconnected, SYSTEM_EVENT_STA_DISCONNECTED);
   WiFi.softAP(soft_ap_ssid, soft_ap_password, 3);
 
   // Print WiFi configuration to serial monitor
