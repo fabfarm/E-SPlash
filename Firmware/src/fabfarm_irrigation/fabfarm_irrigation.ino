@@ -202,7 +202,7 @@ void setup(){
   // Setup WiFi
   setupWifi();
 
-  // Put all relays in LOW at startup
+  // Set all relays off at startup
   disableAllRelays();
 
   // Prints compile time to serial monitor
@@ -660,8 +660,8 @@ void manualMode()
 }
 
 /*
- * Function to deactivate all pins useful for safe startup not finished yet
- * TODO: (question? does it reactivates unintendedly like previously noted?)
+ * Function to deactivate all relays. Safe startup.
+ * TODO: (question? does it reactivates unintentionaly like previously noted?)
  */
 void disableAllRelays(){
   // Defining behavior of pumpPinNumber and its startup state
@@ -1018,6 +1018,20 @@ void setupWifi()
  */
 
 /*
+ * Function to change time using the time that was input in the JSON
+ */
+void changeTimeFromJSON(){
+  JsonObject data = doc["data"];
+  JsonArray data_changedtime = data["changedtime"];
+  int mIn = data_changedtime[0]["min"];
+  int hOur = data_changedtime[0]["hour"];
+  int dAy = data_changedtime[0]["day"];
+  int mOnth = data_changedtime[0]["month"];
+  int yEar = data_changedtime[0]["year"];
+  rtc.setTime(0,mIn,hOur,dAy,mOnth,yEar);
+}
+
+/*
  * This function will select to update time either from the internet or from a manual entry in the html that populates the JSON
  */
 // void internetOrManualTime()
@@ -1041,32 +1055,5 @@ void setupWifi()
 //     { 
 //       changeTimeFromJSON();
 //     }
-//   }
-// }
-
-/*
- * Function to change time using the time that was input in the JSON
- */
-void changeTimeFromJSON(){
-  JsonObject data = doc["data"];
-  JsonArray data_changedtime = data["changedtime"];
-  int mIn = data_changedtime[0]["min"];
-  int hOur = data_changedtime[0]["hour"];
-  int dAy = data_changedtime[0]["day"];
-  int mOnth = data_changedtime[0]["month"];
-  int yEar = data_changedtime[0]["year"];
-  rtc.setTime(0,mIn,hOur,dAy,mOnth,yEar);
-}
-
-/*
- * Function in development to display status on serial monitor only when changed state
- */
-//void generalStatusPrint()
-// {
-//   oldValue = isEnabled;
-//   if(oldValue != newValue)
-//   {
-//     Serial.println(newValue);
-//     oldValue = newValue;
 //   }
 // }
