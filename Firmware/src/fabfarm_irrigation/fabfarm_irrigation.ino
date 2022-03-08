@@ -682,7 +682,7 @@ void disableAllRelays(){
 }
 
 /*
- * Function is used to evaluate if a certain relay should be low or high depending on the time it was set to run
+ * Function is used to evaluate if a certain relay should be OFF or ON depending on the time it was set to run
  */
 bool isWithinTimeslot (int startTimeInMinutes, int duration)
 {
