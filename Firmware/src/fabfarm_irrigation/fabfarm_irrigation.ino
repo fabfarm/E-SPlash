@@ -649,7 +649,7 @@ void disableAllRelays(){
     pinMode(pinNumber, OUTPUT);
     // Set GPIO pin to off
     digitalWrite(pinNumber, OFF);
-    Serial.printf("Zone %s (pin %n) is off\n\r", relays[i]["name"], pinNumber);
+    Serial.printf("Zone %s (pin %n) is off\n\r", relays[i]["name"].as<char*>(), &pinNumber);
   }
 }
 
@@ -840,8 +840,7 @@ void updateInternalRTC(const RtcDateTime& dt)
 
   Serial.println("*****************************************************");
   Serial.println("* Function updateInternalRTC()");
-  Serial.print(  "* Time from external RTC: ");
-  Serial.println(datestring);
+  Serial.printf( "* Time from external RTC: %s\n\r", datestring);
   Serial.println("* This function updates the internal RTC with the time");
   Serial.println("* from the external RTC");
   Serial.println("*****************************************************");
@@ -865,14 +864,12 @@ void setupRTC()
   RtcDateTime compiled = RtcDateTime(__DATE__, __TIME__);
   // Print the Time before updated from external RTC
   Serial.println("* ");
-  Serial.print(  "* Time from internal RTC on boot:");
-  Serial.println(rtc.getTime("%A, %B %d %Y %H:%M:%S"));
+  Serial.printf( "* Time from internal RTC on boot: %s\n\r", rtc.getTime("%A, %B %d %Y %H:%M:%S").c_str());
   // Configure internal RTC from external rtc time
   updateInternalRTC(Rtc.GetDateTime());
   // Print the Time updated from external RTC
   Serial.println("* ");
-  Serial.print(  "* Time from internal RTC after external RTC update: ");
-  Serial.println(rtc.getTime("%A, %B %d %Y %H:%M:%S"));
+  Serial.printf( "* Time from internal RTC after external RTC update:  %s\n\r", rtc.getTime("%A, %B %d %Y %H:%M:%S").c_str());
 
   if (!Rtc.IsDateTimeValid()) 
   {
@@ -952,10 +949,8 @@ void onGetIPAddress(WiFiEvent_t event, WiFiEventInfo_t info){
   Serial.println("");
   Serial.println("*****************************************************");
   Serial.println("* WIFI is connected!");
-  Serial.print(  "* The IP address is: ");
-  Serial.println(WiFi.localIP());
-  Serial.print(  "* The hostname is: ");
-  Serial.println(WiFi.getHostname());
+  Serial.printf( "* The IP address is: %s\n\r", WiFi.localIP().toString().c_str());
+  Serial.printf( "* The hostname is: %s\n\r", WiFi.getHostname());
   Serial.println("*****************************************************");
   Serial.println("");
 }
@@ -964,8 +959,7 @@ void onWifiDisconnected(WiFiEvent_t event, WiFiEventInfo_t info){
   Serial.println("");
   Serial.println("*****************************************************");
   Serial.println("* Disconnected from WIFI Access Point");
-  Serial.print(  "* WiFi lost connection. Reason: ");
-  Serial.println(info.disconnected.reason);
+  Serial.printf( "* WiFi lost connection. Reason: %n\n\r", &info.disconnected.reason);
   Serial.println("* Reconnecting...");
   WiFi.begin(wifi_network_ssid, wifi_network_password);
   Serial.println("*****************************************************");
@@ -988,8 +982,7 @@ void setupWifi()
   // Print WiFi configuration to serial monitor
   Serial.println();
   Serial.println("*****************************************************");
-  Serial.print(  "* SoftAP IP is: ");
-  Serial.println(WiFi.softAPIP());
+  Serial.printf( "* SoftAP IP is: %s\n\r", WiFi.softAPIP().toString().c_str());
 
   #ifdef stacticIP
     if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS)) {
