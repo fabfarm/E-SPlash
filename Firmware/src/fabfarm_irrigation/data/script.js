@@ -145,14 +145,14 @@ function updateSchedulingHtml(rebuildHtml = false) {
 											<input id="relay${i}.time${j}.duration-input" onChange="updateRelayTimes({rIndex: ${i}, inputType: 'duration-input', tIndex: ${j}, startTime:	'${time.startTime}', duration: this.value, endTime: '${finalEndTime}'})" class="form-control w-25" value="${time.duration}" type="number"><span class="m-2">min</span>
 										</div>
 									</div>`;
-					relaysHtml.push(
-						`<div class="shadow d-flex align-items-center bg-white rounded p-4 m-2 justify-content-center flex-column">
-								<h6 class="display-6 main-title"><strong>${relay.name} (pin ${relay.pin})</strong></h6>
-										${times}
-										<button type="button" class="btn btn-primary" onClick="addTime(${i})">Add time</button>
-						</div>`);
 				}
 			});
+			relaysHtml.push(
+				`<div class="shadow d-flex align-items-center bg-white rounded p-4 m-2 justify-content-center flex-column">
+						<h6 class="display-6 main-title"><strong>${relay.name} (pin ${relay.pin})</strong></h6>
+								${times}
+								<button type="button" class="btn btn-primary" onClick="addTime(${i})">Add time</button>
+				</div>`);
 		}
 	});
 
