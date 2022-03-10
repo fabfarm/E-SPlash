@@ -1,0 +1,23 @@
+{
+	"configPassword": "imakestuff",
+	"dhtSensor": -1,
+	"dhtPin": 21,
+	"rtcChip": "ds3231",
+	"rtcSdaPin": 15,
+	"rtcSclPin": 17,
+	"rtcDataPin": 14,
+	"rtcClockPin": 13,
+	"rtcResetPin": 32,
+	"batteryVoltagePin": 35,
+	"pumpPin": 13,
+	"networkSSID": "fabfarm_ele_container",
+	"networkPassword": "imakestuff",
+	"networkSoftAPSSID": "irrigation_greenhousetest",
+	"networkSoftAPPassword": "",
+	"networkHostname": "greenhousetestboard",
+	"networkIPAddress": "192.168.1.25",
+	"networkGateway": "192.168.1.1",
+	"networkNetmask": "255.255.255.0",
+	"networkPrimaryDNS": "8.8.8.8",
+	"networkSecondaryDNS": "8.8.4.4"
+}
