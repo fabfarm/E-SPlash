@@ -456,8 +456,6 @@ void setup(){
 void loop(){
   //testRtcOnLoop();  // Uncomment testRtcOnLoop() to display time every second on serial monitor
 
-  // AsyncElegantOTA.loop(); // Deprecated
-
   if (isScheduleMode)
   {
     scheduleMode();
@@ -557,89 +555,80 @@ bool writeDataJson() {
 
 void scheduleMode() {
   Serial.println("scheduleMode");
+  bool enablePump = false;
+
   // matrix logic test
   JsonArray relays = doc["relays"];
   for (int i = 0; i < relays.size(); i++){
-    bool flagEnableRelay = false;
+    bool enableRelay = false;
+    // Get GPIO pin number for relay
+    int pinNumber = relays[i]["pin"];
+
     for (int j = 0; j < relays[i]["times"].size(); j++) {
-      pinMode(relays[i]["pin"], OUTPUT);
-      // Split startTime
+      // Set GPIO pin to output
+      pinMode(pinNumber, OUTPUT);
+      // Split startTime into hour and minute parts
       int hOurs = relays[i]["times"][j]["startTime"].as<String>().substring(0,2).toInt();
       int mIns = relays[i]["times"][j]["startTime"].as<String>().substring(3).toInt();
+      // Calculate start time in minutes
       int startTimeInMinutes = (hOurs * 60) + mIns;
       int cycleDuration = relays[i]["times"][j]["duration"];
       // Probably should learn about bitwise... https://playground.arduino.cc/Code/BitMath/
       if (isWithinTimeslot(startTimeInMinutes, cycleDuration))
       {
-        flagEnableRelay = true;
+	  enableRelay = true;
       }
     }
 
-    if (flagEnableRelay)
+    if (enableRelay)
     {
-      digitalWrite(relays[i]["pin"], ON);
-      digitalWrite(pumpPinNumber, ON);
-      // Serial.print("Zone ");
-      String zoneName = relays[i]["name"];
-      // Serial.print(zoneName);
-      // Serial.println(" is Enabled!");
+      // Set GPIO pin to on
+      digitalWrite(pinNumber, ON);
+      Serial.printf("Relay %s (pin %d) is on\n\r", relays[i]["name"].as<char*>(), pinNumber);
+      enablePump = true;
     }
     else
     {   
-      int valveFlag = false;
-      for (int y = 0; y < relays.size(); y++)
-      {
-        if (digitalRead (relays[y]["pin"]) == ON)
-        {
-          valveFlag = true;
-        }
-      }
-      if (!valveFlag)
-        {
-          digitalWrite(pumpPinNumber, OFF);
-        }
-      digitalWrite(relays[i]["pin"], OFF);
-      // Serial.print("Zone ");
-      String zoneName = relays[i]["name"];
-      // Serial.print(zoneName);
-      // Serial.println(" is off");
+      // Set GPIO pin to off
+      digitalWrite(pinNumber, OFF);
+      Serial.printf("Relay %s (pin %d) is off\n\r", relays[i]["name"].as<char*>(), pinNumber);
     }
   }
+
+  // Switch off the pump if no relays are on
+  switchPump(enablePump);
 }
 
 void manualMode()
 {
+  Serial.println("manualMode");
+  int enablePump = false;
+
   JsonArray relays = doc["relays"];
   for (int i = 0; i < relays.size(); i++)
   {
-    Serial.printf("Relay %d: %d\n\r", i, (bool) relays[i]["isEnabled"]);
-    pinMode(relays[i]["pin"], OUTPUT);
+    // Get GPIO pin number for relay
+    int pinNumber = relays[i]["pin"];
+    // Set GPIO pin to output
+    pinMode(pinNumber, OUTPUT);
+
     if (relays[i]["isEnabled"])
     {
-      digitalWrite(relays[i]["pin"], ON);
-      digitalWrite(pumpPinNumber, ON);
+      // Set GPIO pin to on
+      digitalWrite(pinNumber, ON);
+      Serial.printf("Relay %s (pin %d) is on\n\r", relays[i]["name"].as<char*>(), pinNumber);
+      enablePump = true;
     }
     else
-    {   
-      int valveFlag = false;
-      for (int y = 0; y < relays.size(); y++)
-      {
-        if (digitalRead (relays[y]["pin"]) == ON)
-        {
-          valveFlag = true;
-        }
-      }
-      if (!valveFlag)
-        {
-          digitalWrite(pumpPinNumber, OFF);
-        }
-      digitalWrite(relays[i]["pin"], OFF);
-      // Serial.print("Zone ");
-      String zoneName = relays[i]["name"];
-      // Serial.print(zoneName);
-      // Serial.println(" is off");
+    {
+      // Set GPIO pin to off
+      digitalWrite(pinNumber, OFF);
+      Serial.printf("Relay %s (pin %d) is off\n\r", relays[i]["name"].as<char*>(), pinNumber);
     }
   }
+
+  // Switch off the pump if no relays are on
+  switchPump(enablePump);
 }
 
 /*
@@ -648,19 +637,40 @@ void manualMode()
  */
 void disableAllRelays(){
   // Defining behavior of pumpPinNumber and its startup state
-  pinMode(pumpPinNumber, OUTPUT);
-  digitalWrite(pumpPinNumber, OFF);
+  switchPump(false);
 
   // Loop over configured relays and set to off
   JsonArray relays = doc["relays"];
-  for (int p = 0; p < relays.size(); p++)
+  for (int i = 0; i < relays.size(); i++)
   {
     // Get GPIO pin number for relay
-    int pinNumber = relays[p]["pin"];
+    int pinNumber = relays[i]["pin"];
     // Set GPIO pin to output
     pinMode(pinNumber, OUTPUT);
     // Set GPIO pin to off
     digitalWrite(pinNumber, OFF);
+    Serial.printf("Zone %s (pin %n) is off\n\r", relays[i]["name"], pinNumber);
+  }
+}
+
+/*
+ * Switch the pump on or off
+ */
+void switchPump(bool state)
+{
+  // Set GPIO pin to output
+  pinMode(pumpPinNumber, OUTPUT);
+  if (state)
+  {
+    // Set GPIO pin to on
+    digitalWrite(pumpPinNumber, ON);
+    Serial.printf("Pump (pumpPinNumber %d) is on\n\r", pumpPinNumber);
+  }
+  else
+  {
+    // Set GPIO pin to off
+    digitalWrite(pumpPinNumber, OFF);
+    Serial.printf("Pump (pumpPinNumber %d) is off\n\r", pumpPinNumber);
   }
 }
 
