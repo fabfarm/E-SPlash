@@ -8,46 +8,122 @@
 		<link rel="stylesheet" type="text/css" href="/all.css" />
 		<link rel="stylesheet" type="text/css" href="/style.css" />
 		<link href="/bootstrap.min.css" rel="stylesheet" />
+		<style>
+			body {
+				background-color: #f7f9fb;
+				margin: auto;
+			}
+
+			.main-title {
+				font-weight: bold;
+			}
+
+			.toast {
+				bottom: 0;
+				right: 5px;
+				position: fixed;
+				display: none;
+			}
+
+			.spinner-container {
+				position: fixed;
+				bottom: 0;
+				right: 5px;
+				display: none;
+			}
+
+			#schedulingMode {
+				width: 100px;
+				height: 50px;
+			}
+		</style>
 	</head>
 	<body>
-		<img src="logo.png" alt="FabFarm Algarve" style="height:400px;" />
-		<hr>
-		<h3>Update <a href="/update">firmware</a> - <a href="/">Back to Control Page</a></h3>
-		<hr>
-		<h2>Manual data update</h2>
-		<hr>
-		<i class="fas fa-clock"></i>
-		<span class="dht-labels">Farm Time:</span>
-		<span id="currentTime"></span>
-		<br>
-		<hr>
-		<h3>Date and time</h3>
-		<div id="main"></div> 
-		<br>
-		<h5>Add a relay:</h5>
-		<form id = "relayform" class= "form">
-			<div>
-			   <input type="text" id="relayname" style="width:90px" name="inputInt" placeholder = "Relay Name">
-			   <input type="number" id="relaypin" style="width:70px" name="inputInt"  placeholder = "Pin number">
-			   <input type="text" id="relaystatus" style="width:90px" name="inputInt" placeholder = "Relay status">
+		<div class="container-fluid position-relative d-flex align-items-center flex-column">
+			<img src="/logo.png" alt="FabFarm Algarve" class="rounded mx-auto d-block p-10 m-5" />
+			<h1 class="display-1 main-title">
+				<strong>Irrigation System</strong>
+			</h1>
+			<div class="shadow d-flex w-100 flex-column justify-content-center align-items-center bg-white rounded p-4 m-2">
+				<h5 id="currentTime" class="dht-labels m-2"></h5>
 			</div>
-			<input type="submit" name = "submit" onclick="addrelay(this)" value="Add relay">
-		</form>
-		<hr />
-		<input type="button" value="Return to homepage" />
-		<hr />
-		<h3>Wifi credentials :</h3>
-		<form id = "credentialsform" class= "form">
-			SSID: <input type="text" name="ssid" id="ssid"  placeholder = "ssid">
-			<br />
-			<div>Password: <input type="text" name="password" id="password"  placeholder = "password"></div>
-			<br /> 
-			<input type="button" style="width:140px" onClick="updatecredentials(this)" value="Change credentials" />
-		</form>
-		<hr />
-		<script>
+			<div id="main">
+				<div class="shadow d-flex align-items-center bg-white rounded p-4 m-2 justify-content-center flex-column">
+					<h6 class="display-6 main-title"><strong>Date and time</strong></h6>
+					<div class="d-flex align-items-center bg-white rounded p-4 m-2 justify-content-center">
+						<form id = "timeform" class= "form">
+							<div>Date : <input type="date" id="date" name="date" style="width:130px;" /></div>
+							<div>Time : <input type="time" id="time" name="time" style="width:70px;" /></div>
+							<button class="btn btn-primary" onClick="updateTime(this)">Change time and date</button>
+						</form>
+					</div>
+					<div class="d-flex align-items-center bg-white rounded p-4 m-2 justify-content-center">
+						<div class="form-check form-switch">
+							<input type="checkbox" id="useInternetTime" onclick="enableInternetUpdate(this)" value="true">
+						</div>
+						<span class="m-2 display-6">Use internet time</span>
+					</div>
+				</div>
+				<div class="shadow d-flex align-items-center bg-white rounded p-4 m-2 justify-content-center flex-column">
+					<h6 class="display-6 main-title"><strong>Sensors</strong></h6>
+				</div>
+				<div class="shadow d-flex align-items-center bg-white rounded p-4 m-2 justify-content-center flex-column">
+					<h6 class="display-6 main-title"><strong>Relays</strong></h6>
+					<h3>Current relays :</h3>
+					<table id="productTable">
+						<thead>
+							<tr>
+							   <th>Relay name </th>
+							   <th>Relay Pin </th>
+							   <th>Current status</th>
+							</tr>
+						</thead>
+						<tbody id="relays"></tbody>
+					</table>
+					<h5>Add a relay:</h5>
+					<form id = "relayform" class= "form">
+						<div>
+						   <input type="text" id="relayname" style="width:90px" name="inputInt" placeholder = "Relay Name">
+						   <input type="number" id="relaypin" style="width:70px" name="inputInt"  placeholder = "Pin number">
+						   <input type="text" id="relaystatus" style="width:90px" name="inputInt" placeholder = "Relay status">
+						</div>
+						<button type="submit" class="btn btn-primary" name = "submit" onclick="addRelay(this)">Add Relay</button>
+					</form>
+				</div>
+				<div class="shadow d-flex align-items-center bg-white rounded p-4 m-2 justify-content-center flex-column">
+					<h6 class="display-6 main-title"><strong>Wifi Credentials</strong></h6>
+					<form id = "credentialsform" class= "form">
+						<div>SSID: <input type="text" name="ssid" id="ssid" placeholder="ssid"></div>
+						<div>Password: <input type="text" name="password" id="password"  placeholder = "password"></div>
+						<button class="btn btn-primary" onClick="updateCredentials(this)">Change WiFi Credentials</button>
+					</form>
+				</div>
+			</div>
+			<hr />
+			<a href="/update" class="btn btn-primary">Update Firmware</a><br />
+			<a href="/" class="btn btn-primary">Back to Control Page</a>
+			<div class="toast-container position-fixed">
+				<div id="toast-error" class="toast p-1 text-white bg-danger align-items-center">
+					<div class="d-flex w-100">
+						<div class="toast-body" id="toast-error-body"></div>
+						<button class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast-error" aria-label="Close" onclick="closeErrorToast()"></button>
+					</div>
+				</div>
+				<div class="spinner-border spinner-container text-primary" id="spinner-bottom-right" role="status">
+					<span class="visually-hidden">Loading...</span>
+				</div>
+				<div id="toast-success" class="toast p-1 text-white bg-success align-items-center">
+					<div class="d-flex w-100">
+						<div class="toast-body" id="toast-success-body">Success</div>
+						<button class="btn-close btn-close-white me-2 m-auto" aria-label="Close" onclick="closeSuccessToast()"></button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script src="/script.js"></script>
+		<script type="text/javascript">
 			var jsonData; 
-			function updatecredentials(obj){
+			function updateCredentials(obj){
 				var fl1 = document.getElementById("ssid").value;
 				var fl2 = document.getElementById("password").value;
 				jsonData.data.credentials[0].ssid = fl1;
@@ -55,13 +131,13 @@
 				console.log(fl1);
 				console.log(fl2);
 				var json = JSON.stringify(jsonData);
-				var xmlhttp = new XMLHttpRequest();   
+				var xmlhttp = new XMLHttpRequest();
 				xmlhttp.open("POST", "/updateData");
 				xmlhttp.setRequestHeader("Content-Type", "application/json;");
 				xmlhttp.send(json);
 			}
-		
-			function updaterelays(obj) {
+
+			function updateRelays(obj) {
 				var1 = document.getElementById("relayname").value;
 				var2 = document.getElementById("relaypin").value;
 				var3 = document.getElementById("relaystatus").value;
@@ -70,16 +146,16 @@
 				// }
 				jsonData.relay[0].name
 				var json = JSON.stringify(jsonData);
-				var xmlhttp = new XMLHttpRequest();   
+				var xmlhttp = new XMLHttpRequest();
 				xmlhttp.open("POST", "/updateData");
 				xmlhttp.setRequestHeader("Content-Type", "application/json;");
 				xmlhttp.send(json);
 			}
-		
-			function updatetime(obj) {	   
+
+			function updateTime(obj) {	   
 				jsonData.data.changedtime[0].manualtimeenabled =0;
-				var fl1= document.getElementById("field1").value;
-				var fl2= document.getElementById("field2").value;
+				var fl1= document.getElementById("date").value;
+				var fl2= document.getElementById("time").value;
 				jsonData.data.changedtime[0].Ttime = fl2 ;
 				var timex = (new Date(fl1));
 				var hour = fl2.split(":")[0];
@@ -102,63 +178,41 @@
 				xmlhttp.send(json);
 				return;
 			}
-		
+
 			function refresh() {
 				var r3 = new XMLHttpRequest();
 				r3.onreadystatechange = function() {
 					if (this.readyState == 4 && this.status == 200) {
 						jsonData = JSON.parse(this.responseText);
 						document.getElementById("currentTime").innerText = jsonData.data.currentTime;
-						var html= `<form id = "timeform" class= "form">
-						Time : <input id="field2" name="field2" type="time" style="width:70px;" value="${jsonData.data.changedtime[0].Ttime}"  />
-						Date : <input type="date"  style="width:130px;"  name="field1" id="field1"/><br /><br />
-						<input type="button" onClick="updatetime(this)" value="Change time and date" />
-						</form>
-						 <label class="switch">
-						<input type="checkbox" ${jsonData.data.changedtime[0].internettime ? "checked" : ""} 
-						onClick="enableinternetupdate(this);" id="field3" value="use internet time"/>
-						<span class="slider"></span> 
-						</label> Use internet time
-						<hr>`;
-		 
-						var htmlrelay = `<h3>Current relays :</h3>
-					<table id="productTable">
-						<thead>
-							<tr>
-							   <th>Relay name </th>
-							   <th>Relay Pin </th>
-							   <th>Current status</th>
-							</tr>
-						</thead>
-						<tbody> `
-					for(var i = 0; i  < jsonData.relays.length; i++) {
-						var relay =  jsonData.relays[i];
-						if (relay.isrunning == 1){
-							var status = "ON";
+						//document.getElementById("date").innerText
+						document.getElementById("time").innerText = jsonData.data.changedtime[0].Ttime;
+						document.getElementById("useInternetTime").checked = jsonData.data.changedtime[0].internettime;
+						var htmlrelay = "";
+						for(var i = 0; i  < jsonData.relays.length; i++) {
+							var relay =  jsonData.relays[i];
+							if (relay.isEnabled == 1){
+								var status = "ON";
+							}
+							else{
+								var status = "OFF";
+							}	   
+							if  (relay.active ==1 ){
+								htmlrelay+=  
+							   `<tr>
+									<td>${relay.name}</td>
+									<td>${relay.pin}</td>
+									<td>${status}</td>
+									<td><button class="btn btn-primary" value="${i}" onclick="removeRelay(${i})"></button></td>
+								</tr>`
+							}
 						}
-						else{
-							var status = "OFF";
-						}	   
-						if  (relay.active ==1 ){
-							htmlrelay+=  
-						   `<tr>
-								<td>${relay.name}</td>
-								<td>${relay.pin}</td>
-								<td>${status}</td>
-								<td><input type="button" value="X " style="width:20px" onclick="deleterelay('this','${i}')"></td>
-							</tr>`
-						}
+
+						var main = document.getElementById("relays");
+						main.innerHTML = htmlrelay;
 					}
-					
-					htmlrelay+=
-					`   </tbody>
-					</table> `
-				
-						 var main = document.getElementById("main");
-						main.innerHTML = html + htmlrelay; //this will REBUILD the page per ping (?)	
-					}
-				};					
-		
+				};
+
 				r3.open("GET", "/data.json", true);
 				r3.timeout = 2000;
 				r3.ontimeout = function(e) {
@@ -168,12 +222,12 @@
 				// for testing:
 				//r3.open("GET", "sample.json", true);
 				r3.send();
-			
+
 			};
 			refresh();
-		
-			function enableinternetupdate() {
-				jsonData.data.changedtime[0].internettime = document.getElementById("field3").checked ? 1 : 0;
+
+			function enableInternetUpdate() {
+				jsonData.data.changedtime[0].internettime = document.getElementById("internetTime").checked ? 1 : 0;
 				var json = JSON.stringify(jsonData);
 				var xmlhttp = new XMLHttpRequest();   
 				xmlhttp.open("POST", "/updateData");
@@ -181,18 +235,18 @@
 				xmlhttp.send(json);
 				return;
 			}
-		
+
 			function ManualChangeCredentials(f1,f2) {
-			
+
 				var ssid= document.getElementById(f1).innerText;
 				var pass= document.getElementById(f2).innerText;
-				
+
 				console.log(ssid);
 				console.log(pass);
-		
+
 				return;
 			}
-		
+
 			function deleterelay(obj,relay){
 				jsonData.relays[relay].active = 0;
 				window.location.reload();
@@ -203,7 +257,7 @@
 				xmlhttp.send(json);
 				return;
 			}
-		
+
 			function addrelay(obj){
 				for(var i = 0; i  < jsonData.relays.length; i++) {
 					var relay =  jsonData.relays[i];
