@@ -289,6 +289,8 @@ void setup(){
     int relayIndex = request->pathArg(0).toInt();
     bool state = request->pathArg(1).equals("on");
 
+    //ToDo Check if relay exists
+
     Serial.printf("Relay %d: %d\n\r", relayIndex, state);
     doc["relays"][relayIndex]["isEnabled"].set(state);
 
@@ -309,7 +311,7 @@ void setup(){
   //    [](AsyncWebServerRequest *request, JsonVariant &json) {
   //  int relayIndex = request->pathArg(0).toInt();
   //  int timeIndex = request->pathArg(1).toInt();
-  AsyncCallbackJsonWebHandler *updateRelayTime = new AsyncCallbackJsonWebHandler("/update/relay-time",
+  AsyncCallbackJsonWebHandler *updateRelayTime = new AsyncCallbackJsonWebHandler("/relay/update-time",
       [](AsyncWebServerRequest *request, JsonVariant &json) {
     //TODO Input validation
     int relayIndex = json["relayIndex"];
@@ -328,7 +330,7 @@ void setup(){
   });
 
   // Add new relay time
-  AsyncCallbackJsonWebHandler *addRelayTime = new AsyncCallbackJsonWebHandler("/add/relay-time", 
+  AsyncCallbackJsonWebHandler *addRelayTime = new AsyncCallbackJsonWebHandler("/relay/add-time",
       [](AsyncWebServerRequest *request, JsonVariant &json) {
     JsonObject nested = doc["relays"][json["relayIndex"]]["times"].as<JsonArray>().createNestedObject();
     nested["startTime"] = "10:00";
@@ -345,9 +347,13 @@ void setup(){
   });
   
   // Remove relay time
-  AsyncCallbackJsonWebHandler *removeRelayTime = new AsyncCallbackJsonWebHandler("/remove/relay-time", 
-      [](AsyncWebServerRequest *request, JsonVariant &json) {
-    doc["relays"][json["relayIndex"]]["times"].as<JsonArray>().remove(json["timeIndex"].as<size_t>());
+  server.on("^\\/relay\\/([0-9]+)\\/time\\/([0-9]+)$", HTTP_DELETE, [](AsyncWebServerRequest *request) {
+    int relayIndex = request->pathArg(0).toInt();
+    int timeIndex = request->pathArg(1).toInt();
+
+    //ToDo Check if relay and time exist
+
+    doc["relays"][relayIndex]["times"].as<JsonArray>().remove(timeIndex);
 
     if(writeDataJson())
     {
@@ -360,7 +366,7 @@ void setup(){
   });
 
   // Add new relay
-  AsyncCallbackJsonWebHandler *addRelay = new AsyncCallbackJsonWebHandler("/add/relay", 
+  AsyncCallbackJsonWebHandler *addRelay = new AsyncCallbackJsonWebHandler("/relay/add",
       [](AsyncWebServerRequest *request, JsonVariant &json) {
     JsonObject nested = doc["relays"].as<JsonArray>().createNestedObject();
 
@@ -393,9 +399,13 @@ void setup(){
   });
   
   // Remove relay
-  AsyncCallbackJsonWebHandler *removeRelay = new AsyncCallbackJsonWebHandler("/remove/relay", 
-      [](AsyncWebServerRequest *request, JsonVariant &json) {
-    doc["relays"].as<JsonArray>().remove(json["relayIndex"].as<size_t>());
+  server.on("^\\/relay\\/([0-9]+)$", HTTP_DELETE, [](AsyncWebServerRequest *request) {
+    int relayIndex = request->pathArg(0).toInt();
+
+    //ToDo Check if relay exists
+
+    Serial.printf("Removing relay %d\n\r", relayIndex);
+    doc["relays"].as<JsonArray>().remove(relayIndex);
 
     if(writeDataJson())
     {
@@ -410,9 +420,7 @@ void setup(){
   server.addHandler(updateData);
   server.addHandler(updateRelayTime);
   server.addHandler(addRelayTime);
-  server.addHandler(removeRelayTime);
   server.addHandler(addRelay);
-  server.addHandler(removeRelay);
 
   // Start ElegantOTA for Over The Air updates
   AsyncElegantOTA.begin(&server);

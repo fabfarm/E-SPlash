@@ -5,23 +5,14 @@ let previousJsonDataState = {};
 let mainHtmlState = [];
 // Endpoint URL constants
 const GET_DATA_ENDPOINT = "/data.json";
-const UPDATE_DATA_ENDPOINT = "/updateData";
-const UPDATE_SCHEDULING_MODE_ENPOINT = "/update/scheduling-mode";
-const UPDATE_RELAY_ENABLE_ENPOINT = "/update/relay-enable";
-const UPDATE_RELAY_TIME = "/update/relay-time";
-const ADD_RELAY_TIME = "/add/relay-time";
-const REMOVE_RELAY_TIME = "/remove/relay-time";
-const ADD_RELAY = "/add/relay";
-const REMOVE_RELAY = "/remove/relay";
+const UPDATE_RELAY_TIME = "/relay/update-time";
+const ADD_RELAY_TIME = "/relay/add-time";
+const ADD_RELAY = "/relay/add";
 // Payload constants
 const RANGE = "range";
 const END = "end";
 const START = "start";
 const DURATION_INPUT = "duration-input";
-// JSON keys
-const DATA_KEY = "data";
-const RELAYS_KEY = "relays";
-const SCHEDULE_MODE_KEY = "isScheduleMode";
 // ------------------------------------------------
 
 // Definition of functions -----------------------------
@@ -171,7 +162,7 @@ function updateSchedulingHtml(rebuildHtml = false) {
 
 function updateSchedulingMode(event) {
 	stopRefresh();
-	showLoadSpinner(true);
+	displayLoadSpinner();
 
 	// Update local state
 	jsonDataState.data.isScheduleMode = event.checked;
@@ -187,14 +178,14 @@ function updateSchedulingMode(event) {
 	fetch(url).then(() => {
 		startRefresh();
 
-		showLoadSpinner(false);
+		closeLoadSpinner();
 		displaySuccessToast();
 	});
 }
 
 function updateRelayEnabled(index, event) {
 	stopRefresh();
-	showLoadSpinner(true);
+	displayLoadSpinner();
 
 	// Update local state
 	const relayIndex = index;
@@ -209,7 +200,7 @@ function updateRelayEnabled(index, event) {
 	
 	// Send request to server
 	fetch(url).then(() => {
-		showLoadSpinner(false);
+		closeLoadSpinner();
 		displaySuccessToast();
 
 		startRefresh();
@@ -246,7 +237,7 @@ function updateRelayTimes(payload) {
 
 	if (!(durationToUpdate <= 0)) {
 		stopRefresh();
-		showLoadSpinner(true);
+		displayLoadSpinner();
 
 		// Update local state
 		jsonDataState.relays[payload.rIndex].times[payload.tIndex].startTime = parseTimeMinutesToHHMM(startToUpdate);
@@ -266,21 +257,21 @@ function updateRelayTimes(payload) {
 				duration: durationToUpdate,
 			}),
 		}).then(() => {
-			showLoadSpinner(false);
+			closeLoadSpinner();
 			displaySuccessToast();
 	
 			startRefresh();
 		});
 	} else {
-		showLoadSpinner(false);
+		closeLoadSpinner();
 		displayErrorToast("You cannot enter a negative duration value");
 	}
 }
 
 function addTime(relayIndex) {
 	stopRefresh();
+	displayLoadSpinner();
 
-	showLoadSpinner(true);
 	// Update local state
 	jsonDataState.relays[relayIndex].times.push(
 		JSON.parse(JSON.stringify({ startTime: "10:00", duration: 30 }))
@@ -292,7 +283,7 @@ function addTime(relayIndex) {
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({ relayIndex }),
 	}).then(() => {
-		showLoadSpinner(false);
+		closeLoadSpinner();
 		displaySuccessToast();
 
 		startRefresh();
@@ -301,22 +292,15 @@ function addTime(relayIndex) {
 
 function removeTime(payload) {
 	stopRefresh();
+	displayLoadSpinner();
 
-	showLoadSpinner(true);
-	console.log(payload);
 	// Update local state
 	jsonDataState.relays[payload.relayIndex].times.splice(payload.timeIndex, 1);
 	updateSchedulingHtml(true);
 
-	fetch(REMOVE_RELAY_TIME, {
-		method: "POST",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({
-			relayIndex: payload.relayIndex,
-			timeIndex: payload.timeIndex,
-		}),
-	}).then(() => {
-		showLoadSpinner(false);
+	var url = `/relay/${payload.relayIndex}/time/${payload.timeIndex}`;
+	fetch(url, { method: "DELETE" }).then(() => {
+		closeLoadSpinner();
 		displaySuccessToast();
 
 		startRefresh();
@@ -342,22 +326,14 @@ function parseTimeMinutesToHHMM(time) {
 
 // Setup functions
 function addRelay(payload) {
-	showLoadSpinner(true);
+	displayLoadSpinner();
 	// Update local state
 	jsonDataState.relays[payload.relayIndex].push(
 		JSON.parse(
 			JSON.stringify({
 				name: payload.name,
 				pin: payload.pin,
-				isEnabled: 0,
-				times: [
-					{
-						startTime: "10:00",
-						duration: 30,
-						hour: 10,
-						min: 0,
-					},
-				],
+				isEnabled: 0
 			})
 		)
 	);
@@ -371,24 +347,20 @@ function addRelay(payload) {
 			pin: payload.pin,
 		}),
 	}).then(() => {
-		showLoadSpinner(false);
+		closeLoadSpinner();
 		displaySuccessToast();
 	});
 }
 
 function removeRelay(payload) {
-	showLoadSpinner(true);
+	displayLoadSpinner();
 	// Update local state
 	jsonDataState.relays.slice(payload.relayIndex, 1);
 	updateSchedulingHtml();
-	fetch(REMOVE_RELAY, {
-		method: "POST",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({
-			relayIndex: payload.relayIndex,
-		}),
-	}).then(() => {
-		showLoadSpinner(false);
+
+	var url = `/relay/${payload.relayIndex}`;
+	fetch(url, { method: "DELETE" }).then(() => {
+		closeLoadSpinner();
 		displaySuccessToast();
 	});
 }
@@ -421,7 +393,10 @@ function closeSuccessToast() {
 	document.getElementById("toast-success").style.display = "none";
 }
 
-function showLoadSpinner(show) {
-	document.getElementById("spinner-bottom-right").style.display = show ? "flex" : "none";
+function displayLoadSpinner(show) {
+	document.getElementById("spinner-bottom-right").style.display = "flex";
 }
-startRefresh();
+
+function closeLoadSpinner() {
+	document.getElementById("spinner-bottom-right").style.display = "none";
+}
