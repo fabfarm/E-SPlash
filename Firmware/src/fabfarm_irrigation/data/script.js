@@ -119,7 +119,7 @@ function updateSchedulingHtml(rebuildHtml = false) {
 				} else {
 					times += `<div class="d-flex flex-column align-items-stretch w-100 p-2">
 									<div class="d-flex align-items-center justify-content-end w-100">
-										<button type="button" class="btn btn-danger" onClick="removeTime({relayIndex: ${i}, timeIndex: ${j}})">Remove Time</button>
+										<button class="btn btn-danger" onClick="removeTime({relayIndex: ${i}, timeIndex: ${j}})">Remove Time</button>
 									</div>
 										<div class="d-flex align-items-center">
 											<input class="form-control m-2" 
@@ -151,7 +151,7 @@ function updateSchedulingHtml(rebuildHtml = false) {
 				`<div class="shadow d-flex align-items-center bg-white rounded p-4 m-2 justify-content-center flex-column">
 						<h6 class="display-6 main-title"><strong>${relay.name} (pin ${relay.pin})</strong></h6>
 								${times}
-								<button type="button" class="btn btn-primary" onClick="addTime(${i})">Add time</button>
+								<button class="btn btn-primary" onClick="addTime(${i})">Add time</button>
 				</div>`);
 		}
 	});

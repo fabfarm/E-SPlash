@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE HTML>
 <html lang="en">
 	<head>
 		<title>Fabfarm Irrigation</title>
@@ -39,8 +39,7 @@
 		</style>
 	</head>
 	<body>
-		<div
-			class="container-fluid position-relative d-flex align-items-center flex-column">
+		<div class="container-fluid position-relative d-flex align-items-center flex-column">
 			<img src="/logo.png" alt="FabFarm Algarve" class="rounded mx-auto d-block p-10 m-5" />
 			<h1 class="display-1 main-title">
 				<strong>Irrigation System</strong>
@@ -78,9 +77,9 @@
 			        <h6 class="display-6 main-title"><strong>Scheduling Mode</strong></h6>
 			        <div class="d-flex align-items-center bg-white rounded p-4 m-2 justify-content-center">
 				        <span class="m-2 display-6">Manual</span>
-				            <div class="form-check form-switch">
-				                <input onclick="updateSchedulingMode(this)" id="schedulingMode" class="form-check-input" type="checkbox" value="true">
-				            </div>
+			            <div class="form-check form-switch">
+			                <input onclick="updateSchedulingMode(this)" id="schedulingMode" class="form-check-input" type="checkbox" value="true">
+			            </div>
 				        <span class="m-2 display-6">Automatic</span>
 			        </div>
 		        </div>
@@ -92,17 +91,16 @@
 				<div id="toast-error" class="toast p-1 text-white bg-danger align-items-center">
 					<div class="d-flex w-100">
 						<div class="toast-body" id="toast-error-body"></div>
-						<button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast-error" aria-label="Close" onclick="closeErrorToast()"></button>
+						<button class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast-error" aria-label="Close" onclick="closeErrorToast()"></button>
 					</div>
 				</div>
-				<div class="spinner-border spinner-container text-primary"
-					id="spinner-bottom-right" role="status">
+				<div class="spinner-border spinner-container text-primary" id="spinner-bottom-right" role="status">
 					<span class="visually-hidden">Loading...</span>
 				</div>
 				<div id="toast-success" class="toast p-1 text-white bg-success align-items-center">
 					<div class="d-flex w-100">
 						<div class="toast-body" id="toast-success-body">Success</div>
-						<button type="button" class="btn-close btn-close-white me-2 m-auto" aria-label="Close" onclick="closeSuccessToast()"></button>
+						<button class="btn-close btn-close-white me-2 m-auto" aria-label="Close" onclick="closeSuccessToast()"></button>
 					</div>
 				</div>
 			</div>
