@@ -217,62 +217,10 @@ void setup(){
   // Start the HTTP server
   server.begin();
 
-  /*
-   * Define HTTP server paths
-   */
-  // Route for root / web page
-  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-    request->send(SPIFFS, "/index.html", String(), false);
-  });
-  // Route for setup page / web page
-  server.on("/setuppage.html", HTTP_GET, [] (AsyncWebServerRequest *request) {
-    request->send(SPIFFS, "/setuppage.html", String(), false);
-  });
-
-  // Routes to CSS, fonts and image files
-  server.on("/style.css", HTTP_GET, [](AsyncWebServerRequest *request) {
-    request->send(SPIFFS, "/style.css", "text/css");
-  });
-  server.on("/bootstrap.min.css", HTTP_GET, [](AsyncWebServerRequest *request) {
-    request->send(SPIFFS, "/bootstrap.min.css", "text/css");
-  });
-  server.on("/bootstrap.min.js", HTTP_GET, [](AsyncWebServerRequest *request) {
-    request->send(SPIFFS, "/bootstrap.min.js", "text/js");
-  });
-  server.on("/all.css", HTTP_GET, [](AsyncWebServerRequest *request) {
-    request->send(SPIFFS, "/all.css", "text/css");
-  });
-  server.on("/fa-solid-900.woff2", HTTP_GET, [](AsyncWebServerRequest * request) {
-    Serial.println("Send : fa-solid-900 css");
-    request->send(SPIFFS, "/fa-solid-900.woff2", "application/x-font-woff2");
-    Serial.println("Sended : fa-solid-900 css");
-  });
-  server.on("/fa-solid-900.woff", HTTP_GET, [](AsyncWebServerRequest * request) {
-    Serial.println("Send : fa-solid-900 css");
-    request->send(SPIFFS, "/fa-solid-900.woff", "application/x-font-woff");
-    Serial.println("Sended : fa-solid-900 css");
-  });
-  server.on("/fa-solid-900.ttf", HTTP_GET, [](AsyncWebServerRequest * request) {
-    Serial.println("Send : fa-solid-900 css");
-    request->send(SPIFFS, "/fa-solid-900.ttf", "application/x-font-ttf");
-    Serial.println("Sended : fa-solid-900 css");
-  });
-  server.on("/favicon.ico", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(SPIFFS, "/logo.png", "image/png");
-  });
-  server.on("/logo.png", HTTP_GET, [](AsyncWebServerRequest *request) {
-    request->send(SPIFFS, "/logo.png", "image/png");
-  });
-
-  // Route to javaScript file
-  server.on("/script.js", HTTP_GET, [](AsyncWebServerRequest *request) {
-    request->send(SPIFFS, "/script.js", "text/javascript");
-  });
-
   // Routes to data end-points
-  server.on("/getData", HTTP_GET, [](AsyncWebServerRequest *request)
+  server.on("/data.json", HTTP_GET, [](AsyncWebServerRequest *request)
   {
-    Serial.println("/getData");
+    Serial.println("/data.json");
     DynamicJsonDocument data = doc;
 
     // Create a copy of the data set, modify it, serialize it and then send to the browser
@@ -306,20 +254,20 @@ void setup(){
   });
 
   // Update scheduling mode
-  AsyncCallbackJsonWebHandler *updateSchedulingMode = new AsyncCallbackJsonWebHandler("/update/scheduling-mode",
-      [](AsyncWebServerRequest *request, JsonVariant &json) {
-    isScheduleMode = json["value"];
+  server.on("^\\/mode\\/((manual)|(scheduled))$", HTTP_GET, [](AsyncWebServerRequest *request)
+  {
+    isScheduleMode = request->pathArg(0).equals("scheduled");
     doc["data"]["isScheduleMode"].set(isScheduleMode);
 
     if(writeDataJson())
     {
       if (isScheduleMode)
       {
-        scheduleMode();
+	scheduleMode();
       }
       else
       {
-        manualMode();
+	manualMode();
       }
 
       request->send(200); // OK
@@ -331,15 +279,18 @@ void setup(){
   });
 
   // Update relay enabled - MANUAL MODE
-  AsyncCallbackJsonWebHandler *updateRelayEnabled = new AsyncCallbackJsonWebHandler("/update/relay-enable",
-      [](AsyncWebServerRequest *request, JsonVariant &json) {
+  server.on("^\\/relay\\/([0-9]+)\\/((on)|(off))$", HTTP_GET, [](AsyncWebServerRequest *request)
+  {
     if(isScheduleMode) {
       // Return Method Not Allowed when we're not in manual mode
       request->send(405); // Method Not Allowed
     }
 
-    Serial.printf("Relay %d: %d\n\r", (int) json["relayIndex"], (bool) json["enabled"]);
-    doc["relays"][json["relayIndex"]]["isEnabled"].set(json["enabled"]);
+    int relayIndex = request->pathArg(0).toInt();
+    bool state = request->pathArg(1).equals("on");
+
+    Serial.printf("Relay %d: %d\n\r", relayIndex, state);
+    doc["relays"][relayIndex]["isEnabled"].set(state);
 
     if(writeDataJson())
     {
@@ -353,10 +304,18 @@ void setup(){
   });
   
   // Update relay times - AUTOMATIC MODE
+  // AsyncCallbackJsonWebHandler does not support regex :-(
+  //AsyncCallbackJsonWebHandler *updateRelayTime = new AsyncCallbackJsonWebHandler("^\\/relay\\/([0-9]+)\\/time\\/([0-9]+)$",
+  //    [](AsyncWebServerRequest *request, JsonVariant &json) {
+  //  int relayIndex = request->pathArg(0).toInt();
+  //  int timeIndex = request->pathArg(1).toInt();
   AsyncCallbackJsonWebHandler *updateRelayTime = new AsyncCallbackJsonWebHandler("/update/relay-time",
       [](AsyncWebServerRequest *request, JsonVariant &json) {
-    doc["relays"][json["relayIndex"]]["times"][json["timeIndex"]]["startTime"].set(json["startTime"]);
-    doc["relays"][json["relayIndex"]]["times"][json["timeIndex"]]["duration"].set(json["duration"]);
+    //TODO Input validation
+    int relayIndex = json["relayIndex"];
+    int timeIndex = json["timeIndex"];
+    doc["relays"][relayIndex]["times"][timeIndex]["startTime"].set(json["startTime"]);
+    doc["relays"][relayIndex]["times"][timeIndex]["duration"].set(json["duration"]);
 
     if(writeDataJson())
     {
@@ -421,7 +380,7 @@ void setup(){
 
     nested["name"] = json["name"];
     nested["pin"] = json["pin"];
-    nested["isEnabled"] = 0;
+    nested["isEnabled"] = false;
 
     if(writeDataJson())
     {
@@ -449,8 +408,6 @@ void setup(){
   });
 
   server.addHandler(updateData);
-  server.addHandler(updateSchedulingMode);
-  server.addHandler(updateRelayEnabled);
   server.addHandler(updateRelayTime);
   server.addHandler(addRelayTime);
   server.addHandler(removeRelayTime);
@@ -460,7 +417,24 @@ void setup(){
   // Start ElegantOTA for Over The Air updates
   AsyncElegantOTA.begin(&server);
 
-  boolean isScheduleMode = doc["data"]["isScheduleMode"];
+  /*
+   * Define HTTP server paths
+   */
+  // Route for root / web page
+  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
+    request->send(SPIFFS, "/index.html", String(), false);
+  });
+
+  // Use regular expression to catch valid file names to serve
+  server.on("^(\\/[a-zA-Z0-9_.-]*)$", HTTP_GET, [](AsyncWebServerRequest *request)
+  {
+    String file = request->pathArg(0);
+
+    Serial.printf("Serving file %s\n\r", file.c_str());
+    request->send(SPIFFS, file, String(), false);
+  });
+
+  isScheduleMode = doc["data"]["isScheduleMode"];
   if (!isScheduleMode)
   {
     manualMode();
@@ -578,21 +552,22 @@ void scheduleMode() {
   // matrix logic test
   JsonArray relays = doc["relays"];
   for (int i = 0; i < relays.size(); i++){
-    int flagEnableRelay = 0;
+    bool flagEnableRelay = false;
     for (int j = 0; j < relays[i]["times"].size(); j++) {
       pinMode(relays[i]["pin"], OUTPUT);
-      int hOurs = relays[i]["times"][j]["hour"];
-      int mIns = relays[i]["times"][j]["min"];
+      // Split startTime
+      int hOurs = relays[i]["times"][j]["startTime"].as<String>().substring(0,2).toInt();
+      int mIns = relays[i]["times"][j]["startTime"].as<String>().substring(3).toInt();
       int startTimeInMinutes = (hOurs * 60) + mIns;
       int cycleDuration = relays[i]["times"][j]["duration"];
       // Probably should learn about bitwise... https://playground.arduino.cc/Code/BitMath/
       if (isWithinTimeslot(startTimeInMinutes, cycleDuration))
       {
-        ++flagEnableRelay;
+        flagEnableRelay = true;
       }
     }
 
-    if (flagEnableRelay >= 1)
+    if (flagEnableRelay)
     {
       digitalWrite(relays[i]["pin"], ON);
       digitalWrite(pumpPinNumber, ON);
@@ -603,15 +578,15 @@ void scheduleMode() {
     }
     else
     {   
-      int valveFlag = 0;
+      int valveFlag = false;
       for (int y = 0; y < relays.size(); y++)
       {
         if (digitalRead (relays[y]["pin"]) == ON)
         {
-          ++valveFlag;
+          valveFlag = true;
         }
       }
-      if (valveFlag == 0)
+      if (!valveFlag)
         {
           digitalWrite(pumpPinNumber, OFF);
         }
@@ -638,15 +613,15 @@ void manualMode()
     }
     else
     {   
-      int valveFlag = 0;
+      int valveFlag = false;
       for (int y = 0; y < relays.size(); y++)
       {
         if (digitalRead (relays[y]["pin"]) == ON)
         {
-          ++valveFlag;
+          valveFlag = true;
         }
       }
-      if (valveFlag == 0)
+      if (!valveFlag)
         {
           digitalWrite(pumpPinNumber, OFF);
         }
