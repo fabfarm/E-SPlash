@@ -959,7 +959,7 @@ void onWifiDisconnected(WiFiEvent_t event, WiFiEventInfo_t info){
   Serial.println("");
   Serial.println("*****************************************************");
   Serial.println("* Disconnected from WIFI Access Point");
-  Serial.printf( "* WiFi lost connection. Reason: %n\n\r", &info.disconnected.reason);
+  Serial.printf( "* WiFi lost connection. Reason: %u\n\r", (unsigned int) info.disconnected.reason);
   Serial.println("* Reconnecting...");
   WiFi.begin(wifi_network_ssid, wifi_network_password);
   Serial.println("*****************************************************");
