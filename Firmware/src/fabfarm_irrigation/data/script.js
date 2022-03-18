@@ -8,23 +8,18 @@ const GET_DATA_ENDPOINT = "/data.json";
 const UPDATE_RELAY_TIME = "/relay/update-time";
 const ADD_RELAY_TIME = "/relay/add-time";
 const ADD_RELAY = "/relay/add";
-// Payload constants
-const RANGE = "range";
-const END = "end";
-const START = "start";
-const DURATION_INPUT = "duration-input";
 // ------------------------------------------------
 
 // Definition of functions -----------------------------
 var timeoutID = null;
 var doRefresh = false;
 
-const fetchJSONState = function () {
+function fetchJSONState() {
 	fetch(GET_DATA_ENDPOINT)
 		.then((res) => res.json())
 		.then((jsonData) => {
 			// Check if scheduling mode has changed
-			var rebuildHtml = false;
+			let rebuildHtml = false;
 			if(!jsonDataState.data || jsonDataState.data.isScheduleMode != jsonData.data.isScheduleMode)
 				rebuildHtml = true;
 
@@ -56,7 +51,7 @@ const fetchJSONState = function () {
 				}, 100);
 			}
 		});
-};
+}
 
 function startRefresh() {
 	if(doRefresh)
@@ -101,57 +96,45 @@ function updateSchedulingHtml(rebuildHtml = false) {
 		else {
 			let times = "";
 			relay.times.forEach((time, j) => {
-				const endTimeHours = (parseInt(time.startTime.split(":")[0]) * 60 + parseInt(time.startTime.split(":")[1]) + parseInt(time.duration)) / 60;
-				const endTimeHoursR = Math.floor(endTimeHours);
-				const endTimeMinutes = (endTimeHours - endTimeHoursR) * 60;
-				const endTimeMinutesR = Math.round(endTimeMinutes);
-				const finalEndTime = `${endTimeHoursR < 10 ? "0" + endTimeHoursR.toString() : endTimeHoursR}:${endTimeMinutesR < 10 ? "0" + endTimeMinutesR.toString() : endTimeMinutesR}`;
+				// Calculate and format the end time
+				time.endTime = parseTimeMinutesToHHMM(parseTimeHHMMToMinutes(time.startTime) + parseInt(time.duration));
 				if(!rebuildHtml) {
-					relay.times.forEach((time, j) => {
-						// Only update values when they have changed
-						if(time.startTime != previousJsonDataState.relays[i].times[j].startTime)
-							document.getElementById(`relay${i}.time${j}.startTime`).value = time.startTime;
-						if(document.getElementById(`relay${i}.time${j}.endTime`).value != finalEndTime)
-							document.getElementById(`relay${i}.time${j}.endTime`).value = finalEndTime;
-						if(time.startTime != previousJsonDataState.relays[i].times[j].duration)
-							document.getElementById(`relay${i}.time${j}.duration`).value = time.duration;
-					});
+					let previousTime = previousJsonDataState.relays[i].times[j];
+
+					// Only update values when they have changed
+					if(time.startTime != previousTime.startTime)
+						document.getElementById(`relay${i}.time${j}.startTime`).value = time.startTime;
+					if(time.endTime != previousTime.endTime)
+						document.getElementById(`relay${i}.time${j}.endTime`).value = time.endTime;
+					if(time.duration != previousTime.duration)
+						document.getElementById(`relay${i}.time${j}.duration`).value = time.duration;
 				} else {
-					times += `<div class="d-flex flex-column align-items-stretch w-100 p-2">
+					times += `<form id="relay${i}.time${j}">
+								<input type="hidden" name="relayIndex" value="${i}"/>
+								<input type="hidden" name="timeIndex" value="${j}"/>
+								<div class="d-flex flex-column align-items-stretch w-100 p-2">
 									<div class="d-flex align-items-center justify-content-end w-100">
-										<button class="btn btn-danger" onClick="removeTime({relayIndex: ${i}, timeIndex: ${j}})">Remove Time</button>
+										<button class="btn btn-danger" onClick="removeTime(${i}, ${j})">Remove Time</button>
 									</div>
-										<div class="d-flex align-items-center">
-											<input class="form-control m-2" 
-												id="relay${i}.time${j}.startTime" 
-												type="time"
-												onBlur="updateRelayTimes({rIndex: ${i}, inputType: 'start', tIndex: ${j}, startTime: this.value, duration: ${time.duration}, endTime: '${finalEndTime}'})"
-												required 
-												value="${time.startTime}"
-											>
-											<input class="form-control m-2" 
-												type="time"
-												id="relay${i}.time${j}.endTime" 
-												required value="${finalEndTime}"
-												onBlur="updateRelayTimes({rIndex: ${i}, inputType: 'end', tIndex: ${j}, startTime:	'${time.startTime}', duration: ${time.duration}, endTime: this.value})"
-											>
-										</div>
-										<div class="d-flex align-items-center mt-2">
-											<input type="range" class="form-range" id="relay${i}.time${j}.duration" 
-											onChange="updateRelayTimes({rIndex: ${i}, inputType: 'range', tIndex: ${j}, startTime:	'${time.startTime}', duration: this.value, endTime: '${finalEndTime}'})"
-											min="0" max="60" value="${time.duration}" step="1" >
-										</div>
-										<div class="d-flex align-items-center w-100 justify-content-center">
-											<input id="relay${i}.time${j}.duration-input" onChange="updateRelayTimes({rIndex: ${i}, inputType: 'duration-input', tIndex: ${j}, startTime:	'${time.startTime}', duration: this.value, endTime: '${finalEndTime}'})" class="form-control w-25" value="${time.duration}" type="number"><span class="m-2">min</span>
-										</div>
-									</div>`;
+									<div class="d-flex align-items-center">
+										<input class="form-control m-2" id="relay${i}.time${j}.startTime" name="startTime" type="time" onchange="updateRelayTimes(${i}, ${j}, this)" required value="${time.startTime}">
+										<input class="form-control m-2" id="relay${i}.time${j}.endTime"   name="endTime"   type="time" onchange="updateRelayTimes(${i}, ${j}, this)" required value="${time.endTime}">
+									</div>
+									<div class="d-flex align-items-center mt-2">
+										<input class="form-range" id="relay${i}.time${j}.duration" name="duration" type="range" onchange="updateRelayTimes(${i}, ${j}, this)" min="0" max="60" value="${time.duration}" step="1">
+									</div>
+									<div class="d-flex align-items-center w-100 justify-content-center">
+										<input class="form-control w-25" id="relay${i}.time${j}.durationInput" name="durationInput" onchange="updateRelayTimes(${i}, ${j}, this)" value="${time.duration}" type="number"><span class="m-2">min</span>
+									</div>
+								</div>
+							</form>`;
 				}
 			});
 			relaysHtml.push(
 				`<div class="shadow d-flex align-items-center bg-white rounded p-4 m-2 justify-content-center flex-column">
 						<h6 class="display-6 main-title"><strong>${relay.name} (pin ${relay.pin})</strong></h6>
-								${times}
-								<button class="btn btn-primary" onClick="addTime(${i})">Add time</button>
+						${times}
+						<button class="btn btn-primary" onClick="addTime(${i})">Add time</button>
 				</div>`);
 		}
 	});
@@ -164,22 +147,23 @@ function updateSchedulingMode(event) {
 	stopRefresh();
 	displayLoadSpinner();
 
-	// Update local state
-	jsonDataState.data.isScheduleMode = event.checked;
-	updateSchedulingHtml(true);
-
-	// Send server request
-	var url;
+	// Build the URL
+	let url;
 	if(jsonDataState.data.isScheduleMode)
 		url = "/mode/scheduled";
 	else
 		url = "/mode/manual";
 
+	// Send server request
 	fetch(url).then(() => {
-		startRefresh();
+		// Update local state
+		jsonDataState.data.isScheduleMode = event.checked;
+		updateSchedulingHtml(true);
 
 		closeLoadSpinner();
 		displaySuccessToast();
+	
+		startRefresh();
 	});
 }
 
@@ -187,12 +171,8 @@ function updateRelayEnabled(index, event) {
 	stopRefresh();
 	displayLoadSpinner();
 
-	// Update local state
-	const relayIndex = index;
-	const enabled = event.checked;
-	jsonDataState.relays[relayIndex].isEnabled = event.checked;
-
-	var url;
+	// Build the URL
+	let url;
 	if(event.checked)
 		url = `/relay/${index}/on`
 	else
@@ -200,6 +180,11 @@ function updateRelayEnabled(index, event) {
 	
 	// Send request to server
 	fetch(url).then(() => {
+		// Update local state
+		const relayIndex = index;
+		const enabled = event.checked;
+		jsonDataState.relays[relayIndex].isEnabled = event.checked;
+	
 		closeLoadSpinner();
 		displaySuccessToast();
 
@@ -207,56 +192,61 @@ function updateRelayEnabled(index, event) {
 	});
 }
 
-function updateRelayTimes(payload) {
-	const relayIndex = payload.rIndex;
-	const relayToUpdate = jsonDataState.relays[relayIndex];
-	let startToUpdate = parseTimeHHMMToMinutes(payload.startTime);
-	let durationToUpdate = parseInt(payload.duration);
-	let endToDisplay = parseTimeHHMMToMinutes(payload.endTime);
+function updateRelayTimes(relayIndex, timeIndex, event) {
+	let startTime = event.form.elements.startTime.value;
+	let endTime = event.form.elements.endTime.value;
+	let duration = event.form.elements.duration.value;
+	if(event.name == "durationInput")
+		duration = event.value;
 
-	if (payload.inputType === START) {
-		// Start is new start
-		// Duration does not change
-		// End is Start + duration
-		endToDisplay = startToUpdate + durationToUpdate;
-	}
+	let startToUpdate = parseTimeHHMMToMinutes(startTime);
+	let durationToUpdate = parseInt(duration);
+	let endToDisplay = parseTimeHHMMToMinutes(endTime);
 
-	if (payload.inputType === RANGE || payload.inputType === DURATION_INPUT) {
-		// Start does not change
-		// Duration is new duration
-		// End is Start + Duration
-		endToDisplay = startToUpdate + durationToUpdate;
-	}
-
-	if (payload.inputType === END) {
-		// Start does not change
-		// Duration is End minus Start
-		// End is new end
-		durationToUpdate = endToDisplay - startToUpdate;
+    switch(event.name) {
+		case "startTime":
+			// Start is new start
+			// Duration does not change
+			// End is Start + duration
+			endToDisplay = startToUpdate + durationToUpdate;
+		break;
+		case "duration":
+		case "durationInput":
+			// Start does not change
+			// Duration is new duration
+			// End is Start + Duration
+			endToDisplay = startToUpdate + durationToUpdate;
+		break;
+		case "endTime":
+			// Start does not change
+			// Duration is End minus Start
+			// End is new end
+			durationToUpdate = endToDisplay - startToUpdate;
+		break;
 	}
 
 	if (!(durationToUpdate <= 0)) {
 		stopRefresh();
 		displayLoadSpinner();
 
-		// Update local state
-		jsonDataState.relays[payload.rIndex].times[payload.tIndex].startTime = parseTimeMinutesToHHMM(startToUpdate);
-		jsonDataState.relays[payload.rIndex].times[payload.tIndex].duration = durationToUpdate;
-		document.getElementById(`relay${payload.rIndex}.time${payload.tIndex}.endTime`).value = parseTimeMinutesToHHMM(endToDisplay);
-		document.getElementById(`relay${payload.rIndex}.time${payload.tIndex}.duration`).value = durationToUpdate;
-		document.getElementById(`relay${payload.rIndex}.time${payload.tIndex}.duration-input`).value = durationToUpdate;
-
-		//var url = `/relay/${payload.rIndex}/time/${payload.tIndex}`;
+		//let url = `/relay/${relayIndex}/time/${timeIndex}`;
 		fetch(UPDATE_RELAY_TIME, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({
-				relayIndex: payload.rIndex,
-				timeIndex: payload.tIndex,
+				relayIndex: relayIndex,
+				timeIndex: timeIndex,
 				startTime: parseTimeMinutesToHHMM(startToUpdate),
 				duration: durationToUpdate,
 			}),
 		}).then(() => {
+			// Update local state
+			jsonDataState.relays[relayIndex].times[timeIndex].startTime = parseTimeMinutesToHHMM(startToUpdate);
+			jsonDataState.relays[relayIndex].times[timeIndex].duration = durationToUpdate;
+			document.getElementById(`relay${relayIndex}.time${timeIndex}.endTime`).value = parseTimeMinutesToHHMM(endToDisplay);
+			document.getElementById(`relay${relayIndex}.time${timeIndex}.duration`).value = durationToUpdate;
+			document.getElementById(`relay${relayIndex}.time${timeIndex}.durationInput`).value = durationToUpdate;
+	
 			closeLoadSpinner();
 			displaySuccessToast();
 	
@@ -265,6 +255,8 @@ function updateRelayTimes(payload) {
 	} else {
 		closeLoadSpinner();
 		displayErrorToast("You cannot enter a negative duration value");
+
+		startRefresh();
 	}
 }
 
@@ -272,17 +264,17 @@ function addTime(relayIndex) {
 	stopRefresh();
 	displayLoadSpinner();
 
-	// Update local state
-	jsonDataState.relays[relayIndex].times.push(
-		JSON.parse(JSON.stringify({ startTime: "10:00", duration: 30 }))
-	);
-	updateSchedulingHtml(true);
-
 	fetch(ADD_RELAY_TIME, {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({ relayIndex }),
 	}).then(() => {
+		// Update local state
+		jsonDataState.relays[relayIndex].times.push(
+			JSON.parse(JSON.stringify({ startTime: "10:00", duration: 30 }))
+		);
+		updateSchedulingHtml(true);
+	
 		closeLoadSpinner();
 		displaySuccessToast();
 
@@ -290,16 +282,16 @@ function addTime(relayIndex) {
 	});
 }
 
-function removeTime(payload) {
+function removeTime(relayIndex, timeIndex) {
 	stopRefresh();
 	displayLoadSpinner();
 
-	// Update local state
-	jsonDataState.relays[payload.relayIndex].times.splice(payload.timeIndex, 1);
-	updateSchedulingHtml(true);
-
-	var url = `/relay/${payload.relayIndex}/time/${payload.timeIndex}`;
+	let url = `/relay/${relayIndex}/time/${timeIndex}`;
 	fetch(url, { method: "DELETE" }).then(() => {
+		// Update local state
+		jsonDataState.relays[relayIndex].times.splice(timeIndex, 1);
+		updateSchedulingHtml(true);
+	
 		closeLoadSpinner();
 		displaySuccessToast();
 
@@ -327,17 +319,7 @@ function parseTimeMinutesToHHMM(time) {
 // Setup functions
 function addRelay(payload) {
 	displayLoadSpinner();
-	// Update local state
-	jsonDataState.relays[payload.relayIndex].push(
-		JSON.parse(
-			JSON.stringify({
-				name: payload.name,
-				pin: payload.pin,
-				isEnabled: 0
-			})
-		)
-	);
-	updateSchedulingHtml();
+
 	fetch(ADD_RELAY, {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
@@ -347,6 +329,18 @@ function addRelay(payload) {
 			pin: payload.pin,
 		}),
 	}).then(() => {
+		// Update local state
+		jsonDataState.relays[payload.relayIndex].push(
+			JSON.parse(
+				JSON.stringify({
+					name: payload.name,
+					pin: payload.pin,
+					isEnabled: 0
+				})
+			)
+		);
+		updateSchedulingHtml(true);
+
 		closeLoadSpinner();
 		displaySuccessToast();
 	});
@@ -354,12 +348,13 @@ function addRelay(payload) {
 
 function removeRelay(payload) {
 	displayLoadSpinner();
-	// Update local state
-	jsonDataState.relays.slice(payload.relayIndex, 1);
-	updateSchedulingHtml();
 
-	var url = `/relay/${payload.relayIndex}`;
+	let url = `/relay/${payload.relayIndex}`;
 	fetch(url, { method: "DELETE" }).then(() => {
+		// Update local state
+		jsonDataState.relays.slice(payload.relayIndex, 1);
+		updateSchedulingHtml(true);
+
 		closeLoadSpinner();
 		displaySuccessToast();
 	});
