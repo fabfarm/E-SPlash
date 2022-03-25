@@ -150,9 +150,9 @@ function updateSchedulingMode(event) {
 	// Build the URL
 	let url;
 	if(jsonDataState.data.isScheduleMode)
-		url = "/mode/scheduled";
-	else
 		url = "/mode/manual";
+	else
+		url = "/mode/scheduled";
 
 	// Send server request
 	fetch(url).then(() => {
@@ -225,7 +225,7 @@ function updateRelayTimes(relayIndex, timeIndex, event) {
 		break;
 	}
 
-	if (!(durationToUpdate <= 0)) {
+	if (!(durationToUpdate < 0)) {
 		stopRefresh();
 		displayLoadSpinner();
 
