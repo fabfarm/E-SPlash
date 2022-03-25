@@ -679,6 +679,11 @@ void switchPump(bool state)
  */
 bool isWithinTimeslot (int startTimeInMinutes, int duration)
 {
+  if (duration <= 0)
+  {
+      return false;
+  }
+
   // Get current time from RTC
   int onlyHour = rtc.getHour(true);
   int onlyMin = rtc.getMinute();
@@ -686,7 +691,8 @@ bool isWithinTimeslot (int startTimeInMinutes, int duration)
   int presentTimeInMinutes = (onlyHour * 60) + onlyMin;
 
   int isEnabled = false;
-  if (startTimeInMinutes <= presentTimeInMinutes && presentTimeInMinutes <= startTimeInMinutes + duration){
+  if (presentTimeInMinutes >= startTimeInMinutes && presentTimeInMinutes < startTimeInMinutes + duration)
+  {
     isEnabled = true;
   }
 
