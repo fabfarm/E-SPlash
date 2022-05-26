@@ -1,35 +1,113 @@
 <!DOCTYPE HTML>
-<html>
-    <head>
-        <title>Fabfarm Irrigation</title>
-        <link rel="shortcut icon" type="image/png" href="/favicon.ico"/>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta charset="UTF-8" />
-        <link rel="stylesheet" type="text/css" href="/all.css" />
-        <link rel="stylesheet" type="text/css" href="/style.css" />
-    </head>
-    <body>
-        <img src="/logo.png" style="height:400px;"></img>
-        <hr>
-        <i class="fas fa-clock"></i>
-        <span id="currentTime" class="dht-labels"></span>
-        <hr>
-        <i class="fas fa-thermometer-half"></i>
-        <span id="temperature" class="dht-labels">Temperature</span>
-        <sup class="units">&deg;C</sup>
-        <i class="fas fa-tint"></i>
-        <span class="dht-labels">Humidity</span>
-        <span id="humidity"></span>
-        <sup class="units">%</sup>
-        <i class="fas fa-battery-full"></i>
-        <span class="dht-labels">Battery</span>
-        <span id="batLevel"></span>
-        <sup class="units">%</sup>
-        <hr>
-        <h3>Irrigation System</h3>
-        <div id="main"></div>
-        <hr>
-        <input type="button" style="width:140px" onClick= "location.href='/setuppage.html';" value="Setup Page" />
-        <script src="/script.js"></script>
-    </body>
+<html lang="en">
+	<head>
+		<title>Fabfarm Irrigation</title>
+		<link rel="shortcut icon" type="image/png" href="/favicon.ico" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta charset="UTF-8" />
+		<link rel="stylesheet" type="text/css" href="/all.css" />
+		<link rel="stylesheet" type="text/css" href="/style.css" />
+		<link href="/bootstrap.min.css" rel="stylesheet" />
+		<style>
+			body {
+				background-color: #f7f9fb;
+				margin: auto;
+			}
+
+			.main-title {
+				font-weight: bold;
+			}
+
+			.toast {
+				bottom: 0;
+				right: 5px;
+				position: fixed;
+				display: none;
+			}
+
+			.spinner-container {
+				position: fixed;
+				bottom: 0;
+				right: 5px;
+				display: none;
+			}
+
+			#schedulingMode {
+				width: 100px;
+				height: 50px;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container-fluid position-relative d-flex align-items-center flex-column">
+			<img src="/logo.png" alt="FabFarm Algarve" class="rounded mx-auto d-block p-10 m-5" />
+			<h1 class="display-1 main-title">
+				<strong>Irrigation System</strong>
+			</h1>
+			<div class="d-flex align-items-stretch w-100">
+				<div class="shadow d-flex w-100 flex-column justify-content-center align-items-center bg-white rounded p-4 m-2">
+					<h5 id="currentTime" class="dht-labels m-2"></h5>
+				</div>
+				<div class="shadow d-flex w-100 flex-column justify-content-center align-items-center bg-white rounded p-4 m-2">
+					<i class="fas fa-thermometer-half fa-2x"></i>
+					<div class="d-flex align-items-center">
+						<h1 id="temperature" class="dht-labels m-2">Temperature</h1>
+						<h1 class="units">&deg;C</h1>
+					</div>
+				</div>
+			</div>
+			<div class="d-flex w-100 align-items-stretch">
+				<div class="shadow d-flex w-100 flex-column justify-content-center align-items-center bg-white rounded p-4 m-2">
+					<i class="fas fa-tint fa-2x"></i>
+					<div class="d-flex align-items-center">
+						<h1 id="humidity" class="dht-labels m-2">Humidity</h1>
+						<h1 class="units">%</h1>
+					</div>
+				</div>
+				<div class="shadow d-flex w-100 flex-column justify-content-center align-items-center bg-white rounded p-4 m-2">
+					<i class="fas fa-battery-full fa-2x"></i>
+					<div class="d-flex align-items-center">
+						<h1 id="batLevel"></h1>
+						<h1 class="units">%</h1>
+					</div>
+				</div>
+			</div>
+			<div id="main">
+				<div class="shadow d-flex align-items-center bg-white rounded p-4 m-2 justify-content-center flex-column">
+			        <h6 class="display-6 main-title"><strong>Scheduling Mode</strong></h6>
+			        <div class="d-flex align-items-center bg-white rounded p-4 m-2 justify-content-center">
+				        <span class="m-2 display-6">Manual</span>
+			            <div class="form-check form-switch">
+			                <input onclick="updateSchedulingMode(this)" id="schedulingMode" class="form-check-input" type="checkbox" value="true">
+			            </div>
+				        <span class="m-2 display-6">Automatic</span>
+			        </div>
+		        </div>
+				<div id="relays"></div>
+			</div>
+			<hr />
+			<a href="/setuppage.html" class="btn btn-primary">Setup Page</a>
+			<div class="toast-container position-fixed">
+				<div id="toast-error" class="toast p-1 text-white bg-danger align-items-center">
+					<div class="d-flex w-100">
+						<div class="toast-body" id="toast-error-body"></div>
+						<button class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast-error" aria-label="Close" onclick="closeErrorToast()"></button>
+					</div>
+				</div>
+				<div class="spinner-border spinner-container text-primary" id="spinner-bottom-right" role="status">
+					<span class="visually-hidden">Loading...</span>
+				</div>
+				<div id="toast-success" class="toast p-1 text-white bg-success align-items-center">
+					<div class="d-flex w-100">
+						<div class="toast-body" id="toast-success-body">Success</div>
+						<button class="btn-close btn-close-white me-2 m-auto" aria-label="Close" onclick="closeSuccessToast()"></button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script src="/script.js"></script>
+		<script type="text/javascript">
+			startRefresh();
+		</script>
+	</body>
 </html>

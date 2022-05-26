@@ -1,71 +1,58 @@
 {
     "data": {
-        "currentTime": "Sunday, July 25 2021 16:46:17",
-        "temperature": 20,
-        "humidity": 50,
-        "isScheduleMode": 0,
-        "batLevel": 100,
+        "currentTime": null,
+        "temperature": null,
+        "humidity": null,
+        "isScheduleMode": true,
+        "batLevel": 14,
         "changedtime": [
             {
-                "internettime": 1,
+                "internettime": true,
                 "Ttime": "02:02",
-                "Tdate": "01/01/2021",
-                "min": 0,
-                "hour": 0,
-                "day": 0,
-                "month": 0,
-                "year": 0
+                "Tdate": "01/01/2021"
             }
         ]
     },
     "relays": [
         {
-            "name": "zone1",
-            "pinnumber": 27,
-            "isRunning": 1,
-            "isEnabled": 0,
-            "active": 1,
+            "name": "Fruit",
+            "pin": 27,
+            "isEnabled": false,
+            "active": true,
             "times": [
                 {
-                    "startTime": "01:01",
-                    "duration": 0,
-                    "hour": 1,
-                    "min": 1
+                    "startTime": "10:00",
+                    "duration": 30
                 }
-            ],
-            "pin": "27"
+            ]
         },
         {
-            "name": "zone2",
-            "pinnumber": 26,
-            "isRunning": 1,
-            "isEnabled": 0,
-            "active": 1,
+            "name": "Vegetables",
+            "pin": 26,
+            "isEnabled": false,
+            "active": true,
             "times": [
                 {
-                    "startTime": "02:02",
-                    "duration": 32,
-                    "hour": 2,
-                    "min": 2
+                    "startTime": "10:30",
+                    "duration": 30
                 }
-            ],
-            "pin": "26"
+            ]
         },
         {
-            "name": "zone3",
-            "pinnumber": 25,
-            "isRunning": 1,
-            "isEnabled": 0,
-            "active": 1,
+            "name": "Water",
+            "pin": 25,
+            "isEnabled": false,
+            "active": true,
             "times": [
                 {
-                    "startTime": "02:02",
-                    "duration": 32,
-                    "hour": 2,
-                    "min": 2
+                    "startTime": "11:00",
+                    "duration": 30
+                },
+                {
+                    "startTime": "19:40",
+                    "duration": 40
                 }
-            ],
-            "pin": "25"
+            ]
         }
     ]
 }
