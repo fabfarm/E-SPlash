@@ -187,8 +187,8 @@ IPAddress secondaryDNS(8, 8, 4, 4);
 ESP32Time rtc;
 const char *dataFile = "data.json"; // Read / write JSON to save state
 AsyncWebServer server(80);          // Specify the port of the Async server
-int jasonSize = 1800;               // Specifying the capacity of the JSON in bytes.
-DynamicJsonDocument doc(jasonSize); // From arduinoJson
+int jsonSize = 1800;               // Specifying the capacity of the JSON in bytes.
+DynamicJsonDocument doc(jsonSize); // From arduinoJson
 boolean isScheduleMode = false;
 
 //**************************************************************************************************************
