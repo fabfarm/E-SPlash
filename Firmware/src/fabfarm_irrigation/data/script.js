@@ -287,7 +287,7 @@ function removeTime(relayIndex, timeIndex) {
 	displayLoadSpinner();
 
 	let url = `/relay/${relayIndex}/time/${timeIndex}`;
-	fetch(url, { method: "DELETE" }).then(() => {
+	fetch(url, { method: "GET" }).then(() => {
 		// Update local state
 		jsonDataState.relays[relayIndex].times.splice(timeIndex, 1);
 		updateSchedulingHtml(true);

@@ -220,7 +220,7 @@ void setup(){
   // Routes to data end-points
   server.on("/data.json", HTTP_GET, [](AsyncWebServerRequest *request)
   {
-    Serial.println("/data.json");
+    // Serial.println("/data.json");
     DynamicJsonDocument data = doc;
 
     // Create a copy of the data set, modify it, serialize it and then send to the browser
@@ -231,11 +231,11 @@ void setup(){
     data["data"]["batLevel"]    = getBatteryLevel();
 
     char jsonReply[1800];
-    Serial.println("Serialize JSON & return to caller - BEGIN");
+    // Serial.println("Serialize JSON & return to caller - BEGIN");
     serializeJson(data, jsonReply);
-    Serial.println(jsonReply);
+    // Serial.println(jsonReply);
     request->send(200, "application/json", jsonReply); // OK
-    Serial.println("Serialize JSON & return to caller - COMPLETE");
+    // Serial.println("Serialize JSON & return to caller - COMPLETE");
   });
   
   // Update data general
@@ -291,7 +291,7 @@ void setup(){
 
     //ToDo Check if relay exists
 
-    Serial.printf("Relay %d: %d\n\r", relayIndex, state);
+    // Serial.printf("Relay %d: %d\n\r", relayIndex, state);
     doc["relays"][relayIndex]["isEnabled"].set(state);
 
     if(writeDataJson())
@@ -347,13 +347,14 @@ void setup(){
   });
   
   // Remove relay time
-  server.on("^\\/relay\\/([0-9]+)\\/time\\/([0-9]+)$", HTTP_DELETE, [](AsyncWebServerRequest *request) {
+  server.on("^\\/relay\\/([0-9]+)\\/time\\/([0-9]+)$", HTTP_GET, [](AsyncWebServerRequest *request) {
+    Serial.printf ("started remove relay time");
     int relayIndex = request->pathArg(0).toInt();
     int timeIndex = request->pathArg(1).toInt();
 
     //ToDo Check if relay and time exist
 
-    doc["relays"][relayIndex]["times"].as<JsonArray>().remove(timeIndex);
+    doc["relays"][relayIndex]["times"].remove(timeIndex);
 
     if(writeDataJson())
     {
@@ -404,7 +405,7 @@ void setup(){
 
     //ToDo Check if relay exists
 
-    Serial.printf("Removing relay %d\n\r", relayIndex);
+    // Serial.printf("Removing relay %d\n\r", relayIndex);
     doc["relays"].as<JsonArray>().remove(relayIndex);
 
     if(writeDataJson())
@@ -438,7 +439,7 @@ void setup(){
   {
     String file = request->pathArg(0);
 
-    Serial.printf("Serving file %s\n\r", file.c_str());
+    // Serial.printf("Serving file %s\n\r", file.c_str());
     request->send(SPIFFS, file, String(), false);
   });
 
@@ -472,10 +473,10 @@ void loop(){
  * This function simply prints the compile time to the serial monitor
  */
 void printCompileTime() {
-  Serial.println("*****************************************************");
-  Serial.printf(  "* This program was Compiled on: %s at %s\n\r", __DATE__, __TIME__);
-  Serial.println("*****************************************************");
-  Serial.println();
+  // Serial.println("*****************************************************");
+  // Serial.printf(  "* This program was Compiled on: %s at %s\n\r", __DATE__, __TIME__);
+  // Serial.println("*****************************************************");
+  // Serial.println();
 }
 
 /*
@@ -484,7 +485,7 @@ void printCompileTime() {
 void setupStorage() {
   // Initialize SPIFFS (file system)
   if (!SPIFFS.begin(true)){
-    Serial.println("An Error has occurred while mounting SPIFFS");
+    // Serial.println("An Error has occurred while mounting SPIFFS");
     return;
   }
 
@@ -497,7 +498,7 @@ void setupStorage() {
  * If freshly burned we have to send the sample JSON...
  */
 void readDataJson() {
-  Serial.println("Starting looking for JSON file");
+  // Serial.println("Starting looking for JSON file");
 
   File f;
   if(SPIFFS.exists("/data.json")) {
@@ -505,46 +506,46 @@ void readDataJson() {
   }
   else
   {
-    Serial.println("data.json does not exist yet, reading sample.json instead!");
+    // Serial.println("data.json does not exist yet, reading sample.json instead!");
     f = SPIFFS.open("/sample.json", "r");
   }
 
   // Read JSON string from JSON file into memory
-  Serial.println("Read JSON file - BEGIN");
+  // Serial.println("Read JSON file - BEGIN");
   String json = f.readString();
-  Serial.println(json);
-  Serial.println("Read JSON file - COMPLETE");
+  // Serial.println(json);
+  // Serial.println("Read JSON file - COMPLETE");
 
   // Close the JSON file
   f.close();
 
   // We take JSON from memory & create JSON object
-  Serial.println("JSON deserialize - BEGIN");
+  // Serial.println("JSON deserialize - BEGIN");
   deserializeJson(doc, json);
-  Serial.println("JSON deserialize - COMPLETE");
+  // Serial.println("JSON deserialize - COMPLETE");
 }
 
 bool writeDataJson() {
   String jsonString;
-  Serial.println("JSON serialize - BEGIN");
+  // Serial.println("JSON serialize - BEGIN");
   serializeJson(doc, jsonString);
-  Serial.println("JSON serialize - COMPLETE");
+  // Serial.println("JSON serialize - COMPLETE");
 
   // Write this to disk
-  Serial.println("Write JSON file - BEGIN");
+  // Serial.println("Write JSON file - BEGIN");
   File f = SPIFFS.open("/data.json", "w");
   if (!f)
   {
-    Serial.println("Failed to open file for writing");
-    Serial.println("Write JSON file - FAILED");
+    // Serial.println("Failed to open file for writing");
+    // Serial.println("Write JSON file - FAILED");
 
     return false;
   }
   else
   {
     int bytesWritten = f.print(jsonString);
-    Serial.println(jsonString);
-    Serial.printf("Write JSON file - COMPLETE(%d bytes)\n\r", bytesWritten);
+    // Serial.println(jsonString);
+    // Serial.printf("Write JSON file - COMPLETE(%d bytes)\n\r", bytesWritten);
 
     // Close the JSON file
     f.close();
@@ -554,7 +555,7 @@ bool writeDataJson() {
 }
 
 void scheduleMode() {
-  Serial.println("scheduleMode");
+  // Serial.println("scheduleMode");
   bool enablePump = false;
 
   // matrix logic test
@@ -584,14 +585,14 @@ void scheduleMode() {
     {
       // Set GPIO pin to on
       digitalWrite(pinNumber, ON);
-      Serial.printf("Relay %s (pin %d) is on\n\r", relays[i]["name"].as<char*>(), pinNumber);
+      // Serial.printf("Relay %s (pin %d) is on\n\r", relays[i]["name"].as<char*>(), pinNumber);
       enablePump = true;
     }
     else
     {   
       // Set GPIO pin to off
       digitalWrite(pinNumber, OFF);
-      Serial.printf("Relay %s (pin %d) is off\n\r", relays[i]["name"].as<char*>(), pinNumber);
+      // Serial.printf("Relay %s (pin %d) is off\n\r", relays[i]["name"].as<char*>(), pinNumber);
     }
   }
 
@@ -601,7 +602,7 @@ void scheduleMode() {
 
 void manualMode()
 {
-  Serial.println("manualMode");
+  // Serial.println("manualMode");
   int enablePump = false;
 
   JsonArray relays = doc["relays"];
@@ -616,14 +617,14 @@ void manualMode()
     {
       // Set GPIO pin to on
       digitalWrite(pinNumber, ON);
-      Serial.printf("Relay %s (pin %d) is on\n\r", relays[i]["name"].as<char*>(), pinNumber);
+      // Serial.printf("Relay %s (pin %d) is on\n\r", relays[i]["name"].as<char*>(), pinNumber);
       enablePump = true;
     }
     else
     {
       // Set GPIO pin to off
       digitalWrite(pinNumber, OFF);
-      Serial.printf("Relay %s (pin %d) is off\n\r", relays[i]["name"].as<char*>(), pinNumber);
+      // Serial.printf("Relay %s (pin %d) is off\n\r", relays[i]["name"].as<char*>(), pinNumber);
     }
   }
 
@@ -649,7 +650,7 @@ void disableAllRelays(){
     pinMode(pinNumber, OUTPUT);
     // Set GPIO pin to off
     digitalWrite(pinNumber, OFF);
-    Serial.printf("Zone %s (pin %n) is off\n\r", relays[i]["name"].as<char*>(), &pinNumber);
+    // Serial.printf("Zone %s (pin %n) is off\n\r", relays[i]["name"].as<char*>(), &pinNumber);
   }
 }
 
@@ -664,13 +665,13 @@ void switchPump(bool state)
   {
     // Set GPIO pin to on
     digitalWrite(pumpPinNumber, ON);
-    Serial.printf("Pump (pumpPinNumber %d) is on\n\r", pumpPinNumber);
+    // Serial.printf("Pump (pumpPinNumber %d) is on\n\r", pumpPinNumber);
   }
   else
   {
     // Set GPIO pin to off
     digitalWrite(pumpPinNumber, OFF);
-    Serial.printf("Pump (pumpPinNumber %d) is off\n\r", pumpPinNumber);
+    // Serial.printf("Pump (pumpPinNumber %d) is off\n\r", pumpPinNumber);
   }
 }
 
@@ -719,11 +720,11 @@ float readDHTTemperature()
   // Check if any reads failed
   if (isnan(temperature))
   {
-    Serial.println("Failed to read from DHT sensor!");
+    // Serial.println("Failed to read from DHT sensor!");
   }
   else
   {
-    Serial.printf("Temperature: %f\n\r", temperature);
+    // Serial.printf("Temperature: %f\n\r", temperature);
   }
 
   return temperature;
@@ -748,11 +749,11 @@ float readDHTHumidity()
   // Check if any reads failed
   if (isnan(humidity))
   {
-    Serial.println("Failed to read from DHT sensor!");
+    // Serial.println("Failed to read from DHT sensor!");
   }
   else
   {
-    Serial.printf("Humidity: %f\n\r", humidity);
+    // Serial.printf("Humidity: %f\n\r", humidity);
   }
 
   return humidity;
@@ -773,7 +774,7 @@ float getBatteryLevel(){
   else
   {
     // Print the battery level to the serial monitor
-    Serial.printf("Battery Level: %f\n\r", batteryLevel);
+    // Serial.printf("Battery Level: %f\n\r", batteryLevel);
   }
 
   return batteryLevel;
@@ -819,7 +820,7 @@ void printDateTime(const RtcDateTime& dt)
           dt.Hour(),
           dt.Minute(),
           dt.Second() );
-  Serial.println(datestring);
+  // Serial.println(datestring);
 }
 
 /*
@@ -844,12 +845,12 @@ void updateInternalRTC(const RtcDateTime& dt)
           dt.Second() );
   rtc.setTime(dt.Second(),dt.Minute(),dt.Hour(),dt.Day(),dt.Month(),dt.Year());
 
-  Serial.println("*****************************************************");
-  Serial.println("* Function updateInternalRTC()");
-  Serial.printf( "* Time from external RTC: %s\n\r", datestring);
-  Serial.println("* This function updates the internal RTC with the time");
-  Serial.println("* from the external RTC");
-  Serial.println("*****************************************************");
+  // Serial.println("*****************************************************");
+  // Serial.println("* Function updateInternalRTC()");
+  // Serial.printf( "* Time from external RTC: %s\n\r", datestring);
+  // Serial.println("* This function updates the internal RTC with the time");
+  // Serial.println("* from the external RTC");
+  // Serial.println("*****************************************************");
 }
 
 /*
@@ -858,8 +859,8 @@ void updateInternalRTC(const RtcDateTime& dt)
  */
 void setupRTC()
 { 
-  Serial.println("*****************************************************");
-  Serial.println("* Running function setupRTC()");
+  // Serial.println("*****************************************************");
+  // Serial.println("* Running function setupRTC()");
 
   // Initialize external Real Time Clock
   #ifdef ds_3231
@@ -869,13 +870,13 @@ void setupRTC()
 
   RtcDateTime compiled = RtcDateTime(__DATE__, __TIME__);
   // Print the Time before updated from external RTC
-  Serial.println("* ");
-  Serial.printf( "* Time from internal RTC on boot: %s\n\r", rtc.getTime("%A, %B %d %Y %H:%M:%S").c_str());
+  // Serial.println("* ");
+  // Serial.printf( "* Time from internal RTC on boot: %s\n\r", rtc.getTime("%A, %B %d %Y %H:%M:%S").c_str());
   // Configure internal RTC from external rtc time
   updateInternalRTC(Rtc.GetDateTime());
   // Print the Time updated from external RTC
-  Serial.println("* ");
-  Serial.printf( "* Time from internal RTC after external RTC update:  %s\n\r", rtc.getTime("%A, %B %d %Y %H:%M:%S").c_str());
+  // Serial.println("* ");
+  // Serial.printf( "* Time from internal RTC after external RTC update:  %s\n\r", rtc.getTime("%A, %B %d %Y %H:%M:%S").c_str());
 
   if (!Rtc.IsDateTimeValid()) 
   {
@@ -883,42 +884,42 @@ void setupRTC()
     //    1) first time you ran and the device wasn't running yet
     //    2) the battery on the device is low or even missing
 
-    Serial.println("* RTC lost confidence in the DateTime!");
+    // Serial.println("* RTC lost confidence in the DateTime!");
     Rtc.SetDateTime(compiled);
   }
   #ifdef ds_3231
   #else
   if (Rtc.GetIsWriteProtected())
   {
-    Serial.println("RTC was write protected, enabling writing now");
+    // Serial.println("RTC was write protected, enabling writing now");
     Rtc.SetIsWriteProtected(false);
   }
   #endif
 
   if (!Rtc.GetIsRunning())
   {
-    Serial.println("* RTC was not actively running, starting now");
+    // Serial.println("* RTC was not actively running, starting now");
     Rtc.SetIsRunning(true);
   }
 
   RtcDateTime now = Rtc.GetDateTime();
   if (now < compiled) 
   {
-    Serial.println("* RTC is older than compile time!  (Updating DateTime)");
+    // Serial.println("* RTC is older than compile time!  (Updating DateTime)");
     Rtc.SetDateTime(compiled);
   }
   else if (now > compiled) 
   {
-    Serial.println("* RTC is newer than compile time. (this is expected)");
+    // Serial.println("* RTC is newer than compile time. (this is expected)");
   }
   else if (now == compiled) 
   {
-    Serial.println("* RTC is the same as compile time! (not expected but all is fine)");
+    // Serial.println("* RTC is the same as compile time! (not expected but all is fine)");
   }
-  Serial.println("*");
+  // Serial.println("*");
 
-  Serial.println("* END of data from first external RTC function");
-  Serial.println("*****************************************************");
+  // Serial.println("* END of data from first external RTC function");
+  // Serial.println("*****************************************************");
 }
 
 /*
@@ -929,46 +930,46 @@ void testRtcOnLoop(){
   unsigned long previousMillis = 0;
   const long printTimeInterval = 10000;
 
-  Serial.println("This data comes from void testRtcOnLoop() time will appear only every 1 second" );
+  // Serial.println("This data comes from void testRtcOnLoop() time will appear only every 1 second" );
   unsigned long currentMillis = millis();
   if (currentMillis - previousMillis >= printTimeInterval) 
   {
     previousMillis = currentMillis;
     RtcDateTime now = Rtc.GetDateTime();
     printDateTime(Rtc.GetDateTime());
-    Serial.println();
+    // Serial.println();
     if (!now.IsValid())
     {
       // Common Causes:
       //    1) the battery on the device is low or even missing and the power line was disconnected
-      Serial.println("RTC lost confidence in the DateTime!");
+      // Serial.println("RTC lost confidence in the DateTime!");
     }
   }
-  Serial.println("End of data from void testRtcOnLoop()" );
+  // Serial.println("End of data from void testRtcOnLoop()" );
 }
 
 void onWifiConnected(WiFiEvent_t event, WiFiEventInfo_t info){
-  Serial.println("Successfully connected to Access Point");
+  // Serial.println("Successfully connected to Access Point");
 }
 
 void onGetIPAddress(WiFiEvent_t event, WiFiEventInfo_t info){
-  Serial.println("");
-  Serial.println("*****************************************************");
-  Serial.println("* WIFI is connected!");
-  Serial.printf( "* The IP address is: %s\n\r", WiFi.localIP().toString().c_str());
-  Serial.printf( "* The hostname is: %s\n\r", WiFi.getHostname());
-  Serial.println("*****************************************************");
-  Serial.println("");
+  // Serial.println("");
+  // Serial.println("*****************************************************");
+  // Serial.println("* WIFI is connected!");
+  // Serial.printf( "* The IP address is: %s\n\r", WiFi.localIP().toString().c_str());
+  // Serial.printf( "* The hostname is: %s\n\r", WiFi.getHostname());
+  // Serial.println("*****************************************************");
+  // Serial.println("");
 }
 
 void onWifiDisconnected(WiFiEvent_t event, WiFiEventInfo_t info){
-  Serial.println("");
-  Serial.println("*****************************************************");
-  Serial.println("* Disconnected from WIFI Access Point");
-  Serial.printf( "* WiFi lost connection. Reason: %u\n\r", (unsigned int) info.disconnected.reason);
-  Serial.println("* Reconnecting...");
+  // Serial.println("");
+  // Serial.println("*****************************************************");
+  // Serial.println("* Disconnected from WIFI Access Point");
+  // Serial.printf( "* WiFi lost connection. Reason: %u\n\r", (unsigned int) info.disconnected.reason);
+  // Serial.println("* Reconnecting...");
   WiFi.begin(wifi_network_ssid, wifi_network_password);
-  Serial.println("*****************************************************");
+  // Serial.println("*****************************************************");
 }
 
 /*
@@ -986,21 +987,21 @@ void setupWifi()
   WiFi.softAP(soft_ap_ssid, soft_ap_password, 3);
 
   // Print WiFi configuration to serial monitor
-  Serial.println();
-  Serial.println("*****************************************************");
-  Serial.printf( "* SoftAP IP is: %s\n\r", WiFi.softAPIP().toString().c_str());
+  // Serial.println();
+  // Serial.println("*****************************************************");
+  // Serial.printf( "* SoftAP IP is: %s\n\r", WiFi.softAPIP().toString().c_str());
 
   #ifdef stacticIP
     if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS)) {
-    Serial.println("* STA Failed to configure");
+    // Serial.println("* STA Failed to configure");
     }
   #endif
 
   WiFi.begin(wifi_network_ssid, wifi_network_password);
   WiFi.setHostname(wifi_network_hostname);
-  Serial.println("* Waiting for WIFI network...");
-  Serial.println("*****************************************************");
-  Serial.println();
+  // Serial.println("* Waiting for WIFI network...");
+  // Serial.println("*****************************************************");
+  // Serial.println();
 
   //delay(2000);
 }
@@ -1029,12 +1030,12 @@ void changeTimeFromJSON(){
 // void internetOrManualTime()
 // {
 //   // Call function that assigns the array in the JSON to the rtc of ESP32
-//   Serial.println(rtc.getTime("%A, %B %d %Y %H:%M:%S"));
+//   // Serial.println(rtc.getTime("%A, %B %d %Y %H:%M:%S"));
 //   boolean data_internettime = data["changedtime"][0]["internettime"] ;
 //   //boolean data_manualtimeflag = data["changedtime"][0]["manualtimeenabled"];
 //   if ( data_internettime  == 1)
 //   {
-//     Serial.println("Time updated using internet");
+//     // Serial.println("Time updated using internet");
 //       for(static bool first = true;first;first=false)
 //       { 
 //         	assignLocalTime();
@@ -1042,7 +1043,7 @@ void changeTimeFromJSON(){
 //   }
 //   if ( data_internettime  == 0 )
 //   { 
-//     Serial.println("Time updated using manual input");
+//     // Serial.println("Time updated using manual input");
 //     for(static bool first = true;first;first=false)
 //     { 
 //       changeTimeFromJSON();
