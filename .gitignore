@@ -20,3 +20,6 @@ pcb/ESPlash/esplashbpk.brd
 Firmware/.vscode/launch.json
 Firmware/.vscode/c_cpp_properties.json
 .DS_Store
+Firmware/.vscode/c_cpp_properties.json
+Firmware/.vscode/extensions.json
+Firmware/.vscode/launch.json
