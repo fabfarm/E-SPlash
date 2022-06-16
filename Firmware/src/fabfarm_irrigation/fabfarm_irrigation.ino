@@ -13,21 +13,28 @@
 #include <ESP32Time.h>
 #include "AsyncElegantOTA.h"
 #include <WiFi.h>
+#include <WiFiMulti.h>
+
+WiFiMulti wifiMulti;
+
+const uint32_t connectTimeoutMs = 10000;
+const unsigned long eventInterval = 10000;
+unsigned long previousTime = 0;
 
 // Uncomment to define IP as static
 //#define stactic_IP
 
 // Choosing the type of board if 0.1(_0_point_1) or 1.0(_1_point_0)
-//#define _0_point_1_main   // Breadboard deployed in the lake irrigation
-#define _0_point_greenhouse // Breadboard deployed in the greenhouse irrigation
+#define _0_point_1_main   // Breadboard deployed in the lake irrigation
+//#define _0_point_greenhouse // Breadboard deployed in the greenhouse irrigation
 //#define _0_point          // Prototype relays on board pcb designed with eagle
 //#define _1_point_0        // Second prototype no relays on board pcb designed with eagle
 
 // Chose the network
-//#define casa
-#define container
-//#define caravan
-//#define kitchen
+// //#define casa
+// #define container
+// //#define caravan
+// //#define kitchen
 
 // Board specific configuration settings
 #ifdef _0_point
@@ -58,7 +65,7 @@
 #endif
 #ifdef _0_point_1_main
   // Define the type of external RTC
-  #define ds_1302
+  #define ds_3231
   #define TTL_Logic_Low
   // Defining pump pin number
   int pumpPinNumber = 33;
@@ -166,24 +173,6 @@ IPAddress subnet(255, 255, 255, 0);
 IPAddress primaryDNS(  8, 8, 8, 8);
 IPAddress secondaryDNS(8, 8, 4, 4);
 
-// WiFi specific configuration settings
-#ifdef casa
-  const char* wifi_network_ssid = "ratinho_do_malandro";
-  const char* wifi_network_password =  "gerryforever2018";
-#endif
-#ifdef container
-  const char* wifi_network_ssid = "fabfarm_ele_container";
-  const char* wifi_network_password =  "imakestuff";
-#endif
-#ifdef caravan
-  const char* wifi_network_ssid = "caravan";
-  const char* wifi_network_password =  "imakestuff";
-#endif
-#ifdef kitchen
-  const char* wifi_network_ssid = "fabfarm";
-  const char* wifi_network_password =  "imakestuff";
-#endif
-
 ESP32Time rtc;
 const char *dataFile = "data.json"; // Read / write JSON to save state
 AsyncWebServer server(80);          // Specify the port of the Async server
@@ -199,8 +188,21 @@ void setup(){
   // Configure the serial monitor
   Serial.begin(9600);
 
-  // Setup WiFi
-  setupWifi();
+  WiFi.mode(WIFI_MODE_APSTA);
+
+  wifiMulti.addAP("ratinho_do_malandro", "gerryforever2018");
+  wifiMulti.addAP("fabfarm_ele_container", "imakestuff");
+  wifiMulti.addAP("liga_o_gerador", "gerryforever2018");
+  wifiMulti.addAP("caravana", "imakestuff");
+  wifiMulti.addAP("fabfarm", "imakestuff");
+  wifiMulti.addAP("Raccaccoonie", "MalkovichMalkovich");
+  wifiMulti.addAP("ubnt_mesh", "gerryforever2018");
+
+  scanWifi();
+
+  startWifi();
+
+  //startSoftAP();
 
   // Set all relays off at startup
   disableAllRelays();
@@ -454,6 +456,9 @@ void setup(){
 //**************************************************************************************************************
 
 void loop(){
+
+  wifiLoop();
+
   //testRtcOnLoop();  // Uncomment testRtcOnLoop() to display time every second on serial monitor
 
   if (isScheduleMode)
@@ -947,29 +952,29 @@ void testRtcOnLoop(){
   Serial.println("End of data from void testRtcOnLoop()" );
 }
 
-void onWifiConnected(WiFiEvent_t event, WiFiEventInfo_t info){
-  Serial.println("Successfully connected to Access Point");
-}
+// void onWifiConnected(WiFiEvent_t event, WiFiEventInfo_t info){
+//   Serial.println("Successfully connected to Access Point");
+// }
 
-void onGetIPAddress(WiFiEvent_t event, WiFiEventInfo_t info){
-  Serial.println("");
-  Serial.println("*****************************************************");
-  Serial.println("* WIFI is connected!");
-  Serial.printf( "* The IP address is: %s\n\r", WiFi.localIP().toString().c_str());
-  Serial.printf( "* The hostname is: %s\n\r", WiFi.getHostname());
-  Serial.println("*****************************************************");
-  Serial.println("");
-}
+// void onGetIPAddress(WiFiEvent_t event, WiFiEventInfo_t info){
+//   Serial.println("");
+//   Serial.println("*****************************************************");
+//   Serial.println("* WIFI is connected!");
+//   Serial.printf( "* The IP address is: %s\n\r", WiFi.localIP().toString().c_str());
+//   Serial.printf( "* The hostname is: %s\n\r", WiFi.getHostname());
+//   Serial.println("*****************************************************");
+//   Serial.println("");
+// }
 
-void onWifiDisconnected(WiFiEvent_t event, WiFiEventInfo_t info){
-  Serial.println("");
-  Serial.println("*****************************************************");
-  Serial.println("* Disconnected from WIFI Access Point");
-  Serial.printf( "* WiFi lost connection. Reason: %u\n\r", (unsigned int) info.disconnected.reason);
-  Serial.println("* Reconnecting...");
-  WiFi.begin(wifi_network_ssid, wifi_network_password);
-  Serial.println("*****************************************************");
-}
+// void onWifiDisconnected(WiFiEvent_t event, WiFiEventInfo_t info){
+//   Serial.println("");
+//   Serial.println("*****************************************************");
+//   Serial.println("* Disconnected from WIFI Access Point");
+//   Serial.printf( "* WiFi lost connection. Reason: %u\n\r", (unsigned int) info.disconnected.reason);
+//   Serial.println("* Reconnecting...");
+//   WiFi.begin(wifi_network_ssid, wifi_network_password);
+//   Serial.println("*****************************************************");
+// }
 
 /*
  * Function with WiFi settings and initialisation
@@ -979,10 +984,11 @@ void setupWifi()
   WiFi.mode(WIFI_MODE_APSTA);
 
   // Disconnect the WiFi
-  WiFi.disconnect(true);
-  WiFi.onEvent(onWifiConnected,SYSTEM_EVENT_STA_CONNECTED);
-  WiFi.onEvent(onGetIPAddress, SYSTEM_EVENT_STA_GOT_IP);
-  WiFi.onEvent(onWifiDisconnected, SYSTEM_EVENT_STA_DISCONNECTED);
+  // WiFi.disconnect(true);
+  // WiFi.onEvent(onWifiConnected,SYSTEM_EVENT_STA_CONNECTED);
+  // WiFi.onEvent(onGetIPAddress, SYSTEM_EVENT_STA_GOT_IP);
+  // WiFi.onEvent(onWifiDisconnected, SYSTEM_EVENT_STA_DISCONNECTED);
+
   WiFi.softAP(soft_ap_ssid, soft_ap_password, 3);
 
   // Print WiFi configuration to serial monitor
@@ -996,7 +1002,7 @@ void setupWifi()
     }
   #endif
 
-  WiFi.begin(wifi_network_ssid, wifi_network_password);
+  //WiFi.begin(wifi_network_ssid, wifi_network_password);
   WiFi.setHostname(wifi_network_hostname);
   Serial.println("* Waiting for WIFI network...");
   Serial.println("*****************************************************");
@@ -1049,3 +1055,66 @@ void changeTimeFromJSON(){
 //     }
 //   }
 // }
+
+void scanWifi(){
+  //WiFi.scanNetworks will return the number of networks found
+  int n = WiFi.scanNetworks();
+  Serial.println("scan done");
+  if (n == 0) {
+    Serial.println("no networks found");
+    } 
+  else {
+    Serial.print(n);
+    Serial.println(" networks found");
+    for (int i = 0; i < n; ++i) {
+      // Print SSID and RSSI for each network found
+      Serial.print(i + 1);
+      Serial.print(": ");
+      Serial.print(WiFi.SSID(i));
+      Serial.print(" (");
+      Serial.print(WiFi.RSSI(i));
+      Serial.print(")");
+      Serial.println((WiFi.encryptionType(i) == WIFI_AUTH_OPEN)?" ":"*");
+      delay(10);
+    }
+  }
+}
+
+void startSoftAP(){
+  WiFi.softAP(soft_ap_ssid, soft_ap_password, 3);
+   // Print WiFi configuration to serial monitor
+  Serial.println();
+  Serial.println("*****************************************************");
+  Serial.printf( "* SoftAP IP is: %s\n\r", WiFi.softAPIP().toString().c_str());
+}
+
+void startWifi(){
+  // Connect to Wi-Fi using wifiMulti (connects to the SSID with strongest connection)
+  Serial.println("Connecting Wifi...");
+  if(wifiMulti.run() == WL_CONNECTED) {
+    Serial.println("");
+    Serial.println("WiFi connected");
+    Serial.println("IP address: ");
+    Serial.println(WiFi.localIP());
+  }
+  WiFi.setTxPower(WIFI_POWER_19_5dBm);
+}
+
+void wifiLoop(){
+
+  unsigned long currentTime = millis();
+  if (currentTime - previousTime >= eventInterval) {
+    if (wifiMulti.run(connectTimeoutMs) == WL_CONNECTED) {
+      Serial.print("WiFi connected: ");
+      Serial.print(WiFi.SSID());
+      Serial.print(" ");
+      Serial.println(WiFi.RSSI());
+    }
+    else {
+      Serial.println("WiFi not connected!");
+    }
+
+   /* Update the timing for the next time around */
+    previousTime = currentTime;
+  }
+}
