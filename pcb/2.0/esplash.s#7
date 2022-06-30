@@ -1406,7 +1406,7 @@ Comments, suggestions and bug reports please send to: &lt;b&gt;&lt;a href="mailt
 <part name="SC_01" library="con-wago-500" library_urn="urn:adsk.eagle:library:195" deviceset="W237-103" device="" package3d_urn="urn:adsk.eagle:package:10691/1" value="SC"/>
 <part name="SC_02" library="con-wago-500" library_urn="urn:adsk.eagle:library:195" deviceset="W237-103" device="" package3d_urn="urn:adsk.eagle:package:10691/1" value="SC"/>
 <part name="SC_03" library="con-wago-500" library_urn="urn:adsk.eagle:library:195" deviceset="W237-103" device="" package3d_urn="urn:adsk.eagle:package:10691/1" value="SC"/>
-<part name="GND1" library="con-wago-500" library_urn="urn:adsk.eagle:library:195" deviceset="W237-103" device="" package3d_urn="urn:adsk.eagle:package:10691/1" value="GND2"/>
+<part name="GND1" library="con-wago-500" library_urn="urn:adsk.eagle:library:195" deviceset="W237-103" device="" package3d_urn="urn:adsk.eagle:package:10691/1" value="SC"/>
 <part name="SC_04" library="con-wago-500" library_urn="urn:adsk.eagle:library:195" deviceset="W237-103" device="" package3d_urn="urn:adsk.eagle:package:10691/1" value="SC"/>
 <part name="SC_05" library="con-wago-500" library_urn="urn:adsk.eagle:library:195" deviceset="W237-103" device="" package3d_urn="urn:adsk.eagle:package:10691/1" value="SC"/>
 <part name="SC_06" library="con-wago-500" library_urn="urn:adsk.eagle:library:195" deviceset="W237-103" device="" package3d_urn="urn:adsk.eagle:package:10691/1" value="SC"/>
@@ -1761,11 +1761,6 @@ Comments, suggestions and bug reports please send to: &lt;b&gt;&lt;a href="mailt
 <label x="5.08" y="7.62" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="GND1" gate="-1" pin="KL"/>
-<wire x1="-25.4" y1="83.82" x2="-31.75" y2="83.82" width="0.1524" layer="91"/>
-<label x="-33.02" y="83.82" size="1.778" layer="95"/>
-</segment>
-<segment>
 <pinref part="SC_00" gate="-2" pin="KL"/>
 <wire x1="193.04" y1="86.36" x2="186.69" y2="86.36" width="0.1524" layer="91"/>
 <label x="185.42" y="86.36" size="1.778" layer="95"/>
@@ -1809,6 +1804,11 @@ Comments, suggestions and bug reports please send to: &lt;b&gt;&lt;a href="mailt
 <wire x1="251.46" y1="-43.18" x2="245.11" y2="-43.18" width="0.1524" layer="91"/>
 <pinref part="SC_08" gate="-2" pin="KL"/>
 <label x="243.84" y="-43.18" size="1.778" layer="95"/>
+</segment>
+<segment>
+<pinref part="GND1" gate="-2" pin="KL"/>
+<wire x1="-25.4" y1="88.9" x2="-31.75" y2="88.9" width="0.1524" layer="91"/>
+<label x="-33.02" y="88.9" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="GND" class="0">
@@ -1893,11 +1893,6 @@ Comments, suggestions and bug reports please send to: &lt;b&gt;&lt;a href="mailt
 <label x="68.58" y="-45.72" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="GND1" gate="-2" pin="KL"/>
-<wire x1="-25.4" y1="88.9" x2="-31.75" y2="88.9" width="0.1524" layer="91"/>
-<label x="-33.02" y="88.9" size="1.778" layer="95"/>
-</segment>
-<segment>
 <pinref part="SC_00" gate="-1" pin="KL"/>
 <wire x1="193.04" y1="81.28" x2="186.69" y2="81.28" width="0.1524" layer="91"/>
 <label x="185.42" y="81.28" size="1.778" layer="95"/>
@@ -1951,6 +1946,11 @@ Comments, suggestions and bug reports please send to: &lt;b&gt;&lt;a href="mailt
 <pinref part="U$1" gate="G$1" pin="C"/>
 <wire x1="269.24" y1="48.26" x2="269.24" y2="45.72" width="0.1524" layer="91"/>
 <pinref part="GND2" gate="1" pin="GND"/>
+</segment>
+<segment>
+<pinref part="GND1" gate="-1" pin="KL"/>
+<wire x1="-25.4" y1="83.82" x2="-31.75" y2="83.82" width="0.1524" layer="91"/>
+<label x="-33.02" y="83.82" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="GPIO13/PUMP_RELAY" class="0">
@@ -2026,6 +2026,11 @@ Comments, suggestions and bug reports please send to: &lt;b&gt;&lt;a href="mailt
 <pinref part="U1" gate="G$1" pin="IO4"/>
 <wire x1="104.14" y1="17.78" x2="124.46" y2="17.78" width="0.1524" layer="91"/>
 <label x="106.68" y="17.78" size="1.778" layer="95"/>
+</segment>
+<segment>
+<pinref part="SC_04" gate="-3" pin="KL"/>
+<wire x1="193.04" y1="2.54" x2="186.69" y2="2.54" width="0.1524" layer="91"/>
+<label x="185.42" y="2.54" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="GPIO22" class="0">
@@ -2370,19 +2375,11 @@ Comments, suggestions and bug reports please send to: &lt;b&gt;&lt;a href="mailt
 <wire x1="269.24" y1="58.42" x2="269.24" y2="55.88" width="0.1524" layer="91"/>
 </segment>
 </net>
-<net name="GPIO4/VALVE_RELAY04" class="0">
-<segment>
-<pinref part="SC_04" gate="-3" pin="KL"/>
-<wire x1="193.04" y1="2.54" x2="186.69" y2="2.54" width="0.1524" layer="91"/>
-<label x="165.1" y="2.54" size="1.778" layer="95"/>
-</segment>
-</net>
 </nets>
 </sheet>
 </sheets>
 <errors>
 <approved hash="104,1,76.2,-38.1,U$6,VDD,3V3,,,"/>
-<approved hash="113,1,262.064,49.53,VALVESOLENOID_01,,,,,"/>
 </errors>
 </schematic>
 </drawing>
