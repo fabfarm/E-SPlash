@@ -352,7 +352,7 @@ function removeRelay(payload) {
 	let url = `/relay/${payload.relayIndex}`;
 	fetch(url, { method: "DELETE" }).then(() => {
 		// Update local state
-		jsonDataState.relays.slice(payload.relayIndex, 1);
+	  jsonDataState.relays.splice(payload.relayIndex, 1);
 		updateSchedulingHtml(true);
 
 		closeLoadSpinner();
@@ -360,38 +360,29 @@ function removeRelay(payload) {
 	});
 }
 
-// UI functions
-function displaySuccessToast() {
-	document.getElementById("toast-success").style.display = "flex";
-	document.getElementById("toast-success-body").innerText =
-		"Data successfully updated!";
-
+  //ui functions
+const showToast = (message, isSuccess) => {
+	const toast = isSuccess ? document.getElementById("toast-success") : document.getElementById("toast-error");
+	const toastBody = isSuccess ? document.getElementById("toast-success-body") : document.getElementById("toast-error-body");
+	toast.style.display = "flex";
+	toastBody.innerText = message;
 	setTimeout(() => {
-		document.getElementById("toast-success").style.display = "none";
+	  toast.style.display = "none";
 	}, 5000);
-}
-
-function closeErrorToast() {
-	document.getElementById("toast-error").style.display = "none";
-}
-
-function displayErrorToast(message) {
-	document.getElementById("toast-error").style.display = "flex";
-	document.getElementById("toast-error-body").innerText = message;
-
-	setTimeout(() => {
-		closeErrorToast();
-	}, 5000);
-}
-
-function closeSuccessToast() {
-	document.getElementById("toast-success").style.display = "none";
-}
-
-function displayLoadSpinner(show) {
+  }
+  
+  const displaySuccessToast = () => {
+	showToast("Data successfully updated!", true);
+  }
+  
+  const displayErrorToast = (message) => {
+	showToast(message, false);
+  }
+  
+  const displayLoadSpinner = () => {
 	document.getElementById("spinner-bottom-right").style.display = "flex";
-}
-
-function closeLoadSpinner() {
+  }
+  
+  const closeLoadSpinner = () => {
 	document.getElementById("spinner-bottom-right").style.display = "none";
-}
+  }
