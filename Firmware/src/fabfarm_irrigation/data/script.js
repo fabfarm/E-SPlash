@@ -8,65 +8,55 @@ const GET_DATA_ENDPOINT = "/data.json";
 const UPDATE_RELAY_TIME = "/relay/update-time";
 const ADD_RELAY_TIME = "/relay/add-time";
 const ADD_RELAY = "/relay/add";
-// ------------------------------------------------
+let timeoutID = null;
+let doRefresh = false;
 
-// Definition of functions -----------------------------
-var timeoutID = null;
-var doRefresh = false;
-
+// Functions
 function fetchJSONState() {
 	fetch(GET_DATA_ENDPOINT)
-		.then((res) => res.json())
-		.then((jsonData) => {
-			// Check if scheduling mode has changed
-			let rebuildHtml = false;
-			if(!jsonDataState.data || jsonDataState.data.isScheduleMode != jsonData.data.isScheduleMode)
-				rebuildHtml = true;
-
+	  .then(res => res.json())
+	  .then(jsonData => {
+		const rebuildHtml = !jsonDataState?.data || jsonDataState.data.isScheduleMode !== jsonData.data.isScheduleMode;
 			previousJsonDataState = jsonDataState;
 			jsonDataState = jsonData;
-
-			if(document.getElementById("currentTime").innerText != jsonDataState.data.currentTime)
-				document.getElementById("currentTime").innerText = jsonDataState.data.currentTime;
-			if(document.getElementById("temperature").innerText != jsonDataState.data.temperature)
-					document.getElementById("temperature").innerText = jsonDataState.data.temperature;
-			if(document.getElementById("humidity").innerText != jsonDataState.data.humidity)
-					document.getElementById("humidity").innerText = jsonDataState.data.humidity;
-			if(document.getElementById("batLevel").innerText != jsonDataState.data.batLevel)
-					document.getElementById("batLevel").innerText = jsonDataState.data.batLevel;
-
-			if(doRefresh) {
+		updateElementIfChanged("currentTime", jsonDataState.data.currentTime);
+		updateElementIfChanged("temperature", jsonDataState.data.temperature);
+		updateElementIfChanged("humidity", jsonDataState.data.humidity);
+		updateElementIfChanged("batLevel", jsonDataState.data.batLevel);
+		if (doRefresh) {
 				updateSchedulingHtml(rebuildHtml);
-				timeoutID = setTimeout(() => {
-					fetchJSONState();
-				}, 100);
+		  timeoutID = setTimeout(fetchJSONState, 100);
 			}
-		}).catch(error => {
+	  })
+	  .catch(error => {
 			console.log(error);
-
-			if(doRefresh) {
+		if (doRefresh) {
 				updateSchedulingHtml();
-				timeoutID = setTimeout(() => {
-					fetchJSONState();
-				}, 100);
+		  timeoutID = setTimeout(fetchJSONState, 100);
 			}
 		});
 }
 
-function startRefresh() {
-	if(doRefresh)
+function updateElementIfChanged(elementId, newValue) {
+	const element = document.getElementById(elementId);
+	if (element?.innerText !== newValue) {
+	  element.innerText = newValue;
+	}
+  }
+  
+  const startRefresh = () => {
+	if (doRefresh) {
 		return;
+	}
 	doRefresh = true;
-
 	fetchJSONState();
-}
+  };
 
-function stopRefresh() {
-	if(timeoutID)
+  const stopRefresh = () => {
 		clearTimeout(timeoutID);
 	timeoutID = null;
 	doRefresh = false;
-}
+  };
 
 function updateSchedulingHtml(rebuildHtml = false) {
 	document.getElementById("schedulingMode").checked = jsonDataState.data.isScheduleMode;
@@ -345,6 +335,7 @@ function addRelay(payload) {
 		displaySuccessToast();
 	});
 }
+  
 
 function removeRelay(payload) {
 	displayLoadSpinner();
