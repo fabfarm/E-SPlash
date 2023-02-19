@@ -1,160 +1,134 @@
 /*
- * This code is part of a Irrigation System developed as my final project,
- * in the Fabacademy course, full documentation can be viewed on the link:
- * http://fabacademy.org/2020/labs/algarve/students/lucio/index.html
- * 
+ * This code is part of an Irrigation System developed as my final project for the Fabacademy course. 
+ * Full documentation can be viewed on the link: http://fabacademy.org/2020/labs/algarve/students/lucio/index.html
  * Project page: http://github.com/fabfarm/esplash
  */
+// Include necessary libraries
+#include "ArduinoJson.h"    // For working with JSON data
+#include "AsyncJson.h"      // For handling JSON data asynchronously
+#include "DHT.h"            // For working with DHT sensors
+#include "SPIFFS.h"         // For working with files on the flash file system
+#include <ESP32Time.h>      // For working with time on the ESP32
+#include "AsyncElegantOTA.h"// For over-the-air updates
+#include <WiFi.h>           // For working with WiFi
+#include <WiFiMulti.h>      // For handling multiple WiFi networks
 
-#include "ArduinoJson.h"
-#include "AsyncJson.h"
-#include "DHT.h"
-#include "SPIFFS.h"
-#include <ESP32Time.h>
-#include "AsyncElegantOTA.h"
-#include <WiFi.h>
-#include <WiFiMulti.h>
-
+// Create a WiFiMulti object to handle multiple WiFi networks
 WiFiMulti wifiMulti;
 
-const uint32_t connectTimeoutMs = 10000;
-const unsigned long eventInterval = 10000;
-unsigned long previousTime = 0;
+//#define static_IP // if you want to use static IP, uncomment this line
 
-// Uncomment to define IP as static
-//#define stactic_IP
-
-// Choosing the type of board if 0.1(_0_point_1) or 1.0(_1_point_0)
-#define _0_point_1_main   // Breadboard deployed in the lake irrigation
-//#define _0_point_greenhouse // Breadboard deployed in the greenhouse irrigation
-//#define _0_point          // Prototype relays on board pcb designed with eagle
-//#define _1_point_0        // Second prototype no relays on board pcb designed with eagle
-
-// Chose the network
-// //#define casa
-// #define container
-// //#define caravan
-// //#define kitchen
-
-// Board specific configuration settings
-#ifdef _0_point
-  // Define the type of external RTC
-  #define ds_3231
-  //#define TTL_Logic_Low
-  // Defining pump pin number
-  int pumpPinNumber = 13;
-  // Define Voltage read pin number
-  int batVoltPin = 35;
-
-  // Digital pin connected to the DHT sensor
-  #define DHTPIN 21
-  // Uncomment the type of sensor in use:
-  //#define DHTTYPE -1    // None
-  #define DHTTYPE DHT11 // DHT 11
-  //#define DHTTYPE DHT22 // DHT 22 (AM2302)
-  //#define DHTTYPE DHT21 // DHT 21 (AM2301)
-
-  const char* wifi_network_hostname = "test";
-  const char *soft_ap_ssid = "irrigation_main_prototype";
-  const char *soft_ap_password = "";
-
-  // Set your Static IP address
-  #ifdef stactic_IP
-  IPAddress local_IP(192, 168, 1, 22);
+// Define a struct to hold the configuration settings for different boards
+struct BoardConfig {
+  const char* name;         // Name of the board
+  const char* rtc_type;     // RTC type
+  const char* voltage_logic;// Voltage logic
+  int pump_pin;             // Pin number for the pump
+  int voltage_pin;          // Pin number for voltage read
+  int dht_pin;              // Pin number for the DHT sensor
+  int dht_type;             // Type of DHT sensor (-1 for none, DHT11, DHT22, DHT21)
+  const char* wifi_hostname;// WiFi network hostname
+  const char* ap_ssid;      // Soft AP SSID
+  const char* ap_password;  // Soft AP password
+  #ifdef static_IP
+  IPAddress local_IP;       // Static IP address
   #endif
-#endif
-#ifdef _0_point_1_main
-  // Define the type of external RTC
-  #define ds_3231
-  #define TTL_Logic_Low
-  // Defining pump pin number
-  int pumpPinNumber = 33;
-  // Define Voltage read pin number
-  int batVoltPin = 35;
+};
 
-  // Digital pin connected to the DHT sensor
-  #define DHTPIN 21
-  // Uncomment the type of sensor in use:
-  //#define DHTTYPE -1    // None
-  #define DHTTYPE DHT11 // DHT 11
-  //#define DHTTYPE DHT22 // DHT 22 (AM2302)
-  //#define DHTTYPE DHT21 // DHT 21 (AM2301)
+// Define configuration settings for different boards
+const BoardConfig configs[] = {
+  {
+    "0_point_1_main",               // Board name
+    "ds_3231",                      // RTC type
+    "TTL_Logic_Low",                // Voltage logic
+    33,                             // Pump pin
+    35,                             // Voltage read pin
+    21,                             // DHT sensor pin
+    DHT11,                          // DHT sensor type
+    "irrigationmain",               // WiFi network hostname
+    "irrigation_main",              // Soft AP SSID
+    "",                             // Soft AP password
+    #ifdef static_IP
+    IPAddress(192, 168, 1, 23)      // Static IP address
+    #endif
+  },
+  {
+    "0_point",                      // Board name
+    "ds_3231",                      // RTC type
+    "TTL_Logic_High",               // Voltage logic
+    13,                             // Pump pin
+    35,                             // Voltage read pin
+    21,                             // DHT sensor pin
+    DHT11,                          // DHT sensor type
+    "test",                         // WiFi network hostname
+    "irrigation_main_prototype",    // Soft AP SSID
+    "",                             // Soft AP password
+    #ifdef static_IP
+    IPAddress(192, 168, 1, 22)      // Static IP address
+    #endif
+  },
+  {
+    "_1_point_0",                   // Board name
+    "ds_3231",                      // RTC type
+    "TTL_Logic_Low",                // Voltage logic
+    13,                             // Pin number for pump
+    35,                             // Pin number for voltage reading
+    21,                             // Pin number for DHT sensor
+    DHT11,                          // DHT sensor type (-1=None, 11=DHT11, 22=DHT22, 21=AM2301)
+    "test",                         // Hostname of WiFi network
+    "irrigation_test",              // Soft AP SSID
+    "",                             // Soft AP password
+    #ifdef static_IP
+    IPAddress(192, 168, 1, 22)      // Static IP address
+    #endif
+  },
+  {
+    "_0_point_greenhouse",           // Board name
+    "ds_3231",                       // RTC type
+    "TTL_Logic_Low",                 // Voltage logic
+    33,                              // Pin number for pump
+    35,                              // Pin number for voltage reading
+    21,                              // Pin number for DHT sensor
+    -1,                              // DHT sensor type (-1=None, 11=DHT11, 22=DHT22, 21=AM2301)
+    "greenhousetestboard",           // Hostname of WiFi network
+    "irrigation_greenhousetest",     // Soft AP SSID
+    "",                              // Soft AP password
+    #ifdef static_IP
+    IPAddress(192, 168, 1, 25)       // Static IP address
+    #endif
+  }
+};
 
-  const char* wifi_network_hostname = "irrigationmain";
-  const char *soft_ap_ssid = "irrigation_main";
-  const char *soft_ap_password = "";
+// Choose the board configuration
+#define BOARD_CONFIG configs[1]
 
-  // Set your Static IP address
-  #ifdef stacticIP
-  	IPAddress local_IP(192, 168, 1, 23);
-  #endif
-#endif
-#ifdef _1_point_0
-  // Define the type of external RTC
-  #define ds_3231
-  #define TTL_Logic_Low
-  // Defining pump pin number
-  int pumpPinNumber = 33;
-  // Define Voltage read pin number
-  int batVoltPin = 35;
-
-  // Digital pin connected to the DHT sensor
-  #define DHTPIN 21
-  // Uncomment the type of sensor in use:
-  //#define DHTTYPE -1    // None
-  #define DHTTYPE DHT11 // DHT 11
-  //#define DHTTYPE DHT22 // DHT 22 (AM2302)
-  //#define DHTTYPE DHT21 // DHT 21 (AM2301)
-
-  const char* wifi_network_hostname = "test";
-  const char *soft_ap_ssid = "irrigation_test";
-  const char *soft_ap_password = "";
-
-  // Set your Static IP address
-  #ifdef stacticIP
-  	IPAddress local_IP(192, 168, 1, 24);
-  #endif
-#endif
-#ifdef _0_point_greenhouse
-  // Define the type of external RTC
-  #define ds_3231
-  #define TTL_Logic_Low
-  // Defining pump pin number
-  int pumpPinNumber = 13;
-  // Define Voltage read pin number
-  int batVoltPin = 35;
-
-  // Digital pin connected to the DHT sensor
-  #define DHTPIN 21
-  // Uncomment the type of sensor in use:
-  #define DHTTYPE -1    // None
-  //#define DHTTYPE DHT11 // DHT 11
-  //#define DHTTYPE DHT22 // DHT 22 (AM2302)
-  //#define DHTTYPE DHT21 // DHT 21 (AM2301)
-
-  const char* wifi_network_hostname = "greenhousetestboard";
-  const char *soft_ap_ssid = "irrigation_greenhousetest";
-  const char *soft_ap_password = "";
-
-  // Set your Static IP address
-  #ifdef stactic_IP
-    IPAddress local_IP(192, 168, 1, 25);
-  #endif
+// Define board-specific configuration settings
+#define ds_3231 BOARD_CONFIG.rtc_type // RTC type, set in board configuration
+#define TTL_Logic_Low BOARD_CONFIG.voltage_logic // Voltage logic level, set in board configuration
+int pumpPinNumber = BOARD_CONFIG.pump_pin; // Pin number for the water pump, set in board configuration
+int batVoltPin = BOARD_CONFIG.voltage_pin; // Pin number for the battery voltage sensor, set in board configuration
+#define DHTPIN BOARD_CONFIG.dht_pin // Pin number for the DHT sensor, set in board configuration
+#define DHTTYPE BOARD_CONFIG.dht_type // DHT sensor type, set in board configuration
+const char* wifi_network_hostname = BOARD_CONFIG.wifi_hostname; // Hostname for WiFi network, set in board configuration
+const char *soft_ap_ssid = BOARD_CONFIG.ap_ssid; // Soft AP SSID, set in board configuration
+const char *soft_ap_password = BOARD_CONFIG.ap_password; // Soft AP password, set in board configuration
+#ifdef static_IP
+IPAddress local_IP = BOARD_CONFIG.local_IP; // Local IP address, set in board configuration if using static IP
 #endif
 
 // External RTC specific configuration settings
 #ifdef ds_3231
   #include <Wire.h>
   #include <RtcDS3231.h>
-  RtcDS3231<TwoWire> Rtc(Wire); 
-  int sdaPin = 05;//SDA
-  int sclPin = 17;//SCL
+  RtcDS3231<TwoWire> Rtc(Wire); // Create a new RTC object using the DS3231 library and TwoWire interface
+  int sdaPin = 05; // SDA pin for I2C communication with the RTC
+  int sclPin = 17; // SCL pin for I2C communication with the RTC
 #endif
-#ifdef ds_1302
+  #ifdef ds_1302
   #include <ThreeWire.h>
   #include <RtcDS1302.h>
   ThreeWire myWire(14,13,32); // DAT, CLK, RST
-  RtcDS1302<ThreeWire> Rtc(myWire);
+  RtcDS1302<ThreeWire> Rtc(myWire); // Create a new RTC object using the DS1302 library and ThreeWire interface
 #endif
 
 // Included option to use relays with TTL Logic LOW. Comment to use high
@@ -173,10 +147,10 @@ IPAddress subnet(255, 255, 255, 0);
 IPAddress primaryDNS(  8, 8, 8, 8);
 IPAddress secondaryDNS(8, 8, 4, 4);
 
-ESP32Time rtc;
-const char *dataFile = "data.json"; // Read / write JSON to save state
-AsyncWebServer server(80);          // Specify the port of the Async server
-int jsonSize = 1800;               // Specifying the capacity of the JSON in bytes.
+ESP32Time rtc; // Create a new ESP32Time object for working with the RTC
+const char *dataFile = "data.json"; // File name for the JSON data file used to save state
+AsyncWebServer server(80); // Create a new AsyncWebServer object that listens on port 80
+int jsonSize = 1800; // Specify the capacity of the JSON in bytes
 DynamicJsonDocument doc(jsonSize); // From arduinoJson
 boolean isScheduleMode = false;
 
@@ -1056,65 +1030,98 @@ void changeTimeFromJSON(){
 //   }
 // }
 
-void scanWifi(){
-  //WiFi.scanNetworks will return the number of networks found
-  int n = WiFi.scanNetworks();
-  Serial.println("scan done");
-  if (n == 0) {
-    Serial.println("no networks found");
-    } 
+void scanWifi() {
+  // Call WiFi.scanNetworks to scan for available WiFi networks
+  int networkCount = WiFi.scanNetworks();
+  
+  // Print a message indicating the scan is complete
+  Serial.println("WiFi scan complete");
+  
+  // Check if any networks were found
+  if (networkCount == 0) {
+    Serial.println("No WiFi networks found.");
+  } 
   else {
-    Serial.print(n);
-    Serial.println(" networks found");
-    for (int i = 0; i < n; ++i) {
-      // Print SSID and RSSI for each network found
-      Serial.print(i + 1);
-      Serial.print(": ");
+    // Print the number of networks found
+    Serial.printf("Found %d WiFi networks:\n", networkCount);
+    
+    // Loop through each network and print its name, signal strength, and encryption type
+    for (int i = 0; i < networkCount; i++) {
+      // Print the network number
+      Serial.printf("%d: ", i + 1);
+      
+      // Print the network name (SSID)
       Serial.print(WiFi.SSID(i));
       Serial.print(" (");
+      
+      // Print the signal strength (RSSI)
       Serial.print(WiFi.RSSI(i));
-      Serial.print(")");
-      Serial.println((WiFi.encryptionType(i) == WIFI_AUTH_OPEN)?" ":"*");
-      delay(10);
+      Serial.print(" dBm");
+      
+      // Print the encryption type
+      if (WiFi.encryptionType(i) == WIFI_AUTH_OPEN) {
+        Serial.print(", open");
+      } else {
+        Serial.print(", encrypted");
+      }
+      
+      Serial.println();
     }
   }
 }
 
+
 void startSoftAP(){
+  // Start the soft access point (AP)
   WiFi.softAP(soft_ap_ssid, soft_ap_password, 3);
-   // Print WiFi configuration to serial monitor
+
+  // Print WiFi configuration to serial monitor
   Serial.println();
   Serial.println("*****************************************************");
-  Serial.printf( "* SoftAP IP is: %s\n\r", WiFi.softAPIP().toString().c_str());
+  Serial.printf("* SoftAP IP is: %s\n\r", WiFi.softAPIP().toString().c_str());
 }
 
-void startWifi(){
+void startWifi() {
   // Connect to Wi-Fi using wifiMulti (connects to the SSID with strongest connection)
   Serial.println("Connecting Wifi...");
-  if(wifiMulti.run() == WL_CONNECTED) {
+  if (wifiMulti.run() == WL_CONNECTED) {
+    // Connected to WiFi
     Serial.println("");
     Serial.println("WiFi connected");
     Serial.println("IP address: ");
     Serial.println(WiFi.localIP());
+  } else {
+    // Failed to connect to WiFi
+    Serial.println("WiFi connection failed.");
   }
+  // Set the Wi-Fi transmit power to the maximum value
   WiFi.setTxPower(WIFI_POWER_19_5dBm);
 }
 
-void wifiLoop(){
+void wifiLoop() {
+  unsigned long previousTime = 0; // static variable to keep track of the previous time
+  const unsigned long eventInterval = 10000; // interval between Wi-Fi connection attempts
+  const uint32_t connectTimeoutMs = 10000; // Wi-Fi connection timeout in milliseconds
 
+  // get the current time
   unsigned long currentTime = millis();
+
+  // check if enough time has passed to attempt a Wi-Fi connection
   if (currentTime - previousTime >= eventInterval) {
+
+    // attempt to connect to the Wi-Fi network
     if (wifiMulti.run(connectTimeoutMs) == WL_CONNECTED) {
+      // if connected, print the network name and signal strength
       Serial.print("WiFi connected: ");
       Serial.print(WiFi.SSID());
       Serial.print(" ");
       Serial.println(WiFi.RSSI());
-    }
-    else {
+    } else {
+      // if not connected, print a message to the serial monitor
       Serial.println("WiFi not connected!");
     }
 
-   /* Update the timing for the next time around */
+    // update the timing for the next time around
     previousTime = currentTime;
   }
 }
