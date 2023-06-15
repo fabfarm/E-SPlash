@@ -10,35 +10,28 @@
 // #include <AsyncElegantOTA.h>
 #include <WiFi.h>
 #include <WiFiMulti.h>
-
-extern WiFiMulti wifiMulti;
-
 #include <Wire.h>
 #include <RtcDS3231.h>
 #include <ThreeWire.h>
 #include <RtcDS1302.h>
 
-struct BoardConfig {
-  const char* name;
-  int pump_pin;
-  int voltage_pin;
-  int dht_pin;
-  int dht_type;
-  const char* wifi_hostname;
-  const char* ap_ssid;
-  const char* ap_password;
-  #ifdef static_IP
-  IPAddress local_IP;
-  #endif
-};
+#include "WebServerManager.h"
+#include "WiFiHandler.h"
+#include "JsonHandler.h"
+#include "RelayHandler.h"
+#include "TimeHandler.h"
+#include "Board_Config.h"
+#include "SetupSensors.h"
+#include  "FileManager.h"
 
-extern const BoardConfig configs[];
+
+extern WiFiMulti wifiMulti;
 
 #define BOARD_CONFIG configs[1]
 
 extern int pumpPinNumber;
 extern int batVoltPin;
-extern const char* wifi_network_hostname;
+extern const char *wifi_network_hostname;
 extern const char *soft_ap_ssid;
 extern const char *soft_ap_password;
 #ifdef static_IP
@@ -49,6 +42,7 @@ extern IPAddress local_IP;
 #define TTL_Logic_Low
 #define DHTPIN BOARD_CONFIG.dht_pin
 #define DHTTYPE BOARD_CONFIG.dht_type
+#define countof(a) (sizeof(a) / sizeof(a[0]))
 
 #ifdef ds_3231
 extern RtcDS3231<TwoWire> Rtc;

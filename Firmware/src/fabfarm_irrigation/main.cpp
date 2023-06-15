@@ -1,11 +1,8 @@
 #include "Config.h"
-#include "Fabfarm_Irrigation.h"
-#include "WiFiHandler.h"
-#include "JsonHandler.h"
 
 void setup()
 {
-  setupSerialMonitor();
+  Serial.begin(9600);
   setupWiFi();
   scanWifi();
   startWifi();

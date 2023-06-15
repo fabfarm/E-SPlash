@@ -88,3 +88,41 @@ void scanWifi()
     }
   }
 }
+
+void setupWiFi()
+{
+  WiFi.mode(WIFI_MODE_APSTA);
+  wifiMulti.addAP("ratinho_do_malandro", "gerryforever2018");
+  wifiMulti.addAP("fabfarm_ele_container", "imakestuff");
+  wifiMulti.addAP("liga_o_gerador", "gerryforever2018");
+  wifiMulti.addAP("caravana", "imakestuff");
+  wifiMulti.addAP("fabfarm", "imakestuff");
+  wifiMulti.addAP("Raccaccoonie", "MalkovichMalkovich");
+  wifiMulti.addAP("ubnt_mesh", "gerryforever2018");
+  scanWifi();
+  startWifi();
+}
+
+void setupWifi()
+{
+  WiFi.mode(WIFI_MODE_APSTA);
+  WiFi.softAP(soft_ap_ssid, soft_ap_password, 3);
+
+  Serial.println();
+  Serial.println("*****************************************************");
+  Serial.printf("* SoftAP IP is: %s\n\r", WiFi.softAPIP().toString().c_str());
+
+#ifdef stacticIP
+  if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS))
+  {
+    Serial.println("* STA Failed to configure");
+  }
+#endif
+
+  WiFi.setHostname(wifi_network_hostname);
+
+  Serial.println("* Waiting for WIFI network...");
+  Serial.println("*****************************************************");
+  Serial.println();
+}
+
