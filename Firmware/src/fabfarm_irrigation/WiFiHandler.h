@@ -3,11 +3,16 @@
 
 #include "Config.h"
 
-void startSoftAP();
-void startWifi();
-void wifiLoop();
-void scanWifi();
-void setupWiFi();
-void setupWifi();
+void printAccessPointIP();
+void printConnectedWiFiStatus();
+void printDisconnectedWiFiStatus();
+void printWiFiScanStatus(int networkCount);
+void printDiscoveredWiFiNetworks(int networkCount);
+void initiateSoftAccessPoint();
+void initiateWiFiConnection();
+void handleWiFiConnection();
+void scanAvailableWiFiNetworks();
+void configureWiFiSettings();
+void configureAccessPointSettings();
 
 #endif // WIFIHANDLER_H

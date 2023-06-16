@@ -3,20 +3,20 @@
 void setup()
 {
   Serial.begin(9600);
-  setupWiFi();
-  scanWifi();
-  startWifi();
+  configureWiFiSettings();
+  scanAvailableWiFiNetworks();
+  initiateWiFiConnection();
   disableAllRelays();
   printCompileTime();
   setupRTC();
   setupStorage();
   server.begin();
-  serverHandle();
+  serverHandle(); 
 }
 
 void loop()
 {
-  wifiLoop();
+  handleWiFiConnection();
   if (isScheduleMode)
   {
     scheduleMode();
