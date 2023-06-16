@@ -3,6 +3,7 @@
 
 #include "Config.h"
 
+float readDHTData(bool isTemperature);
 float readDHTTemperature();
 float readDHTHumidity();
 float getBatteryLevel(); 

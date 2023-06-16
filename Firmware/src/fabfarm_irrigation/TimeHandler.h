@@ -3,10 +3,10 @@
 
 #include "Config.h"
 
-void printCompileTime();
-void printDateTime(const RtcDateTime &dt);
-void updateInternalRTC(const RtcDateTime &dt);
-void setupRTC();
-void testRtcOnLoop();
+void printCompilationTimestamp();
+void printRtcDateTime(const RtcDateTime &dt);
+void syncInternalRtcWithExternal(const RtcDateTime &dt);
+void initializeRtc();
+void printRtcDateTimeInLoop();
 
 #endif // WIFIHANDLER_H

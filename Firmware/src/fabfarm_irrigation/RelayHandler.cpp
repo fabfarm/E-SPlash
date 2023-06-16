@@ -1,5 +1,4 @@
 #include "RelayHandler.h"
-#include "Config.h"
 
 bool isWithinTimeslot(int startTimeInMinutes, int duration)
 {

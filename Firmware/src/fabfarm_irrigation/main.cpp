@@ -7,8 +7,8 @@ void setup()
   scanAvailableWiFiNetworks();
   initiateWiFiConnection();
   disableAllRelays();
-  printCompileTime();
-  setupRTC();
+  printCompilationTimestamp();
+  initializeRtc();
   setupStorage();
   server.begin();
   serverHandle(); 
