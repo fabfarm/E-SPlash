@@ -46,10 +46,6 @@ void printDiscoveredWiFiNetworks(int networkCount) {
     }
 }
 
-void initiateSoftAccessPoint() {
-    WiFi.softAP(soft_ap_ssid, soft_ap_password, 3);
-    printAccessPointIP();
-}
 
 void initiateWiFiConnection() {
     Serial.println("Connecting Wifi...");
@@ -103,19 +99,3 @@ void configureWiFiSettings() {
     initiateWiFiConnection();
 }
 
-void configureAccessPointSettings() {
-    WiFi.mode(WIFI_MODE_APSTA);
-    WiFi.softAP(soft_ap_ssid, soft_ap_password, 3);
-    printAccessPointIP();
-
-#ifdef stacticIP
-    if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS)) {
-        Serial.println("* STA Failed to configure");}
-#endif
-
-    WiFi.setHostname(wifi_network_hostname);
-
-    Serial.println("* Waiting for WIFI network...");
-    Serial.println("*****************************************************");
-    Serial.println();
-}

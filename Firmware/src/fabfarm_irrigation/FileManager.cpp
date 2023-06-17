@@ -2,9 +2,9 @@
 #include "Config.h"
 
 void setupStorage(){
-  if (!SPIFFS.begin(true))
+  if (!LittleFS.begin(true))
   {
-    Serial.println("An Error has occurred while mounting SPIFFS");
+    Serial.println("An Error has occurred while mounting LittleFS");
     return;
   }
 

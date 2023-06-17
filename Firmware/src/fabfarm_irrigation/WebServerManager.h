@@ -4,9 +4,7 @@
 #include "Config.h"
 
 void serverHandle();
-void handleDataJsonRequest(AsyncWebServerRequest *request);
 void handleUpdateDataRequest(AsyncWebServerRequest *request, JsonVariant &json);
-void handleModeRequest(AsyncWebServerRequest *request);
 void handleRelayRequest(AsyncWebServerRequest *request);
 void handleUpdateRelayTimeRequest(AsyncWebServerRequest *request, JsonVariant &json);
 void handleAddRelayTimeRequest(AsyncWebServerRequest *request, JsonVariant &json);

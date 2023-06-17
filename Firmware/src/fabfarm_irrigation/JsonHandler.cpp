@@ -9,7 +9,7 @@ bool writeDataJson()
   Serial.println("JSON serialize - COMPLETE");
 
   Serial.println("Write JSON file - BEGIN");
-  File f = SPIFFS.open("/data.json", "w");
+  File f = LittleFS.open("/data.json", "w");
   if (!f)
   {
     Serial.println("Failed to open file for writing");
@@ -32,14 +32,14 @@ void readDataJson()
   Serial.println("Starting to look for JSON file");
 
   File f;
-  if (SPIFFS.exists("/data.json"))
+  if (LittleFS.exists("/data.json"))
   {
-    f = SPIFFS.open("/data.json", "r");
+    f = LittleFS.open("/data.json", "r");
   }
   else
   {
     Serial.println("data.json does not exist yet, reading sample.json instead!");
-    f = SPIFFS.open("/sample.json", "r");
+    f = LittleFS.open("/sample.json", "r");
   }
 
   Serial.println("Reading JSON file - BEGIN");

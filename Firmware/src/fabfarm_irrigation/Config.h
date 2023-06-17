@@ -5,9 +5,9 @@
 #include <ArduinoJson.h>
 #include <AsyncJson.h>
 #include <DHT.h>
-#include <SPIFFS.h>
+#include <LittleFS.h>
 #include <ESP32Time.h>
-// #include <AsyncElegantOTA.h>
+//#include <AsyncElegantOTA.h>
 #include <WiFi.h>
 #include <WiFiMulti.h>
 #include <Wire.h>
@@ -40,8 +40,10 @@ extern IPAddress local_IP;
 
 #define ds_3231
 #define TTL_Logic_Low
+
 #define DHTPIN BOARD_CONFIG.dht_pin
 #define DHTTYPE BOARD_CONFIG.dht_type
+
 #define countof(a) (sizeof(a) / sizeof(a[0]))
 
 #ifdef ds_3231
@@ -60,11 +62,6 @@ extern RtcDS1302<ThreeWire> Rtc;
 #define ON HIGH
 #define OFF LOW
 #endif
-
-extern IPAddress gateway;
-extern IPAddress subnet;
-extern IPAddress primaryDNS;
-extern IPAddress secondaryDNS;
 
 extern ESP32Time rtc;
 extern const char *dataFile;
