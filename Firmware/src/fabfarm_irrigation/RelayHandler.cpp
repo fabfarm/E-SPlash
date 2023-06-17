@@ -7,110 +7,71 @@ bool isWithinTimeslot(int startTimeInMinutes, int duration)
     return false;
   }
 
-  int onlyHour = rtc.getHour(true);
-  int onlyMin = rtc.getMinute();
+  int presentTimeInMinutes = (rtc.getHour(true) * 60) + rtc.getMinute();
 
-  int presentTimeInMinutes = (onlyHour * 60) + onlyMin;
+  return presentTimeInMinutes >= startTimeInMinutes && presentTimeInMinutes < startTimeInMinutes + duration;
+}
 
-  bool isEnabled = false;
-  if (presentTimeInMinutes >= startTimeInMinutes && presentTimeInMinutes < startTimeInMinutes + duration)
+void switchDevice(int pinNumber, bool state, const char* deviceName)
+{
+  pinMode(pinNumber, OUTPUT);
+  digitalWrite(pinNumber, state ? ON : OFF);
+  Serial.printf("%s (pin %d) is %s\n\r", deviceName, pinNumber, state ? "on" : "off");
+}
+
+void handleDevices(JsonArray devices, bool (*shouldEnableDevice)(JsonObject&))
+{
+  bool enablePump = false;
+  for (JsonObject device : devices)
   {
-    isEnabled = true;
+    int pinNumber = device["pin"];
+    bool enableDevice = shouldEnableDevice(device);
+    switchDevice(pinNumber, enableDevice, device["name"]);
+    enablePump = enablePump || enableDevice;
   }
+  switchDevice(pumpPinNumber, enablePump, "Pump");
+}
 
-  return isEnabled;
+bool shouldEnableDeviceInScheduleMode(JsonObject& device)
+{
+  for (JsonObject time : device["times"].as<JsonArray>())
+  {
+    int hours = time["startTime"].as<String>().substring(0, 2).toInt();
+    int minutes = time["startTime"].as<String>().substring(3).toInt();
+    int startTimeInMinutes = (hours * 60) + minutes;
+    int cycleDuration = time["duration"];
+    if (isWithinTimeslot(startTimeInMinutes, cycleDuration))
+    {
+      return true;
+    }
+  }
+  return false;
 }
 
 void scheduleMode()
 {
-  Serial.println("scheduleMode");
-  bool enablePump = false;
-  JsonArray relays = doc["relays"];
-  for (int i = 0; i < relays.size(); i++)
-  {
-    bool enableRelay = false;
-    int pinNumber = relays[i]["pin"];
-    for (int j = 0; j < relays[i]["times"].size(); j++)
-    {
-      pinMode(pinNumber, OUTPUT);
-      int hours = relays[i]["times"][j]["startTime"].as<String>().substring(0, 2).toInt();
-      int minutes = relays[i]["times"][j]["startTime"].as<String>().substring(3).toInt();
-      int startTimeInMinutes = (hours * 60) + minutes;
-      int cycleDuration = relays[i]["times"][j]["duration"];
-      if (isWithinTimeslot(startTimeInMinutes, cycleDuration))
-      {
-        enableRelay = true;
-      }
-    }
+  Serial.println("Schedule Mode");
+  handleDevices(doc["relays"], shouldEnableDeviceInScheduleMode);
+}
 
-    if (enableRelay)
-    {
-      digitalWrite(pinNumber, ON);
-      Serial.printf("Relay %s (pin %d) is on\n\r", relays[i]["name"].as<char *>(), pinNumber);
-      enablePump = true;
-    }
-    else
-    {
-      digitalWrite(pinNumber, OFF);
-      Serial.printf("Relay %s (pin %d) is off\n\r", relays[i]["name"].as<char *>(), pinNumber);
-    }
-  }
-  switchPump(enablePump);
+bool shouldEnableDeviceInManualMode(JsonObject& device)
+{
+  return device["isEnabled"];
 }
 
 void manualMode()
 {
-  Serial.println("manualMode");
-  int enablePump = false;
-  JsonArray relays = doc["relays"];
-  for (int i = 0; i < relays.size(); i++)
-  {
-    int pinNumber = relays[i]["pin"];
-    pinMode(pinNumber, OUTPUT);
-    if (relays[i]["isEnabled"])
-    {
-      digitalWrite(pinNumber, ON);
-      Serial.printf("Relay %s (pin %d) is on\n\r", relays[i]["name"].as<char *>(), pinNumber);
-      enablePump = true;
-    }
-    else
-    {
-      digitalWrite(pinNumber, OFF);
-      Serial.printf("Relay %s (pin %d) is off\n\r", relays[i]["name"].as<char *>(), pinNumber);
-    }
-  }
-
-  switchPump(enablePump);
+  Serial.println("Manual Mode");
+  handleDevices(doc["relays"], shouldEnableDeviceInManualMode);
 }
 
-void disableAllRelays()
+void disableAllDevices()
 {
-  switchPump(false);
+  switchDevice(pumpPinNumber, false, "Pump");
 
   JsonArray relays = doc["relays"];
-  for (int i = 0; i < relays.size(); i++)
+  for (JsonObject relay : relays)
   {
-    int pinNumber = relays[i]["pin"];
-    pinMode(pinNumber, OUTPUT);
-    digitalWrite(pinNumber, OFF);
-    Serial.printf("Zone %s (pin %d) is off\n\r", relays[i]["name"].as<char *>(), pinNumber);
+    switchDevice(relay["pin"], false, relay["name"]);
   }
 }
-
-void switchPump(bool state)
-{
-  pinMode(pumpPinNumber, OUTPUT);
-
-  if (state)
-  {
-    digitalWrite(pumpPinNumber, ON);
-    Serial.printf("Pump (pumpPinNumber %d) is on\n\r", pumpPinNumber);
-  }
-  else
-  {
-    digitalWrite(pumpPinNumber, OFF);
-    Serial.printf("Pump (pumpPinNumber %d) is off\n\r", pumpPinNumber);
-  }
-}
-
-

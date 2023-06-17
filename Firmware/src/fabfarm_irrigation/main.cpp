@@ -6,7 +6,7 @@ void setup()
   configureWiFiSettings();
   scanAvailableWiFiNetworks();
   initiateWiFiConnection();
-  disableAllRelays();
+  disableAllDevices();
   printCompilationTimestamp();
   initializeRtc();
   setupStorage();
