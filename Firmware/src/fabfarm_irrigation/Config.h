@@ -2,12 +2,13 @@
 #define CONFIG_H
 
 #include <Arduino.h>
+#include <FS.h>
+#include <LittleFS.h>
 #include <ArduinoJson.h>
 #include <AsyncJson.h>
 #include <DHT.h>
-#include <LittleFS.h>
 #include <ESP32Time.h>
-//#include <AsyncElegantOTA.h>
+// #include <AsyncElegantOTA.h>
 #include <WiFi.h>
 #include <WiFiMulti.h>
 #include <Wire.h>
@@ -22,8 +23,6 @@
 #include "TimeHandler.h"
 #include "Board_Config.h"
 #include "SetupSensors.h"
-#include  "FileManager.h"
-
 
 extern WiFiMulti wifiMulti;
 
@@ -64,7 +63,6 @@ extern RtcDS1302<ThreeWire> Rtc;
 #endif
 
 extern ESP32Time rtc;
-extern const char *dataFile;
 extern AsyncWebServer server;
 extern int jsonSize;
 extern DynamicJsonDocument doc;

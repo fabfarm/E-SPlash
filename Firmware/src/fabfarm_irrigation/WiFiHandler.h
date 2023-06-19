@@ -12,5 +12,6 @@ void initiateWiFiConnection();
 void handleWiFiConnection();
 void scanAvailableWiFiNetworks();
 void configureWiFiSettings();
+void loadCredentialsFromFile();
 
 #endif // WIFIHANDLER_H

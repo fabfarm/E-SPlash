@@ -18,7 +18,6 @@ RtcDS1302<ThreeWire> Rtc(myWire);
 #endif
 
 ESP32Time rtc;
-const char *dataFile = "data.json";
 AsyncWebServer server(80);
 int jsonSize = 1800;
 DynamicJsonDocument doc(jsonSize);
