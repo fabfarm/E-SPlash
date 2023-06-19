@@ -11,6 +11,7 @@ float readDHTData(bool isTemperature)
 
     if (DHTTYPE == -1)
     {
+        Serial.println("Invalid DHT Type!");
         return NAN;
     }
 
@@ -32,8 +33,11 @@ float readDHTData(bool isTemperature)
         return data;
     }
 
+    // If the time since last read is less than the readInterval
+    Serial.println("Too soon to read sensor again!");
     return NAN;
 }
+
 
 // Function to read DHT temperature
 float readDHTTemperature()

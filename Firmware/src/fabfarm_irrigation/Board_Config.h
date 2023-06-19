@@ -13,9 +13,6 @@ struct BoardConfig
   const char *wifi_hostname;
   const char *ap_ssid;
   const char *ap_password;
-#ifdef static_IP
-  IPAddress local_IP;
-#endif
 };
 
 extern const BoardConfig configs[];

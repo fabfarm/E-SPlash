@@ -23,6 +23,7 @@
 #include "TimeHandler.h"
 #include "Board_Config.h"
 #include "SetupSensors.h"
+#include "storageHandler.h"
 
 extern WiFiMulti wifiMulti;
 
@@ -33,9 +34,6 @@ extern int batVoltPin;
 extern const char *wifi_network_hostname;
 extern const char *soft_ap_ssid;
 extern const char *soft_ap_password;
-#ifdef static_IP
-extern IPAddress local_IP;
-#endif
 
 #define ds_3231
 #define TTL_Logic_Low
