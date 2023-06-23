@@ -8,11 +8,10 @@ void printConnectedWiFiStatus();
 void printDisconnectedWiFiStatus();
 void printWiFiScanStatus(int networkCount);
 void printDiscoveredWiFiNetworks(int networkCount);
-void initiateSoftAccessPoint();
 void initiateWiFiConnection();
 void handleWiFiConnection();
 void scanAvailableWiFiNetworks();
 void configureWiFiSettings();
-void configureAccessPointSettings();
-
+void loadCredentialsFromFile();
+void initializeServer();
 #endif // WIFIHANDLER_H

@@ -210,13 +210,13 @@ void serverHandle()
     server.addHandler(addRelay);
 
     server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
-              { request->send(SPIFFS, "/index.html", String(), false); });
+              { request->send(LittleFS, "/index.html", String(), false); });
 
     server.on("^(\\/[a-zA-Z0-9_.-]*)$", HTTP_GET, [](AsyncWebServerRequest *request)
               {
         String file = request->pathArg(0);
         Serial.printf("Serving file %s\n\r", file.c_str());
-        request->send(SPIFFS, file, String(), false); });
+        request->send(LittleFS, file, String(), false); });
 
     isScheduleMode = doc["data"]["isScheduleMode"];
     if (!isScheduleMode)

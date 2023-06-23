@@ -3,15 +3,16 @@
 void setup()
 {
   Serial.begin(9600);
+  setupStorage();
+  readDataJson();
   configureWiFiSettings();
   scanAvailableWiFiNetworks();
   initiateWiFiConnection();
   disableAllDevices();
   printCompilationTimestamp();
   initializeRtc();
-  setupStorage();
-  server.begin();
-  serverHandle(); 
+  initializeServer();
+  serverHandle();
 }
 
 void loop()
@@ -21,5 +22,5 @@ void loop()
   {
     scheduleMode();
   }
-  sleep(1);
+  //sleep(1);
 }

@@ -17,13 +17,7 @@ ThreeWire myWire(14, 13, 32);
 RtcDS1302<ThreeWire> Rtc(myWire);
 #endif
 
-IPAddress gateway(192, 168, 1, 1);
-IPAddress subnet(255, 255, 255, 0);
-IPAddress primaryDNS(8, 8, 8, 8);
-IPAddress secondaryDNS(8, 8, 4, 4);
-
 ESP32Time rtc;
-const char *dataFile = "data.json";
 AsyncWebServer server(80);
 int jsonSize = 1800;
 DynamicJsonDocument doc(jsonSize);

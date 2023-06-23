@@ -2,12 +2,12 @@
 #define CONFIG_H
 
 #include <Arduino.h>
+#include <FS.h>
+#include <LittleFS.h>
 #include <ArduinoJson.h>
 #include <AsyncJson.h>
 #include <DHT.h>
-#include <SPIFFS.h>
 #include <ESP32Time.h>
-// #include <AsyncElegantOTA.h>
 #include <WiFi.h>
 #include <WiFiMulti.h>
 #include <Wire.h>
@@ -22,8 +22,7 @@
 #include "TimeHandler.h"
 #include "Board_Config.h"
 #include "SetupSensors.h"
-#include  "FileManager.h"
-
+#include "storageHandler.h"
 
 extern WiFiMulti wifiMulti;
 
@@ -34,14 +33,13 @@ extern int batVoltPin;
 extern const char *wifi_network_hostname;
 extern const char *soft_ap_ssid;
 extern const char *soft_ap_password;
-#ifdef static_IP
-extern IPAddress local_IP;
-#endif
 
 #define ds_3231
 #define TTL_Logic_Low
+
 #define DHTPIN BOARD_CONFIG.dht_pin
 #define DHTTYPE BOARD_CONFIG.dht_type
+
 #define countof(a) (sizeof(a) / sizeof(a[0]))
 
 #ifdef ds_3231
@@ -61,13 +59,7 @@ extern RtcDS1302<ThreeWire> Rtc;
 #define OFF LOW
 #endif
 
-extern IPAddress gateway;
-extern IPAddress subnet;
-extern IPAddress primaryDNS;
-extern IPAddress secondaryDNS;
-
 extern ESP32Time rtc;
-extern const char *dataFile;
 extern AsyncWebServer server;
 extern int jsonSize;
 extern DynamicJsonDocument doc;

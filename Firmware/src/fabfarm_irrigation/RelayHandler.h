@@ -4,11 +4,11 @@
 #include "Config.h"
 
 bool isWithinTimeslot(int startTimeInMinutes, int duration);
-void switchDevice(int pinNumber, bool state, const char* deviceName);
-void handleDevices(JsonArray devices, bool (*shouldEnableDevice)(JsonObject&));
-bool shouldEnableDeviceInScheduleMode(JsonObject& device);
+void switchDevice(int pinNumber, bool state, const char *deviceName);
+void handleDevices(JsonArray devices, bool (*shouldEnableDevice)(JsonObject &));
+bool shouldEnableDeviceInScheduleMode(JsonObject &device);
 void scheduleMode();
-bool shouldEnableDeviceInManualMode(JsonObject& device);
+bool shouldEnableDeviceInManualMode(JsonObject &device);
 void manualMode();
 void disableAllDevices();
 

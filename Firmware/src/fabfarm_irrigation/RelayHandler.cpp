@@ -12,14 +12,14 @@ bool isWithinTimeslot(int startTimeInMinutes, int duration)
   return presentTimeInMinutes >= startTimeInMinutes && presentTimeInMinutes < startTimeInMinutes + duration;
 }
 
-void switchDevice(int pinNumber, bool state, const char* deviceName)
+void switchDevice(int pinNumber, bool state, const char *deviceName)
 {
   pinMode(pinNumber, OUTPUT);
   digitalWrite(pinNumber, state ? ON : OFF);
   Serial.printf("%s (pin %d) is %s\n\r", deviceName, pinNumber, state ? "on" : "off");
 }
 
-void handleDevices(JsonArray devices, bool (*shouldEnableDevice)(JsonObject&))
+void handleDevices(JsonArray devices, bool (*shouldEnableDevice)(JsonObject &))
 {
   bool enablePump = false;
   for (JsonObject device : devices)
@@ -32,7 +32,7 @@ void handleDevices(JsonArray devices, bool (*shouldEnableDevice)(JsonObject&))
   switchDevice(pumpPinNumber, enablePump, "Pump");
 }
 
-bool shouldEnableDeviceInScheduleMode(JsonObject& device)
+bool shouldEnableDeviceInScheduleMode(JsonObject &device)
 {
   for (JsonObject time : device["times"].as<JsonArray>())
   {
@@ -54,7 +54,7 @@ void scheduleMode()
   handleDevices(doc["relays"], shouldEnableDeviceInScheduleMode);
 }
 
-bool shouldEnableDeviceInManualMode(JsonObject& device)
+bool shouldEnableDeviceInManualMode(JsonObject &device)
 {
   return device["isEnabled"];
 }
