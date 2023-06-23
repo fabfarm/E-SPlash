@@ -11,7 +11,7 @@ void setup()
   disableAllDevices();
   printCompilationTimestamp();
   initializeRtc();
-  server.begin();
+  initializeServer();
   serverHandle();
 }
 
@@ -22,5 +22,5 @@ void loop()
   {
     scheduleMode();
   }
-  sleep(1);
+  //sleep(1);
 }

@@ -1,5 +1,7 @@
 #include "WiFiHandler.h"
 #include "Config.h"
+#include <AsyncElegantOTA.h>
+
 
 void printAccessPointIP()
 {
@@ -133,4 +135,10 @@ void configureWiFiSettings()
     loadCredentialsFromFile();
     scanAvailableWiFiNetworks();
     initiateWiFiConnection();
+}
+
+void initializeServer()
+{
+    AsyncElegantOTA.begin(&server);
+    server.begin();
 }

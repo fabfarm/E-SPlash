@@ -8,7 +8,6 @@
 #include <AsyncJson.h>
 #include <DHT.h>
 #include <ESP32Time.h>
-// #include <AsyncElegantOTA.h>
 #include <WiFi.h>
 #include <WiFiMulti.h>
 #include <Wire.h>
