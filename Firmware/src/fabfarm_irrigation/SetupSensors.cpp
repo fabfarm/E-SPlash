@@ -2,13 +2,13 @@
 
 // Initialize DHT sensor
 DHT dht(DHTPIN, DHTTYPE);
+const unsigned long readInterval = 20000;
 
 // Function to read DHT sensor data
 float readDHTData(bool isTemperature)
 {
     static unsigned long lastReadTime = 0;
-    const unsigned long readInterval = 2000;
-
+    
     if (DHTTYPE == -1)
     {
         Serial.println("Invalid DHT Type!");
@@ -34,10 +34,9 @@ float readDHTData(bool isTemperature)
     }
 
     // If the time since last read is less than the readInterval
-    Serial.println("Too soon to read sensor again!");
+    // Serial.println("Too soon to read sensor again!");
     return NAN;
 }
-
 
 // Function to read DHT temperature
 float readDHTTemperature()
@@ -54,15 +53,22 @@ float readDHTHumidity()
 // Function to get battery level
 float getBatteryLevel()
 {
-    float batteryVoltage = analogRead(batVoltPin);
-    float batteryLevel = map(batteryVoltage, 0.0f, 1866.0f, 0, 100);
-
-    if (batteryLevel > 100)
+    static unsigned long lastReadTime = 0;
+    if (millis() - lastReadTime > readInterval)
     {
-        batteryLevel = 100;
+        lastReadTime = millis();
+        float batteryVoltage = analogRead(batVoltPin);
+        float batteryLevel = map(batteryVoltage, 0.0f, 1866.0f, 0, 100);
+        if (batteryLevel > 100)
+        {
+            batteryLevel = 100;
+        }
+        else if (batteryLevel < 0)
+        {
+            batteryLevel = 0;
+        }
+        Serial.printf("Battery Level: %f\n\r", batteryLevel);
+        return batteryLevel;
     }
-
-    Serial.printf("Battery Level: %f\n\r", batteryLevel);
-
-    return batteryLevel;
+    return NAN;
 }
