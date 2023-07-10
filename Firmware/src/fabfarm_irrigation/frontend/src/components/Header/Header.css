@@ -1,0 +1,14 @@
+header.app-header {
+    display: flex;
+    height: 64px;
+    background-color: grey;
+}
+
+.logo-wrapper {
+    height: 64px;
+}
+
+.logo-wrapper .img {
+    height: 52px;
+    padding: 3px;
+}

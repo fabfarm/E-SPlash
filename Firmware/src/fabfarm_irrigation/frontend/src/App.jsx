@@ -1,18 +1,22 @@
 import { useState } from 'react';
 import './App.css';
 
+import Header from './components/Header';
 import Dashboard from './components/Dashboard';
-import Controls from './components/Controls/Controls';
-import Setup from './components/Setup/Setup';
+import Controls from './components/Controls';
+import Setup from './components/Setup';
 
 function App() {
     const [count, setCount] = useState(0);
 
     return (
-        <div>
-            <Dashboard />
-            <Controls />
-            <Setup />
+        <div className='app-container'>
+            <Header />
+            <main>
+                <Dashboard />
+                <Controls />
+                <Setup />
+            </main>
         </div>
     );
 }
