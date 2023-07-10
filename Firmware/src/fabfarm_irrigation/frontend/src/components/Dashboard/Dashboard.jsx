@@ -2,18 +2,43 @@ import './Dashboard.css';
 
 const Dashboard = () => {
     return (
-        <div className='dashboard-container'>
-            <div className='section-title-wrapper'>
+        <section className='dashboard-container'>
+            <div className='title-wrapper'>
                 <h2>Dashboard</h2>
             </div>
 
-            <div className='dashboard-cards-wrapper'>
-                <div className='dashboard-card'>1</div>
-                <div className='dashboard-card'>2</div>
-                <div className='dashboard-card'>3</div>
-                <div className='dashboard-card'>4</div>
+            <div className='cards-wrapper'>
+                <div className='card'>
+                    <div>icon</div>
+                    <div>value</div>
+                </div>
+
+                <div className='card'>
+                    <div>icon</div>
+                    <div>value</div>
+                </div>
+
+                <div className='card'>
+                    <div>icon</div>
+                    <div>value</div>
+                </div>
+
+                <div className='card'>
+                    <div>icon</div>
+                    <div>value</div>
+                </div>
+
+                <div className='card'>
+                    <div>icon</div>
+                    <div>value</div>
+                </div>
+
+                <div className='card'>
+                    <div>icon</div>
+                    <div>value</div>
+                </div>
             </div>
-        </div>
+        </section>
     );
 };
 

@@ -1,16 +1,30 @@
-/* div.dashboard-container {
-    display: flex;
-} */
-
-div.section-title-wrapper {
+.title-wrapper {
     text-align: center;
 }
 
-div.dashboard-cards-wrapper {
-    display: flex;
+.cards-wrapper {
+    width: 90%;
+    max-width: 1240px;
+    margin: 0 auto;
+
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto;
+    grid-gap: 20px;
+}
+@media only screen and (min-width: 850px) {
+    .cards-wrapper {
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+    }
 }
 
-div.dashboard-card {
-    border: 1px solid black;
-    padding: 16px;
+.card {
+    background: white;
+    text-decoration: none;
+    color: #444;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
 }
