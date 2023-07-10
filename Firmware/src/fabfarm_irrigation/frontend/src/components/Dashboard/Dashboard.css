@@ -1,0 +1,16 @@
+/* div.dashboard-container {
+    display: flex;
+} */
+
+div.section-title-wrapper {
+    text-align: center;
+}
+
+div.dashboard-cards-wrapper {
+    display: flex;
+}
+
+div.dashboard-card {
+    border: 1px solid black;
+    padding: 16px;
+}
