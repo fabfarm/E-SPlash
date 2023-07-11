@@ -1,0 +1,28 @@
+header.page-title {
+    text-align: center;
+    font-size: 24px;
+}
+
+.controls-container {
+    margin: 0 8%;
+}
+
+.control-box {
+    border: 1px solid #444;
+}
+
+.box-label {
+    text-align: center;
+    font-size: 24px;
+    margin: 10px 0;
+}
+
+.checkbox-wrapper {
+    text-align: center;
+}
+
+.checkbox-wrapper input {
+    width: 24px;
+    height: 24px;
+    margin: 20px 0;
+}
