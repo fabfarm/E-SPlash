@@ -1,26 +1,36 @@
 header.topbar {
     height: 64px;
-    /* border: 1px solid grey; */
+    border: 1px solid grey;
+    background-color: white;
 
     display: flex;
     justify-content: space-between;
 }
 
+.logo-wrapper {
+    margin: 0 20px;
+    display: flex;
+}
 img.logo {
     width: auto;
     height: 56px;
-    margin: 4px 10px;
+    margin-right: 10px;
+    align-self: center;
 }
-
-.topbar-title {
+.logo-title {
     font-size: 24px;
-    margin-top: 10px;
+    color: #2f2f2f;
+    align-self: center;
 }
 @media only screen and (min-width: 760px) {
-    .topbar-title {
+    .logo-title {
         font-size: 32px;
-        margin-top: 10px;
+        /* margin-top: 12px; */
     }
+}
+
+.app-title {
+    color: #444;
 }
 
 .hamburger-container {
@@ -30,5 +40,5 @@ img.logo {
 img.hamburger {
     height: 56px;
     width: auto;
-    margin: 4px 10px;
+    margin: 4px 20px;
 }
