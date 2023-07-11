@@ -1,8 +1,8 @@
-import './Header.css';
+import './Topbar.css';
 
 const Header = () => {
     return (
-        <header className='app-header'>
+        <header className='topbar'>
             <div className='logo-wrapper'>
                 {/* <img src='/src/assets/fabfarm_logo_cut.png' alt='logo' /> */}
                 LOGO

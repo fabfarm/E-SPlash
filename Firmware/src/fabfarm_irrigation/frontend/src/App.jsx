@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import './App.css';
 
-import Header from './components/Header';
+import Topbar from './components/Topbar';
 import Dashboard from './components/Dashboard';
 import Controls from './components/Controls';
 import Setup from './components/Setup';
@@ -11,7 +11,7 @@ function App() {
 
     return (
         <div className='app-container'>
-            <Header />
+            <Topbar />
             <main>
                 <Dashboard />
                 <Controls />

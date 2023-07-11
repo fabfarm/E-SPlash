@@ -2,10 +2,10 @@ import './Dashboard.css';
 
 const Dashboard = () => {
     return (
-        <section className='dashboard-container'>
-            <div className='title-wrapper'>
+        <section className='dashboard'>
+            <header className='page-title'>
                 <h2>Dashboard</h2>
-            </div>
+            </header>
 
             <div className='cards-wrapper'>
                 <div className='card'>
