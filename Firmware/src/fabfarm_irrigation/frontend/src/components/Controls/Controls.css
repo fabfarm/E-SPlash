@@ -8,12 +8,14 @@ header.page-title {
 }
 
 .control-box {
-    border: 1px solid #444;
+    border: 1px solid white;
+    border-radius: 12px;
+    margin-bottom: 16px;
 }
 
 .box-label {
     text-align: center;
-    font-size: 24px;
+    font-size: 32px;
     margin: 10px 0;
 }
 
@@ -22,7 +24,7 @@ header.page-title {
 }
 
 .checkbox-wrapper input {
-    width: 24px;
-    height: 24px;
+    width: 32px;
+    height: 32px;
     margin: 20px 0;
 }
