@@ -4,10 +4,9 @@ header.page-title {
     text-align: center;
 }
 
-.cards-wrapper {
-    width: 90%;
-    max-width: 1240px;
-    margin: 0 auto;
+.cards-container {
+    /* width: 90%; */
+    margin: 0 8%;
 
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -15,18 +14,34 @@ header.page-title {
     grid-gap: 20px;
 }
 @media only screen and (min-width: 760px) {
-    .cards-wrapper {
+    .cards-container {
         grid-template-columns: 1fr 1fr 1fr 1fr;
     }
 }
 
 .card {
     background: white;
-    text-decoration: none;
     color: #444;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    /* border: 1px solid #444;s */
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;
+    border-radius: 12px;
 
-    display: flex;
-    flex-direction: column;
-    min-height: 100%;
+    min-height: 150px;
+    padding: 24px;
+    font-size: 24px;
+    text-align: center;
+}
+
+.card .icon-container {
+    text-align: center;
+}
+
+.card .icon-container img {
+    height: 56px;
+}
+
+.card .card-value {
+    text-align: center;
+    margin-top: 24px;
+    font-size: 32px;
 }
