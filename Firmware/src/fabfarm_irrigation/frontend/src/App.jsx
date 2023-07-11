@@ -15,7 +15,7 @@ function App() {
             <main>
                 <Dashboard />
                 <Controls />
-                <Setup />
+                {/* <Setup /> */}
             </main>
         </div>
     );
