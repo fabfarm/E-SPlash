@@ -5,7 +5,7 @@ header.page-title {
 }
 
 .cards-container {
-    /* width: 90%; */
+    /* height: 90%; */
     margin: 0 8%;
 
     display: grid;
@@ -26,7 +26,7 @@ header.page-title {
     box-shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;
     border-radius: 12px;
 
-    min-height: 150px;
+    min-height: 90%;
     padding: 24px;
     font-size: 24px;
     text-align: center;
@@ -34,14 +34,16 @@ header.page-title {
 
 .card .icon-container {
     text-align: center;
+    height: 40%;
 }
 
 .card .icon-container img {
-    height: 56px;
+    height: 48px;
 }
 
 .card .card-value {
     text-align: center;
-    margin-top: 24px;
+    /* height: 60%; */
     font-size: 32px;
+    margin-top: 12px;
 }
