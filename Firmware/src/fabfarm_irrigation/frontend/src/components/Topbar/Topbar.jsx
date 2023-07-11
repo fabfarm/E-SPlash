@@ -1,6 +1,6 @@
 import './Topbar.css';
 
-const Header = () => {
+const Topbar = () => {
     return (
         <header className='topbar'>
             <div className='logo-wrapper'>
@@ -13,4 +13,4 @@ const Header = () => {
     );
 };
 
-export default Header;
+export default Topbar;
