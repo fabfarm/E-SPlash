@@ -14,7 +14,7 @@ header.page-title {
     grid-template-rows: auto;
     grid-gap: 20px;
 }
-@media only screen and (min-width: 850px) {
+@media only screen and (min-width: 760px) {
     .cards-wrapper {
         grid-template-columns: 1fr 1fr 1fr 1fr;
     }
