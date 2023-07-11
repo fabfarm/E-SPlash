@@ -13,19 +13,23 @@ header.topbar {
 }
 img.logo {
     width: auto;
-    height: 56px;
+    height: 48px;
     margin-right: 10px;
     align-self: center;
 }
 .logo-title {
-    font-size: 24px;
+    font-size: 22px;
     color: #2f2f2f;
     align-self: center;
 }
 @media only screen and (min-width: 760px) {
     .logo-title {
-        font-size: 32px;
+        font-size: 28px;
         /* margin-top: 12px; */
+    }
+
+    img.logo {
+        height: 52px;
     }
 }
 
