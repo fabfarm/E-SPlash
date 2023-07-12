@@ -60,9 +60,10 @@ header.page-title {
 
 .automatic-wrapper input {
     /* width: 96px; */
-    height: 32px;
+    padding: 6.5px;
+    max-height: 36px;
 }
 
 .automatic-wrapper button {
-    height: 32px;
+    height: 36px;
 }
