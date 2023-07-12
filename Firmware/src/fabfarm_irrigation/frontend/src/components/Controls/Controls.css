@@ -11,19 +11,43 @@ header.page-title {
     border: 1px solid white;
     border-radius: 12px;
     margin-bottom: 16px;
+    padding: 8px 16px;
+}
+
+.control-box > header {
+    margin: 10px 0;
+    text-align: center;
 }
 
 .box-label {
-    text-align: center;
-    font-size: 32px;
-    margin: 10px 0;
+    font-size: 28px;
+    display: inline;
+}
+@media only screen and (min-width: 760px) {
+    .box-label {
+        font-size: 32px;
+    }
 }
 
-.checkbox-wrapper {
+.manual-auto-wrapper {
+    display: inline;
+    float: right;
+
+    position: relative;
+    top: 12px;
+}
+
+.manual-auto-wrapper > input {
+    width: 20px;
+    height: 20px;
+    margin-left: 10px;
+}
+
+.open-close-wrapper {
     text-align: center;
 }
 
-.checkbox-wrapper input {
+.open-close-wrapper input {
     width: 32px;
     height: 32px;
     margin: 20px 0;
