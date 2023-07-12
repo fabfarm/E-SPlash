@@ -1,6 +1,25 @@
-header.page-title {
+header.controls-page-header {
     text-align: center;
     font-size: 24px;
+    margin: 16px;
+}
+
+.controls-page-header h2 {
+    display: inline;
+}
+
+.main-manual-automatic-wrapper {
+    display: inline;
+    float: right;
+
+    position: relative;
+    top: 12px;
+}
+
+.main-manual-automatic-wrapper > input {
+    width: 20px;
+    height: 20px;
+    margin-right: 64px;
 }
 
 .controls-container {
