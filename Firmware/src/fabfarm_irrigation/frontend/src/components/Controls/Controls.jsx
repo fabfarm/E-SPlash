@@ -20,6 +20,12 @@ const Controls = () => {
                     <div className='open-close-wrapper'>
                         <input type='checkbox' />
                     </div>
+
+                    <div className='automatic-wrapper'>
+                        <input type='time' />
+                        <input type='time' />
+                        <button>Set time</button>
+                    </div>
                 </div>
 
                 <div className='control-box'>
@@ -33,6 +39,12 @@ const Controls = () => {
                     <div className='open-close-wrapper'>
                         <input type='checkbox' />
                     </div>
+
+                    <div className='automatic-wrapper'>
+                        <input type='time' />
+                        <input type='time' />
+                        <button>Set time</button>
+                    </div>
                 </div>
 
                 <div className='control-box'>
@@ -45,6 +57,12 @@ const Controls = () => {
 
                     <div className='open-close-wrapper'>
                         <input type='checkbox' />
+                    </div>
+
+                    <div className='automatic-wrapper'>
+                        <input type='time' />
+                        <input type='time' />
+                        <button>Set time</button>
                     </div>
                 </div>
             </div>

@@ -45,10 +45,24 @@ header.page-title {
 
 .open-close-wrapper {
     text-align: center;
+    margin: 20px 0;
 }
 
 .open-close-wrapper input {
     width: 32px;
     height: 32px;
+}
+
+.automatic-wrapper {
+    text-align: center;
     margin: 20px 0;
+}
+
+.automatic-wrapper input {
+    /* width: 96px; */
+    height: 32px;
+}
+
+.automatic-wrapper button {
+    height: 32px;
 }
