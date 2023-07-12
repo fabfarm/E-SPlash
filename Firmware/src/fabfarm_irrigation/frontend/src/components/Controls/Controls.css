@@ -19,7 +19,9 @@ header.controls-page-header {
 .main-manual-automatic-wrapper > input {
     width: 20px;
     height: 20px;
-    margin-right: 64px;
+
+    position: relative;
+    left: -64px;
 }
 
 .controls-container {
