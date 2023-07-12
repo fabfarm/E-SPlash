@@ -84,5 +84,6 @@ header.controls-page-header {
 }
 
 .automatic-wrapper button {
-    height: 36px;
+    /* height: 36px; */
+    padding: 6.5px 8px;
 }

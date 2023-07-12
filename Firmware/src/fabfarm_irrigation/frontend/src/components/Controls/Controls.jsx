@@ -15,9 +15,9 @@ const Controls = () => {
                 <div className='control-box'>
                     <header>
                         <div className='box-label'>Fruit (pin 27)</div>
-                        <div className='manual-auto-wrapper'>
+                        {/* <div className='manual-auto-wrapper'>
                             <input type='checkbox' />
-                        </div>
+                        </div> */}
                     </header>
 
                     <div className='open-close-wrapper'>
@@ -34,9 +34,9 @@ const Controls = () => {
                 <div className='control-box'>
                     <header>
                         <div className='box-label'>Vegetables (pin 26)</div>
-                        <div className='manual-auto-wrapper'>
+                        {/* <div className='manual-auto-wrapper'>
                             <input type='checkbox' />
-                        </div>
+                        </div> */}
                     </header>
 
                     <div className='open-close-wrapper'>
@@ -53,9 +53,9 @@ const Controls = () => {
                 <div className='control-box'>
                     <header>
                         <div className='box-label'>Water (pin 25)</div>
-                        <div className='manual-auto-wrapper'>
+                        {/* <div className='manual-auto-wrapper'>
                             <input type='checkbox' />
-                        </div>
+                        </div> */}
                     </header>
 
                     <div className='open-close-wrapper'>
