@@ -1,22 +1,19 @@
-import { useState } from 'react';
+import { Routes, Route } from 'react-router-dom';
+
 import './App.css';
 
 import Topbar from './components/Topbar';
-import Dashboard from './components/Dashboard';
-import Controls from './components/Controls';
-import Setup from './components/Setup';
+import Home from './pages/Home';
+import Settings from './pages/Settings';
 
 function App() {
-    const [count, setCount] = useState(0);
-
     return (
         <div className='app-container'>
             <Topbar />
-            <main>
-                <Dashboard />
-                <Controls />
-                {/* <Setup /> */}
-            </main>
+            <Routes>
+                <Route path='/' element={<Home />} />
+                <Route path='/settings' element={<Settings />} />
+            </Routes>
         </div>
     );
 }

@@ -5,7 +5,7 @@ const Topbar = () => {
         <header className='topbar'>
             <div className='logo-wrapper'>
                 <img className='logo' src='/src/assets/fabfarm_logo_cut.png' alt='logo' />
-                <div class='logo-title'>FabFarm Algarve</div>
+                <div className='logo-title'>FabFarm Algarve</div>
             </div>
 
             {/* <div className='app-title'>Irrigation system</div> */}
