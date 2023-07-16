@@ -12,35 +12,31 @@ const Controls = ({ data, handleScheduleModeChange }) => {
             </header>
 
             <div className='controls-container'>
-                {data.relays.map(
-                    (
-                        relay,
-                        index // get an id instead of i
-                    ) => (
-                        <div className='control-box' key={index}>
-                            <header>
-                                <div className='box-label'>
-                                    {relay.name} ({relay.pin})
-                                </div>
-                            </header>
+                {data.relays.map((relay, index) => (
+                    // use an id instead of the array index in the key prop
+                    <div className='control-box' key={index}>
+                        <header>
+                            <div className='box-label'>
+                                {relay.name} ({relay.pin})
+                            </div>
+                        </header>
 
-                            {!data.isScheduleMode && (
-                                <div className='open-close-wrapper'>
-                                    {/* checked={relay.isEnabled}  */}
-                                    <input type='checkbox' />
-                                </div>
-                            )}
+                        {!data.isScheduleMode && (
+                            <div className='open-close-wrapper'>
+                                {/* checked={relay.isEnabled}  */}
+                                <input type='checkbox' />
+                            </div>
+                        )}
 
-                            {!!data.isScheduleMode && (
-                                <div className='automatic-wrapper'>
-                                    <input type='time' />
-                                    <input type='time' />
-                                    <button>Set time</button>
-                                </div>
-                            )}
-                        </div>
-                    )
-                )}
+                        {!!data.isScheduleMode && (
+                            <div className='automatic-wrapper'>
+                                <input type='time' />
+                                <input type='time' />
+                                <button>Set time</button>
+                            </div>
+                        )}
+                    </div>
+                ))}
             </div>
         </section>
     );
