@@ -38,6 +38,15 @@ const Home = () => {
             });
     };
 
+    const handleScheduleModeChange = () => {
+        setControlsData((prevState) => {
+            return {
+                ...prevState,
+                isScheduleMode: !prevState.isScheduleMode,
+            };
+        });
+    };
+
     useEffect(() => {
         fetchData('/src/mockData/data.json');
     }, []);
@@ -47,7 +56,7 @@ const Home = () => {
             {!isLoading && !error && (
                 <>
                     <Dashboard data={DashboardData} />
-                    <Controls data={ControlsData} />
+                    <Controls data={ControlsData} handleScheduleModeChange={handleScheduleModeChange} />
                 </>
             )}
         </main>
