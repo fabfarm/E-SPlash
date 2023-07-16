@@ -1,21 +1,8 @@
 import { useState, useEffect } from 'react';
 import './Dashboard.css';
 
-const Dashboard = () => {
-    const [data, setData] = useState({});
-
-    const fetchData = (url) => {
-        fetch(url)
-            .then((res) => res.json())
-            .then((data) => {
-                console.log('### data:', data);
-                setData(data.data);
-            });
-    };
-
-    useEffect(() => {
-        fetchData('/src/mockData/data.json');
-    }, []);
+const Dashboard = ({ data }) => {
+    console.log('Dashboard data:', data);
 
     return (
         <section className='dashboard'>
@@ -33,21 +20,21 @@ const Dashboard = () => {
                     <div className='icon-container'>
                         <img src='/src/assets/icons/thermometer.svg' alt='thermometer' />
                     </div>
-                    <div className='card-value'>{data.temperature} C</div>
+                    <div className='card-value'>{data?.temperature ?? 'n/a'}</div>
                 </div>
 
                 <div className='card'>
                     <div className='icon-container'>
                         <img src='/src/assets/icons/thermometer.svg' alt='thermometer' />
                     </div>
-                    <div className='card-value'>{data.humidity}</div>
+                    <div className='card-value'>{data?.humidity ?? 'n/a'}</div>
                 </div>
 
                 <div className='card'>
                     <div className='icon-container'>
                         <img src='/src/assets/icons/thermometer.svg' alt='thermometer' />
                     </div>
-                    <div className='card-value'>{data.batLevel}</div>
+                    <div className='card-value'>{data?.batLevel ?? 'n/a'}</div>
                 </div>
             </div>
         </section>
