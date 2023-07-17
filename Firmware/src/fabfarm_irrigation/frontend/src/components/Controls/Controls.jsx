@@ -17,7 +17,7 @@ const Controls = ({ data, handleScheduleModeChange }) => {
                     <div className='control-box' key={index}>
                         <header>
                             <div className='box-label'>
-                                {relay.name} ({relay.pin})
+                                {relay.name} <span className='pin-info'>Pin {relay.pin}</span>
                             </div>
                         </header>
 

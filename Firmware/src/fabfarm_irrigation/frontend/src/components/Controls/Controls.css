@@ -44,9 +44,18 @@ header.controls-page-header {
     font-size: 28px;
     display: inline;
 }
+.box-label > .pin-info {
+    font-size: 21px;
+    color: rgb(198, 198, 198);
+    margin-left: 6px;
+}
 @media only screen and (min-width: 760px) {
     .box-label {
         font-size: 32px;
+    }
+
+    .box-label > .pin-info {
+        font-size: 24px;
     }
 }
 
