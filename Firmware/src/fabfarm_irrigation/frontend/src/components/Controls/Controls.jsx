@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import './Controls.css';
 
-const Controls = ({ data, handleScheduleModeChange }) => {
+const Controls = ({ data, handleScheduleModeChange, handleToggleRelay }) => {
+    console.log('Controls data:', data);
+
     return (
         <section className='controls'>
             <header className='controls-page-header'>
@@ -12,9 +14,9 @@ const Controls = ({ data, handleScheduleModeChange }) => {
             </header>
 
             <div className='controls-container'>
-                {data.relays.map((relay, index) => (
-                    // use an id instead of the array index in the key prop
-                    <div className='control-box' key={index}>
+                {data.relays.map((relay) => (
+                    // use an id instead of relay.pin in the key prop
+                    <div className='control-box' key={relay.pin}>
                         <header>
                             <div className='box-label'>
                                 {relay.name} <span className='pin-info'>Pin {relay.pin}</span>
@@ -23,8 +25,11 @@ const Controls = ({ data, handleScheduleModeChange }) => {
 
                         {!data.isScheduleMode && (
                             <div className='open-close-wrapper'>
-                                {/* checked={relay.isEnabled}  */}
-                                <input type='checkbox' />
+                                <input
+                                    type='checkbox'
+                                    checked={relay.isEnabled}
+                                    onChange={() => handleToggleRelay(relay.pin)}
+                                />
                             </div>
                         )}
 
