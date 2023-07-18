@@ -89,7 +89,7 @@ header.controls-page-header {
 }
 
 .automatic-wrapper input {
-    /* width: 96px; */
+    width: 98px;
     padding: 6px;
     max-height: 36px;
 }
