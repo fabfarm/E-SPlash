@@ -76,14 +76,19 @@ const Home = () => {
         });
     };
 
-    // for automatic time check updateRelayTimes
     // use id instead of pin
-    const handleRelayAutomaticTime = (e, pin) => {
-        console.log('handleRelayAutomaticTime', e, pin);
+    const handleAutoTimeChange = (e, pin) => {
+        console.log('handleAutoTimeChange', e, pin);
 
         // probab devo usare una variabile da sola non contrlsData innestato. Perchè è solo per tenere traccia dei cambiamenti.
-        // per il resto dovrò fare la chiamata al server che ritornerà lo stto aggiornato.
+        // per il resto dovrò fare la chiamata al server che ritornerà lo stato aggiornato (!che farà il set-time btn)
         // O mesà controlsData e dashboardData li uso solo per settare lo stato con il response del fetch.
+    };
+
+    // look at updateRelayTimes
+    // better name here
+    const setAutomaticTime = (e) => {
+        console.log('setAutomaticTime', e);
     };
 
     useEffect(() => {
@@ -99,7 +104,8 @@ const Home = () => {
                         data={ControlsData}
                         handleScheduleModeChange={handleScheduleModeChange}
                         handleToggleRelay={handleToggleRelay}
-                        handleRelayAutomaticTime={handleRelayAutomaticTime}
+                        handleAutoTimeChange={handleAutoTimeChange}
+                        setAutomaticTime={setAutomaticTime}
                     />
                 </>
             )}

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import './Controls.css';
 
-const Controls = ({ data, handleScheduleModeChange, handleToggleRelay, handleRelayAutomaticTime }) => {
+const Controls = ({ data, handleScheduleModeChange, handleToggleRelay, handleAutoTimeChange, setAutomaticTime }) => {
     console.log('Controls data:', data);
 
     return (
@@ -40,16 +40,18 @@ const Controls = ({ data, handleScheduleModeChange, handleToggleRelay, handleRel
                                     name='startTime'
                                     className='start-time'
                                     value={relay.times[0].startTime}
-                                    onChange={(e) => handleRelayAutomaticTime(e, relay.pin)}
+                                    onChange={(e) => handleAutoTimeChange(e, relay.pin)}
                                 />
                                 <input
                                     type='number'
                                     name='duration'
                                     className='duration'
                                     value={relay.times[0].duration}
-                                    onChange={(e) => handleRelayAutomaticTime(e, relay.pin)}
+                                    onChange={(e) => handleAutoTimeChange(e, relay.pin)}
                                 />
-                                <button className='set-time-btn'>Set time</button>
+                                <button className='set-time-btn' onClick={(e) => setAutomaticTime(e)}>
+                                    Set time
+                                </button>
                             </div>
                         )}
                     </div>
