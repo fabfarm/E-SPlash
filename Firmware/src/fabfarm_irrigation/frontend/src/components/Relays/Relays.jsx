@@ -1,3 +1,5 @@
+import './Relays.css';
+
 const Relays = () => {
     // relays: button, look at removeRelay
     // add a relay: 3 inputs, look at addRelay
@@ -42,7 +44,7 @@ const Relays = () => {
                         <input type='number' id='relaypin' placeholder='Pin number' />
                         <input type='text' id='relaystatus' placeholder='Relay status' />
                     </div>
-                    <button class='add-relay-btn'>Add Relay</button>
+                    <button className='add-relay-btn'>Add Relay</button>
                 </section>
             </div>
         </section>
