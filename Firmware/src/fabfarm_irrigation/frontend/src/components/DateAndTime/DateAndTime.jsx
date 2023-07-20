@@ -5,7 +5,7 @@ const DateAndTime = () => {
     // input useInternetTime, look at enableInternetUpdate
 
     return (
-        <section className='date-and-time'>
+        <section className='settings-box'>
             <header>
                 <h2>Date and Time</h2>
             </header>
@@ -22,6 +22,11 @@ const DateAndTime = () => {
                     <input type='time' id='time' name='time' />
                 </div>
                 <button className='set-date-time-btn'>Set time and date</button>
+
+                <div>
+                    <label htmlFor='useInternetTime'>Use internet time</label>
+                    <input type='checkbox' id='useInternetTime' />
+                </div>
             </div>
         </section>
     );
