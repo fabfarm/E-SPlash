@@ -1,0 +1,7 @@
+section.date-and-time {
+    /* same as .control-box */
+    border: 1px solid white;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    padding: 8px 16px;
+}
