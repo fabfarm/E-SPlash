@@ -1,6 +1,6 @@
 import './Relays.css';
 
-const Relays = () => {
+const Relays = ({ removeRelay, addrelay }) => {
     // relays: button, look at removeRelay
     // add a relay: 3 inputs, look at addRelay
 
@@ -29,7 +29,8 @@ const Relays = () => {
                                 <td>test</td>
                                 <td>Off</td>
                                 <td>
-                                    <button>Remove relay</button>
+                                    {/* pass an id or smt */}
+                                    <button onClick={() => removeRelay()}>Remove relay</button>
                                 </td>
                             </tr>
                         </tbody>
@@ -44,7 +45,9 @@ const Relays = () => {
                         <input type='number' id='relaypin' placeholder='Pin number' />
                         <input type='text' id='relaystatus' placeholder='Relay status' />
                     </div>
-                    <button className='add-relay-btn'>Add Relay</button>
+                    <button className='add-relay-btn' onClick={addrelay}>
+                        Add Relay
+                    </button>
                 </section>
             </div>
         </section>

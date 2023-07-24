@@ -69,6 +69,40 @@ const Settings = () => {
         return;
     }
 
+    const removeRelay = (payload) => {
+        // displayLoadSpinner();
+
+        let url = `/relay/${payload.relayIndex}`;
+        fetch(url, { method: 'DELETE' }).then(() => {
+            // Update local state
+            jsonDataState.relays.splice(payload.relayIndex, 1);
+            updateSchedulingHtml(true);
+
+            closeLoadSpinner();
+            displaySuccessToast();
+        });
+    };
+
+    const addrelay = (obj) => {
+        for (var i = 0; i < jsonData.relays.length; i++) {
+            var relay = jsonData.relays[i];
+            if (relay.active == 0) {
+                relay.name = document.getElementById('relayname').value;
+                relay.pin = document.getElementById('relaypin').value;
+                relay.active = 1;
+            } else {
+                console.log(' no relays available');
+            }
+        }
+        window.location.reload();
+        var json = JSON.stringify(jsonData);
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.open('POST', '/updateData');
+        xmlhttp.setRequestHeader('Content-Type', 'application/json;');
+        xmlhttp.send(json);
+        return;
+    };
+
     useEffect(() => {
         fetchSettingsData('/src/mockData/data.json');
     }, []);
@@ -78,7 +112,7 @@ const Settings = () => {
             {!isLoading && !error && (
                 <>
                     <DateAndTime updateTime={updateTime} enableInternetUpdate={enableInternetUpdate} />
-                    <Relays />
+                    <Relays removeRelay={removeRelay} addrelay={addrelay} />
                     <WifiCredentials />
                     <FirmwareUpdate />
                 </>
