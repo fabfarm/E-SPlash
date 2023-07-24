@@ -117,6 +117,10 @@ const Settings = () => {
         xmlhttp.send(json);
     };
 
+    const updateFirmware = () => {
+        // go to /update
+    };
+
     useEffect(() => {
         fetchSettingsData('/src/mockData/data.json');
     }, []);
@@ -128,7 +132,7 @@ const Settings = () => {
                     <DateAndTime updateTime={updateTime} enableInternetUpdate={enableInternetUpdate} />
                     <Relays removeRelay={removeRelay} addrelay={addrelay} />
                     <WifiCredentials updateCredentials={updateCredentials} />
-                    <FirmwareUpdate />
+                    <FirmwareUpdate updateFirmware={updateFirmware} />
                 </>
             )}
         </main>

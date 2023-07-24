@@ -1,4 +1,4 @@
-const FirmwareUpdate = () => {
+const FirmwareUpdate = ({ updateFirmware }) => {
     return (
         <section className='settings-box'>
             <header>
@@ -6,7 +6,7 @@ const FirmwareUpdate = () => {
             </header>
 
             <div>
-                <button>Update firmare</button>
+                <button onClick={updateFirmware}>Update firmare</button>
             </div>
         </section>
     );
