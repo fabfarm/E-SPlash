@@ -103,6 +103,20 @@ const Settings = () => {
         return;
     };
 
+    const updateCredentials = (obj) => {
+        var fl1 = document.getElementById('ssid').value;
+        var fl2 = document.getElementById('password').value;
+        jsonData.data.credentials[0].ssid = fl1;
+        jsonData.data.credentials[0].password = fl2;
+        console.log(fl1);
+        console.log(fl2);
+        var json = JSON.stringify(jsonData);
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.open('POST', '/updateData');
+        xmlhttp.setRequestHeader('Content-Type', 'application/json;');
+        xmlhttp.send(json);
+    };
+
     useEffect(() => {
         fetchSettingsData('/src/mockData/data.json');
     }, []);
@@ -113,7 +127,7 @@ const Settings = () => {
                 <>
                     <DateAndTime updateTime={updateTime} enableInternetUpdate={enableInternetUpdate} />
                     <Relays removeRelay={removeRelay} addrelay={addrelay} />
-                    <WifiCredentials />
+                    <WifiCredentials updateCredentials={updateCredentials} />
                     <FirmwareUpdate />
                 </>
             )}

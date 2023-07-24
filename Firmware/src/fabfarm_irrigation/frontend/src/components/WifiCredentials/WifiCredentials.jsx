@@ -1,6 +1,6 @@
 import './WifiCredentials.css';
 
-const WifiCredentials = () => {
+const WifiCredentials = ({ updateCredentials }) => {
     // button Change WiFi Credentials, look at updateCredentials
 
     return (
@@ -22,7 +22,9 @@ const WifiCredentials = () => {
                 </div>
 
                 <div>
-                    <button className='set-wifi-credentials'>Set WiFi Credentials</button>
+                    <button className='set-wifi-credentials' onClick={updateCredentials}>
+                        Set WiFi Credentials
+                    </button>
                 </div>
             </div>
         </section>
