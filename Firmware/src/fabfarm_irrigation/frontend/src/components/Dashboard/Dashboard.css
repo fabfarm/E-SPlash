@@ -1,4 +1,6 @@
-/* section.dashboard {}; */
+section.dashboard {
+    margin: 32px 0;
+}
 
 header.page-title {
     text-align: center;
