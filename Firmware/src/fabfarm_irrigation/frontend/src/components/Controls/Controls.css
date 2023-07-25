@@ -83,18 +83,29 @@ header.controls-page-header {
     height: 32px;
 }
 
-.automatic-wrapper {
+.scheduling-wrapper {
     text-align: center;
     margin: 20px 0;
 }
 
-.automatic-wrapper input {
+.scheduling-wrapper input {
     width: 98px;
     padding: 6px;
     max-height: 36px;
 }
 
-.automatic-wrapper button {
+.scheduling-wrapper button {
     /* height: 36px; */
     padding: 6px 8px;
+}
+
+.schedules-table-wrapper {
+    margin-top: 4rem;
+    margin-bottom: 4rem;
+}
+
+.schedules-table-wrapper table {
+    /* text-align: center; */
+    margin-left: auto;
+    margin-right: auto;
 }

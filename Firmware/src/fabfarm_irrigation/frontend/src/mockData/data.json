@@ -19,8 +19,9 @@
             "pin": 27,
             "isEnabled": false,
             "active": true,
-            "times": [
+            "schedules": [
                 {
+                    "id": "1",
                     "startTime": "10:00",
                     "duration": 30
                 }
@@ -31,9 +32,10 @@
             "pin": 26,
             "isEnabled": false,
             "active": true,
-            "times": [
+            "schedules": [
                 {
-                    "startTime": "10:30",
+                    "id": "1",
+                    "startTime": "10:00",
                     "duration": 30
                 }
             ]
@@ -43,14 +45,16 @@
             "pin": 25,
             "isEnabled": false,
             "active": true,
-            "times": [
+            "schedules": [
                 {
-                    "startTime": "11:00",
+                    "id": "1",
+                    "startTime": "10:00",
                     "duration": 30
                 },
                 {
-                    "startTime": "19:40",
-                    "duration": 40
+                    "id": "2",
+                    "startTime": "11:00",
+                    "duration": 30
                 }
             ]
         }

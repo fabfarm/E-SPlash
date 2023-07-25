@@ -34,24 +34,54 @@ const Controls = ({ data, handleScheduleModeChange, handleToggleRelay, handleAut
                         )}
 
                         {!!data.isScheduleMode && (
-                            <div className='automatic-wrapper'>
-                                <input
-                                    type='time'
-                                    name='startTime'
-                                    className='start-time'
-                                    value={relay.times[0].startTime}
-                                    onChange={(e) => handleAutoTimeChange(e, relay.pin)}
-                                />
-                                <input
-                                    type='number'
-                                    name='duration'
-                                    className='duration'
-                                    value={relay.times[0].duration}
-                                    onChange={(e) => handleAutoTimeChange(e, relay.pin)}
-                                />
-                                <button className='set-time-btn' onClick={(e) => setAutomaticTime(e)}>
-                                    Set time
-                                </button>
+                            <div className='scheduling-wrapper'>
+                                <div className='schedules-table-wrapper'>
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>position</th>
+                                                <th>starttime</th>
+                                                <th>duration</th>
+                                                <th>action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {relay.schedules.map((schedule, index) => (
+                                                <tr key={schedule.id}>
+                                                    <td>{index}</td>
+                                                    <td>{schedule.startTime}</td>
+                                                    <td>{schedule.duration}</td>
+                                                    <td>
+                                                        {/* pass an id or smt */}
+                                                        <button onClick={() => removeRelaySchedule(schedule.id)}>
+                                                            Remove
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div>
+                                    <input
+                                        type='time'
+                                        name='startTime'
+                                        className='start-time'
+                                        value={relay.schedules[0].startTime}
+                                        onChange={(e) => handleAutoTimeChange(e, relay.pin)}
+                                    />
+                                    <input
+                                        type='number'
+                                        name='duration'
+                                        className='duration'
+                                        value={relay.schedules[0].duration}
+                                        onChange={(e) => handleAutoTimeChange(e, relay.pin)}
+                                    />
+                                    <button className='set-time-btn' onClick={(e) => setAutomaticTime(e)}>
+                                        Add schedule
+                                    </button>
+                                </div>
                             </div>
                         )}
                     </div>
