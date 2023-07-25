@@ -1,0 +1,113 @@
+datastructure
+isScheduled per relay
+
+********************************* API SCHEMA
+
+// fetch all data
+GET /db/data
+returns 200 testdata.json
+or 401, 500
+
+### HOME
+
+// toggle specific relay
+POST /relays/:relayId/enable { "isEnabled": true }
+returns 200
+or 401, 500
+
+// toggle specific schedule mode
+POST /relays/:relayId/schedule-mode { "isScheduleMode": false }
+
+// set an existing relay schedule 
+POST /relays/:relayId/schedule/:scheduleId { "startTime: ""1970-01-01T00:00"", "duration": 30 }
+
+// add a new schedule to a relay and set it
+POST /relays/:id/schedule {}
+
+// remove a specific relay schedule
+DELETE /relays/:id/schedule/:scheduleid
+
+
+### SETTINGS
+
+// set the global time
+POST /time/set { isInternet: false, current: "1970-01-01T00:00" } hmmmmm
+
+// set internet time
+POST /time/set
+
+// remove a relay
+DELETE /relays/:id
+
+// add a relay
+POST /relays/add { "name": "Fruit", "pin": 27 },
+
+// set wifi credentials
+POST /credentials {"ssid": "", password: ""}
+
+
+
+
+
+
+
+
+**************************************
+
+
+
+** fn
+fetchData
+
+
+
+
+
+
+** controls
+
+handleToggleRelay
+POST /relays/:id/enable { "isEnabled": true }
+
+handleScheduleModeChange
+POST /relays/:id/schedule-mode { "isScheduleMode": false }
+
+
+// set an existing schedule
+POST /relays/:id/schedule/:id { "startTime: ""1970-01-01T00:00"", "duration": 30 }
+
+// add a new schedule e set
+POST /relays/:id/schedule {}
+
+// remove a specific schedule
+DELETE /relays/:id/schedule/:scheduleid
+
+
+
+
+
+
+
+
+
+** settings
+
+updateTime
+POST /updateData { isInternet: false, current: "1970-01-01T00:00" } hmmmmm
+POST /time/set {}
+
+enableInternetTime
+
+removeRelay
+DELETE /relays/:id
+
+addrelay
+POST /relays/add { "name": "Fruit", "pin": 27 },
+
+updateCredentials
+POST /credentials {"ssid": "", password: ""}
+
+
+
+
+*********************** Per page **********************************************************

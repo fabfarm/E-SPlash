@@ -1,0 +1,70 @@
+{
+    "global": {
+        "internettime": false,
+        "currentTime": "1970-01-01T00:00",
+        "time": {
+            "isInternet": false,
+            "current": "1970-01-01T00:00"
+        },
+
+        "temperature": "30",
+        "humidity": "79",
+        "batLevel": "14",
+
+        "changedtime": [
+            {
+                "internettime": true,
+                "Ttime": "02:02",
+                "Tdate": "01/01/2021"
+            }
+        ]
+    },
+    "relays": [
+        {
+            "id": "1",
+            "name": "Fruit",
+            "pin": 27,
+            "isScheduleMode": false,
+            "isEnabled": false,
+            "schedule": [
+                {
+                    "id": "1",
+                    "startTime": "10:00",
+                    "duration": 30
+                }
+            ]
+        },
+        {
+            "id": "2",
+            "name": "Vegetables",
+            "pin": 26,
+            "isScheduleMode": false,
+            "isEnabled": false,
+            "schedule": [
+                {
+                    "id": "1",
+                    "startTime": "10:30",
+                    "duration": 30
+                }
+            ]
+        },
+        {
+            "id": "3",
+            "name": "Water",
+            "pin": 25,
+            "isEnabled": false,
+            "schedule": [
+                {
+                    "id": "1",
+                    "startTime": "11:00",
+                    "duration": 30
+                },
+                {
+                    "id": "2",
+                    "startTime": "19:40",
+                    "duration": 40
+                }
+            ]
+        }
+    ]
+}
