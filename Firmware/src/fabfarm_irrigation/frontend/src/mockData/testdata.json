@@ -1,23 +1,9 @@
 {
     "global": {
-        "internettime": false,
-        "currentTime": "1970-01-01T00:00",
-        "time": {
-            "isInternet": false,
-            "current": "1970-01-01T00:00"
-        },
-
+        "time": "1970-01-01T00:00",
         "temperature": "30",
         "humidity": "79",
-        "batLevel": "14",
-
-        "changedtime": [
-            {
-                "internettime": true,
-                "Ttime": "02:02",
-                "Tdate": "01/01/2021"
-            }
-        ]
+        "batLevel": "14"
     },
     "relays": [
         {

@@ -37,8 +37,8 @@ DELETE /relays/:relayId/schedule/:scheduleid
 response: 200 OK
 errors: 401, 500
 
-// modify a schedule ?
-PATCH or POST /relays/:relayId/schedule/:scheduleid
+// modify a schedule
+PATCH /relays/:relayId/schedule/:scheduleid
 payload: { "startTime: string, "duration": number }
 response: 200 { "id": string, "startTime": string , "duration": number }
 errors: 401, 500
@@ -54,13 +54,10 @@ POST /relays/:id/schedule {}
 ### SETTINGS
 
 // set the global time
-POST /time/set ??
-payload: { isInternet: boolean, current: string } ??
-response: 200 { isInternet: false, current: "1970-01-01T00:00" }
-errors: 401, 500
-
-// set internet time
 POST /time/set
+payload: { time: "1970-01-01T00:00" }
+response: 200 { time: "1970-01-01T00:00" }
+errors: 401, 500
 
 // remove a relay
 DELETE /relays/:id
