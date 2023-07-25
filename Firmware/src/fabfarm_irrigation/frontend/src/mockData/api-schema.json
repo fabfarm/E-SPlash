@@ -13,8 +13,8 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
+                                    "type": "object",
+                                    "item": {
                                         "$ref": "#/components/schemas/VehicleEntity"
                                     }
                                 }
