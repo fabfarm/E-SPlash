@@ -39,7 +39,7 @@ const Controls = ({ data, handleScheduleModeChange, handleToggleRelay, handleAut
                                     <table>
                                         <thead>
                                             <tr>
-                                                <th>position</th>
+                                                <th>pos</th>
                                                 <th>starttime</th>
                                                 <th>duration</th>
                                                 <th>action</th>
@@ -52,7 +52,10 @@ const Controls = ({ data, handleScheduleModeChange, handleToggleRelay, handleAut
                                                     <td>{schedule.startTime}</td>
                                                     <td>{schedule.duration}</td>
                                                     <td>
-                                                        {/* pass an id or smt */}
+                                                        {/* modify should use same modal as add schedule */}
+                                                        <button onClick={() => removeRelaySchedule(schedule.id)}>
+                                                            Modify
+                                                        </button>
                                                         <button onClick={() => removeRelaySchedule(schedule.id)}>
                                                             Remove
                                                         </button>
@@ -64,7 +67,8 @@ const Controls = ({ data, handleScheduleModeChange, handleToggleRelay, handleAut
                                 </div>
 
                                 <div>
-                                    <input
+                                    {/* use a modal for add a schedule */}
+                                    {/* <input
                                         type='time'
                                         name='startTime'
                                         className='start-time'
@@ -77,7 +81,7 @@ const Controls = ({ data, handleScheduleModeChange, handleToggleRelay, handleAut
                                         className='duration'
                                         value={relay.schedules[0].duration}
                                         onChange={(e) => handleAutoTimeChange(e, relay.pin)}
-                                    />
+                                    /> */}
                                     <button className='set-time-btn' onClick={(e) => setAutomaticTime(e)}>
                                         Add schedule
                                     </button>
