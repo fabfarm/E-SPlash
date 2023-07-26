@@ -5,26 +5,7 @@ import Dashboard from '../../components/Dashboard';
 import Controls from '../../components/Controls';
 
 const Home = () => {
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const { data, setData } = useData();
-
-    const fetchData = (url) => {
-        setIsLoading(true);
-
-        fetch(url)
-            .then((res) => res.json())
-            .then((data) => {
-                console.log('FETCHED data:', data);
-                setData(data);
-            })
-            .catch((err) => {
-                setError(err);
-            })
-            .finally(() => {
-                setIsLoading(false);
-            });
-    };
+    const { data } = useData();
 
     const handleScheduleModeChange = () => {
         // I should use something like updateSchedulingMode in scrpit.js. That is, instead of updating the state directly
@@ -77,13 +58,9 @@ const Home = () => {
         console.log('setAutomaticTime', e);
     };
 
-    useEffect(() => {
-        fetchData('/src/mockData/testdata.json');
-    }, []);
-
     return (
         <main>
-            {!isLoading && !error && !!data && (
+            {!!data && (
                 <>
                     <Dashboard data={data} />
                     <Controls
