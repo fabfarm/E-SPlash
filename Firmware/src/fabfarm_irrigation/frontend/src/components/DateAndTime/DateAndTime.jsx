@@ -10,7 +10,7 @@ const DateAndTime = ({ updateTime, enableInternetUpdate }) => {
                 <h2>Date and Time</h2>
             </header>
 
-            <div>Thursday, July 20 2023 - 17:32 </div>
+            <div>{'test date and time'}</div>
 
             <div className='settings-container'>
                 <div>
@@ -25,10 +25,10 @@ const DateAndTime = ({ updateTime, enableInternetUpdate }) => {
                     Set time and date
                 </button>
 
-                <div>
+                {/* <div>
                     <label htmlFor='useInternetTime'>Use internet time</label>
                     <input type='checkbox' id='useInternetTime' onClick={(e) => enableInternetUpdate(e)} />
-                </div>
+                </div> */}
             </div>
         </section>
     );

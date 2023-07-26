@@ -7,7 +7,7 @@
         "isScheduleMode": true,
         "changedtime": [
             {
-                "internettime": true,
+                "internettime": false,
                 "Ttime": "02:02",
                 "Tdate": "01/01/2021"
             }
