@@ -8,22 +8,6 @@ header.controls-page-header {
     display: inline;
 }
 
-.main-manual-automatic-wrapper {
-    display: inline;
-    float: right;
-
-    position: relative;
-    top: 12px;
-}
-
-.main-manual-automatic-wrapper > input {
-    width: 24px;
-    height: 24px;
-
-    position: relative;
-    left: -64px;
-}
-
 .controls-container {
     margin: 0 8%;
 }
@@ -59,7 +43,7 @@ header.controls-page-header {
     }
 }
 
-.manual-auto-wrapper {
+.manual-automatic-check-wrapper {
     display: inline;
     float: right;
 
@@ -67,18 +51,18 @@ header.controls-page-header {
     top: 12px;
 }
 
-.manual-auto-wrapper > input {
-    width: 20px;
-    height: 20px;
-    margin-left: 10px;
+.manual-automatic-check-wrapper > input {
+    width: 24px;
+    height: 24px;
+    margin-right: 16px;
 }
 
-.open-close-wrapper {
+.enable-check-wrapper {
     text-align: center;
     margin: 20px 0;
 }
 
-.open-close-wrapper input {
+.enable-check-wrapper input {
     width: 32px;
     height: 32px;
 }

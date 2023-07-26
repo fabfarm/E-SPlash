@@ -8,9 +8,9 @@ const Controls = ({ data, handleScheduleModeChange, handleToggleRelay, handleAut
         <section className='controls'>
             <header className='controls-page-header'>
                 <h2>Controls</h2>
-                <div className='main-manual-automatic-wrapper'>
+                {/* <div className='main-manual-automatic-wrapper'>
                     <input type='checkbox' checked={data.isScheduleMode} onChange={handleScheduleModeChange} />
-                </div>
+                </div> */}
             </header>
 
             <div className='controls-container'>
@@ -21,10 +21,17 @@ const Controls = ({ data, handleScheduleModeChange, handleToggleRelay, handleAut
                             <div className='box-label'>
                                 {relay.name} <span className='pin-info'>Pin {relay.pin}</span>
                             </div>
+                            <div className='manual-automatic-check-wrapper'>
+                                <input
+                                    type='checkbox'
+                                    checked={data.isScheduleMode}
+                                    onChange={handleScheduleModeChange}
+                                />
+                            </div>
                         </header>
 
                         {!data.isScheduleMode && (
-                            <div className='open-close-wrapper'>
+                            <div className='enable-check-wrapper'>
                                 <input
                                     type='checkbox'
                                     checked={relay.isEnabled}
