@@ -13,28 +13,28 @@ const Dashboard = ({ data }) => {
             <div className='cards-container'>
                 <div className='card'>
                     <div>Monday, July 10 2023</div>
-                    <div className='card-value'>{data.currentTime}</div>
+                    <div className='card-value'>{data.data.currentTime}</div>
                 </div>
 
                 <div className='card'>
                     <div className='icon-container'>
                         <img src='/src/assets/icons/thermometer.svg' alt='thermometer' />
                     </div>
-                    <div className='card-value'>{data?.temperature ?? 'n/a'}</div>
+                    <div className='card-value'>{data.data?.temperature ?? 'n/a'}</div>
                 </div>
 
                 <div className='card'>
                     <div className='icon-container'>
                         <img src='/src/assets/icons/thermometer.svg' alt='thermometer' />
                     </div>
-                    <div className='card-value'>{data?.humidity ?? 'n/a'}</div>
+                    <div className='card-value'>{data.data?.humidity ?? 'n/a'}</div>
                 </div>
 
                 <div className='card'>
                     <div className='icon-container'>
                         <img src='/src/assets/icons/thermometer.svg' alt='thermometer' />
                     </div>
-                    <div className='card-value'>{data?.batLevel ?? 'n/a'}</div>
+                    <div className='card-value'>{data.data?.batLevel ?? 'n/a'}</div>
                 </div>
             </div>
         </section>

@@ -106,3 +106,14 @@ header.controls-page-header {
 .add-schedule-btn {
     margin-top: 16px;
 }
+
+.schedule-current-status {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    margin-left: 8px;
+    background-color: green;
+    position: relative;
+    top: 6px;
+}
