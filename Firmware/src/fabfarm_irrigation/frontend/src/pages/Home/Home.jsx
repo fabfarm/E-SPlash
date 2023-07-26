@@ -7,12 +7,7 @@ import Controls from '../../components/Controls';
 const Home = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
-
-    const [DashboardData, setDashboardData] = useState(null);
-    const [ControlsData, setControlsData] = useState(null);
-
-    const { data } = useData();
-    console.log('@@@', data);
+    const { data, setData } = useData();
 
     const fetchData = (url) => {
         setIsLoading(true);
@@ -21,20 +16,7 @@ const Home = () => {
             .then((res) => res.json())
             .then((data) => {
                 console.log('FETCHED data:', data);
-
-                // Now adjusting data structure. Eventually should be done on the server
-
-                setDashboardData({
-                    currentTime: data.data.currentTime,
-                    temperature: data.data.temperature,
-                    humidity: data.data.humidity,
-                    batLevel: data.data.batLevel,
-                });
-
-                setControlsData({
-                    isScheduleMode: data.data.isScheduleMode,
-                    relays: data.relays,
-                });
+                setData(data);
             })
             .catch((err) => {
                 setError(err);
@@ -96,16 +78,16 @@ const Home = () => {
     };
 
     useEffect(() => {
-        fetchData('/src/mockData/data.json');
+        fetchData('/src/mockData/testdata.json');
     }, []);
 
     return (
         <main>
-            {!isLoading && !error && (
+            {!isLoading && !error && !!data && (
                 <>
-                    <Dashboard data={DashboardData} />
+                    <Dashboard data={data} />
                     <Controls
-                        data={ControlsData}
+                        data={data}
                         handleScheduleModeChange={handleScheduleModeChange}
                         handleToggleRelay={handleToggleRelay}
                         handleAutoTimeChange={handleAutoTimeChange}
