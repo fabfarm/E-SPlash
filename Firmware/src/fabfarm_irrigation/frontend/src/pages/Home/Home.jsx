@@ -46,6 +46,32 @@ const Home = () => {
             .then((data) => setData(data));
     };
 
+    const removeSchedule = (relayId, scheduleid) => {
+        fetch({
+            url: `/relays/${relayId}/schedule/${scheduleid}`,
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+        })
+            .then((res) => res.json())
+            // or should the server just return { "id": string, "startTime": string , "duration": number }
+            // and should I just setData with that prop?
+            .then((data) => setData(data));
+    };
+
+    const modifySchedule = () => {
+        fetch({
+            url: `/relays/${relayId}/schedule/${scheduleid}`,
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            // is it gonna be the same startTime and duration of addSchedule? probably not. one in a modal, the other inline
+            body: { startTime, duration },
+        })
+            .then((res) => res.json())
+            // or should the server just return { "id": string, "startTime": string , "duration": number }
+            // and should I just setData with that prop?
+            .then((data) => setData(data));
+    };
+
     return (
         <main>
             {!!data && (
@@ -62,6 +88,8 @@ const Home = () => {
                             setDuration,
                         }}
                         addSchedule={addSchedule}
+                        removeSchedule={removeSchedule}
+                        modifySchedule={modifySchedule}
                     />
                 </>
             )}

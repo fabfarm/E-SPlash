@@ -1,7 +1,15 @@
 import { useState, useEffect } from 'react';
 import './Controls.css';
 
-const Controls = ({ data, handleScheduleModeChange, handleToggleRelay, scheduleInputs, addSchedule }) => {
+const Controls = ({
+    data,
+    handleScheduleModeChange,
+    handleToggleRelay,
+    scheduleInputs,
+    addSchedule,
+    removeSchedule,
+    modifySchedule,
+}) => {
     console.log('Controls data:', data);
 
     return (
@@ -56,10 +64,10 @@ const Controls = ({ data, handleScheduleModeChange, handleToggleRelay, scheduleI
                                                     <td>{schedule.duration}</td>
                                                     <td>
                                                         {/* modify should use same modal as add schedule */}
-                                                        <button onClick={() => removeRelaySchedule(schedule.id)}>
+                                                        <button onClick={() => modifySchedule(relay.id, schedule.id)}>
                                                             Modify
                                                         </button>
-                                                        <button onClick={() => removeRelaySchedule(schedule.id)}>
+                                                        <button onClick={() => removeSchedule(relay.id, schedule.id)}>
                                                             Remove
                                                         </button>
                                                     </td>
@@ -88,6 +96,8 @@ const Controls = ({ data, handleScheduleModeChange, handleToggleRelay, scheduleI
                                     <button className='set-time-btn' onClick={() => addSchedule(relay.id)}>
                                         Add schedule
                                     </button>
+
+                                    {/* A calendar could be done, plus possibility to choose one-time, weekly, monthly. Check how android alarm UI works :) */}
                                 </div>
                             </div>
                         )}
