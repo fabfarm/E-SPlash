@@ -10,8 +10,6 @@ const Controls = ({
     removeSchedule,
     modifySchedule,
 }) => {
-    console.log('Controls data:', data);
-
     return (
         <section className='controls'>
             <header className='controls-page-header'>
