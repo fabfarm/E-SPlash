@@ -1,22 +1,18 @@
 import { useState, useEffect } from 'react';
 import './Controls.css';
 
-const Controls = ({ data, handleScheduleModeChange, handleToggleRelay, handleAutoTimeChange, setAutomaticTime }) => {
+const Controls = ({ data, handleScheduleModeChange, handleToggleRelay, scheduleInputs, addSchedule }) => {
     console.log('Controls data:', data);
 
     return (
         <section className='controls'>
             <header className='controls-page-header'>
                 <h2>Controls</h2>
-                {/* <div className='main-manual-automatic-wrapper'>
-                    <input type='checkbox' checked={data.isScheduleMode} onChange={handleScheduleModeChange} />
-                </div> */}
             </header>
 
             <div className='controls-container'>
                 {data.relays.map((relay) => (
-                    // use an id instead of relay.pin in the key prop
-                    <div className='control-box' key={relay.pin}>
+                    <div className='control-box' key={relay.id}>
                         <header>
                             <div className='box-label'>
                                 {relay.name} <span className='pin-info'>Pin {relay.pin}</span>
@@ -24,23 +20,23 @@ const Controls = ({ data, handleScheduleModeChange, handleToggleRelay, handleAut
                             <div className='manual-automatic-check-wrapper'>
                                 <input
                                     type='checkbox'
-                                    checked={data.isScheduleMode}
-                                    onChange={handleScheduleModeChange}
+                                    checked={relay.isScheduleMode}
+                                    onChange={(e) => handleScheduleModeChange(e, relay.id)}
                                 />
                             </div>
                         </header>
 
-                        {!data.isScheduleMode && (
+                        {!relay.isScheduleMode && (
                             <div className='enable-check-wrapper'>
                                 <input
                                     type='checkbox'
                                     checked={relay.isEnabled}
-                                    onChange={() => handleToggleRelay(relay.pin)}
+                                    onChange={(e) => handleToggleRelay(e, relay.id)}
                                 />
                             </div>
                         )}
 
-                        {!!data.isScheduleMode && (
+                        {!!relay.isScheduleMode && (
                             <div className='scheduling-wrapper'>
                                 <div className='schedules-table-wrapper'>
                                     <table>
@@ -75,21 +71,21 @@ const Controls = ({ data, handleScheduleModeChange, handleToggleRelay, handleAut
 
                                 <div>
                                     {/* use a modal for add a schedule */}
-                                    {/* <input
+                                    <input
                                         type='time'
                                         name='startTime'
                                         className='start-time'
-                                        value={relay.schedules[0].startTime}
-                                        onChange={(e) => handleAutoTimeChange(e, relay.pin)}
+                                        value={scheduleInputs.startTime}
+                                        onChange={(e) => scheduleInputs.setStartTime(e.target.value)}
                                     />
                                     <input
                                         type='number'
                                         name='duration'
                                         className='duration'
-                                        value={relay.schedules[0].duration}
-                                        onChange={(e) => handleAutoTimeChange(e, relay.pin)}
-                                    /> */}
-                                    <button className='set-time-btn' onClick={(e) => setAutomaticTime(e)}>
+                                        value={scheduleInputs.duration}
+                                        onChange={(e) => scheduleInputs.setDuration(e.target.value)}
+                                    />
+                                    <button className='set-time-btn' onClick={() => addSchedule(relay.id)}>
                                         Add schedule
                                     </button>
                                 </div>

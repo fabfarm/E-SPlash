@@ -16,13 +16,13 @@ errors: 401 or 500
 // toggle specific relay
 POST /relays/:relayId/enable 
 payload: { "isEnabled": boolean }
-response: 200 OK
+response: 200 and returns the full updated data // just return the updated prop!!!!
 errors: 401 or 500
 
 // toggle specific schedule mode
 POST /relays/:relayId/schedule-mode 
 payload: { "isScheduleMode": boolean }
-response: 200 OK
+response: 200 and returns the full updated data
 errors: 401, 500
 
 // add a schedule
