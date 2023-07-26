@@ -16,7 +16,7 @@ const Home = () => {
         fetch(url)
             .then((res) => res.json())
             .then((data) => {
-                console.log('FETCHED data:', data);
+                console.log('fetched data:', data);
 
                 // Now adjusting data structure. Eventually should be done on the server
 

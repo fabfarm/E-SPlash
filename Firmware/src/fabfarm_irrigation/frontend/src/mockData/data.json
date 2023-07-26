@@ -4,7 +4,7 @@
         "temperature": 30,
         "humidity": 79,
         "batLevel": 14,
-        "isScheduleMode": true,
+        "isScheduleMode": false,
         "changedtime": [
             {
                 "internettime": true,

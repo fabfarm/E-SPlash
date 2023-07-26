@@ -88,6 +88,10 @@ header.controls-page-header {
     margin: 20px 0;
 }
 
+.inputs-action-wrapper {
+    margin-bottom: 8px;
+}
+
 .scheduling-wrapper input {
     width: 98px;
     padding: 6px;
@@ -99,13 +103,6 @@ header.controls-page-header {
     padding: 6px 8px;
 }
 
-.schedules-table-wrapper {
-    margin-top: 4rem;
-    margin-bottom: 4rem;
-}
-
-.schedules-table-wrapper table {
-    /* text-align: center; */
-    margin-left: auto;
-    margin-right: auto;
+.add-schedule-btn {
+    margin-top: 16px;
 }
