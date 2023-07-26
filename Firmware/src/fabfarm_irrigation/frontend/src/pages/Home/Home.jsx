@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useData } from '../../hooks/useData';
 
 import Dashboard from '../../components/Dashboard';
 import Controls from '../../components/Controls';
@@ -9,6 +10,9 @@ const Home = () => {
 
     const [DashboardData, setDashboardData] = useState(null);
     const [ControlsData, setControlsData] = useState(null);
+
+    const { data } = useData();
+    console.log('@@@', data);
 
     const fetchData = (url) => {
         setIsLoading(true);
