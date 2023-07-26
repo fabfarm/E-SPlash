@@ -1,0 +1,58 @@
+{
+    "data": {
+        "currentTime": null,
+        "temperature": null,
+        "humidity": null,
+        "isScheduleMode": true,
+        "batLevel": 14,
+        "changedtime": [
+            {
+                "internettime": true,
+                "Ttime": "02:02",
+                "Tdate": "01/01/2021"
+            }
+        ]
+    },
+    "relays": [
+        {
+            "name": "Fruit",
+            "pin": 27,
+            "isEnabled": false,
+            "active": true,
+            "times": [
+                {
+                    "startTime": "10:00",
+                    "duration": 30
+                }
+            ]
+        },
+        {
+            "name": "Vegetables",
+            "pin": 26,
+            "isEnabled": false,
+            "active": true,
+            "times": [
+                {
+                    "startTime": "10:30",
+                    "duration": 30
+                }
+            ]
+        },
+        {
+            "name": "Water",
+            "pin": 25,
+            "isEnabled": false,
+            "active": true,
+            "times": [
+                {
+                    "startTime": "11:00",
+                    "duration": 30
+                },
+                {
+                    "startTime": "19:40",
+                    "duration": 40
+                }
+            ]
+        }
+    ]
+}

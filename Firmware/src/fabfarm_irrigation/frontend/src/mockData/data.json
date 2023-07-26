@@ -1,10 +1,10 @@
 {
     "data": {
         "currentTime": "10:24",
-        "temperature": "30",
-        "humidity": "79",
-        "batLevel": "14",
-        "isScheduleMode": false,
+        "temperature": 30,
+        "humidity": 79,
+        "batLevel": 14,
+        "isScheduleMode": true,
         "changedtime": [
             {
                 "internettime": true,
@@ -19,9 +19,8 @@
             "pin": 27,
             "isEnabled": false,
             "active": true,
-            "schedules": [
+            "times": [
                 {
-                    "id": "1",
                     "startTime": "10:00",
                     "duration": 30
                 }
@@ -32,10 +31,9 @@
             "pin": 26,
             "isEnabled": false,
             "active": true,
-            "schedules": [
+            "times": [
                 {
-                    "id": "1",
-                    "startTime": "10:00",
+                    "startTime": "10:30",
                     "duration": 30
                 }
             ]
@@ -45,16 +43,14 @@
             "pin": 25,
             "isEnabled": false,
             "active": true,
-            "schedules": [
+            "times": [
                 {
-                    "id": "1",
-                    "startTime": "10:00",
+                    "startTime": "11:00",
                     "duration": 30
                 },
                 {
-                    "id": "2",
-                    "startTime": "11:00",
-                    "duration": 30
+                    "startTime": "19:40",
+                    "duration": 40
                 }
             ]
         }
