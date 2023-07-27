@@ -1,6 +1,6 @@
 import './DateAndTime.css';
 
-const DateAndTime = ({ updateTime, enableInternetUpdate }) => {
+const DateAndTime = ({ currentTime, inputDate, setInputDate, inputTime, setInputTime, setDateTime }) => {
     // button "Change time and date", look at updateTime
     // input useInternetTime, look at enableInternetUpdate
 
@@ -10,25 +10,20 @@ const DateAndTime = ({ updateTime, enableInternetUpdate }) => {
                 <h2>Date and Time</h2>
             </header>
 
-            <div>Thursday, July 20 2023 - 17:32 </div>
+            <div>{currentTime}</div>
 
             <div className='settings-container'>
                 <div>
                     <label htmlFor='date'>Date</label>
-                    <input type='date' id='date' name='date' />
+                    <input type='date' id='date' name='date' value={inputDate} onChange={setInputDate} />
                 </div>
                 <div>
                     <label htmlFor='time'>Time</label>
-                    <input type='time' id='time' name='time' />
+                    <input type='time' id='time' name='time' value={inputTime} onChange={setInputTime} />
                 </div>
-                <button className='set-date-time-btn' onClick={updateTime}>
+                <button className='set-date-time-btn' onClick={setDateTime}>
                     Set time and date
                 </button>
-
-                <div>
-                    <label htmlFor='useInternetTime'>Use internet time</label>
-                    <input type='checkbox' id='useInternetTime' onClick={(e) => enableInternetUpdate(e)} />
-                </div>
             </div>
         </section>
     );
