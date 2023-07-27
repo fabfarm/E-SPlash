@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useData } from '../../hooks/useData';
+import { useNavigate } from 'react-router-dom';
 
 import DateAndTime from '../../components/DateAndTime';
 import Relays from '../../components/Relays';
@@ -8,6 +9,7 @@ import FirmwareUpdate from '../../components/FirmwareUpdate';
 
 const Settings = () => {
     const { data, setData } = useData();
+    const navigate = useNavigate();
 
     const [inputDate, setInputDate] = useState('');
     const [inputTime, setInputTime] = useState('');
@@ -62,6 +64,7 @@ const Settings = () => {
 
     const updateFirmware = () => {
         // go to /update
+        navigate('/update');
     };
 
     return (

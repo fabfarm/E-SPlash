@@ -2,11 +2,11 @@ const FirmwareUpdate = ({ updateFirmware }) => {
     return (
         <section className='settings-box'>
             <header>
-                <h2>Firmare Update</h2>
+                <h2>Firmware Update</h2>
             </header>
 
             <div>
-                <button onClick={updateFirmware}>Update firmare</button>
+                <button onClick={updateFirmware}>Update firmware</button>
             </div>
         </section>
     );
