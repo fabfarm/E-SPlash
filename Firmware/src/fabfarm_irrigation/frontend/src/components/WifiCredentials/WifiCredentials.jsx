@@ -1,8 +1,6 @@
 import './WifiCredentials.css';
 
-const WifiCredentials = ({ updateCredentials }) => {
-    // button Change WiFi Credentials, look at updateCredentials
-
+const WifiCredentials = ({ ssidInput, setSsidInput, passwordInput, setPasswordInput, updateCredentials }) => {
     return (
         <section className='settings-box'>
             <header>
@@ -13,12 +11,25 @@ const WifiCredentials = ({ updateCredentials }) => {
                 <div>
                     {/* label wants name prop? */}
                     <label htmlFor='ssid'>SSID</label>
-                    <input type='text' id='ssid' placeholder='ssid' />
+                    <input
+                        type='text'
+                        id='ssid'
+                        placeholder='ssid'
+                        value={ssidInput}
+                        onChange={(e) => setSsidInput(e.target.value)}
+                    />
                 </div>
 
                 <div>
                     <label htmlFor='password'>Password</label>
-                    <input type='text' name='password' id='password' placeholder='password' />
+                    <input
+                        type='text'
+                        name='password'
+                        id='password'
+                        placeholder='password'
+                        value={passwordInput}
+                        onChange={(e) => setPasswordInput(e.target.value)}
+                    />
                 </div>
 
                 <div>

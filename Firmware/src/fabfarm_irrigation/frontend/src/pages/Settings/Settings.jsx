@@ -14,6 +14,8 @@ const Settings = () => {
     const [relayNameInput, setRelayNameInput] = useState('');
     const [relayPinInput, setRelayPinInput] = useState('');
     const [relayStatusInput, setRelayStatusInput] = useState('');
+    const [ssidInput, setSsidInput] = useState('');
+    const [passwordInput, setPasswordInput] = useState('');
 
     const setDateTime = () => {
         fetch({
@@ -48,17 +50,14 @@ const Settings = () => {
     };
 
     const updateCredentials = (obj) => {
-        var fl1 = document.getElementById('ssid').value;
-        var fl2 = document.getElementById('password').value;
-        jsonData.data.credentials[0].ssid = fl1;
-        jsonData.data.credentials[0].password = fl2;
-        console.log(fl1);
-        console.log(fl2);
-        var json = JSON.stringify(jsonData);
-        var xmlhttp = new XMLHttpRequest();
-        xmlhttp.open('POST', '/updateData');
-        xmlhttp.setRequestHeader('Content-Type', 'application/json;');
-        xmlhttp.send(json);
+        fetch({
+            url: '/credentials',
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: { ssid: ssidInput, password: passwordInput },
+        })
+            .then((res) => res.json())
+            .then((data) => setData(data));
     };
 
     const updateFirmware = () => {
@@ -88,7 +87,13 @@ const Settings = () => {
                         setRelayStatusInput={setRelayStatusInput}
                         addrelay={addrelay}
                     />
-                    <WifiCredentials updateCredentials={updateCredentials} />
+                    <WifiCredentials
+                        ssidInput={ssidInput}
+                        setSsidInput={setSsidInput}
+                        passwordInput={passwordInput}
+                        setPasswordInput={setPasswordInput}
+                        updateCredentials={updateCredentials}
+                    />
                     <FirmwareUpdate updateFirmware={updateFirmware} />
                 </>
             )}
