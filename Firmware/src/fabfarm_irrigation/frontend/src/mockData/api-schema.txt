@@ -22,7 +22,7 @@ errors: 401 or 500
 // toggle specific schedule mode
 POST /relays/:relayId/schedule-mode 
 payload: { "isScheduleMode": boolean }
-response: 200 and returns the full updated data
+response: 200 and returns the full updated data ...no
 errors: 401, 500
 
 // add a schedule

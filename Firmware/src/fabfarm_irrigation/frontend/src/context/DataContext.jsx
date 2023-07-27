@@ -6,8 +6,8 @@ const DataContext = createContext(null);
 const DataContextProvider = ({ children }) => {
     const [data, setData] = useState(null);
 
-    const value = { data, setData };
     const url = '/src/mockData/testdata.json';
+    const value = { data, setData };
 
     const fetchAndSetData = () => {
         fetch(url)

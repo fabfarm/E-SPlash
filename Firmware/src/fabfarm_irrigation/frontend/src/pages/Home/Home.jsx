@@ -21,7 +21,6 @@ const Home = () => {
             .then((data) => setData(data));
     };
 
-    // should use an id instead of pin
     const handleToggleRelay = (e, relayId) => {
         fetch({
             url: `/relays/${relayId}/enable`,
