@@ -1,9 +1,6 @@
 import './DateAndTime.css';
 
 const DateAndTime = ({ currentTime, inputDate, setInputDate, inputTime, setInputTime, setDateTime }) => {
-    // button "Change time and date", look at updateTime
-    // input useInternetTime, look at enableInternetUpdate
-
     return (
         <section className='settings-box'>
             <header>
