@@ -9,7 +9,6 @@ import FirmwareUpdate from '../../components/FirmwareUpdate';
 const Settings = () => {
     const { data, setData } = useData();
 
-    const currentTime = data.global.time;
     const [inputDate, setInputDate] = useState('');
     const [inputTime, setInputTime] = useState('');
 
@@ -81,7 +80,7 @@ const Settings = () => {
             {!!data && (
                 <>
                     <DateAndTime
-                        currentTime={currentTime}
+                        currentTime={data.global.time}
                         inputDate={inputDate}
                         setInputDate={setInputDate}
                         inputTime={inputTime}
