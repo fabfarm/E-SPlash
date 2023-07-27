@@ -11,6 +11,9 @@ const Settings = () => {
 
     const [inputDate, setInputDate] = useState('');
     const [inputTime, setInputTime] = useState('');
+    const [relayNameInput, setRelayNameInput] = useState('');
+    const [relayPinInput, setRelayPinInput] = useState('');
+    const [relayStatusInput, setRelayStatusInput] = useState('');
 
     const setDateTime = () => {
         fetch({
@@ -23,38 +26,25 @@ const Settings = () => {
             .then((data) => setData(data));
     };
 
-    const removeRelay = (payload) => {
-        // displayLoadSpinner();
-
-        let url = `/relay/${payload.relayIndex}`;
-        fetch(url, { method: 'DELETE' }).then(() => {
-            // Update local state
-            jsonDataState.relays.splice(payload.relayIndex, 1);
-            updateSchedulingHtml(true);
-
-            closeLoadSpinner();
-            displaySuccessToast();
-        });
+    const removeRelay = (relayId) => {
+        fetch({
+            url: `/relays/${relayId}`,
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+        })
+            .then((res) => res.json())
+            .then((data) => setData(data));
     };
 
-    const addrelay = (obj) => {
-        for (var i = 0; i < jsonData.relays.length; i++) {
-            var relay = jsonData.relays[i];
-            if (relay.active == 0) {
-                relay.name = document.getElementById('relayname').value;
-                relay.pin = document.getElementById('relaypin').value;
-                relay.active = 1;
-            } else {
-                console.log(' no relays available');
-            }
-        }
-        window.location.reload();
-        var json = JSON.stringify(jsonData);
-        var xmlhttp = new XMLHttpRequest();
-        xmlhttp.open('POST', '/updateData');
-        xmlhttp.setRequestHeader('Content-Type', 'application/json;');
-        xmlhttp.send(json);
-        return;
+    const addrelay = () => {
+        fetch({
+            url: '/relays/add',
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: { name: relayNameInput, pin: relayPinInput, isEnabled: relayStatusInput },
+        })
+            .then((res) => res.json())
+            .then((data) => setData(data));
     };
 
     const updateCredentials = (obj) => {
@@ -87,7 +77,17 @@ const Settings = () => {
                         setInputTime={setInputTime}
                         setDateTime={setDateTime}
                     />
-                    <Relays removeRelay={removeRelay} addrelay={addrelay} />
+                    <Relays
+                        relays={data.relays}
+                        removeRelay={removeRelay}
+                        relayNameInput={relayNameInput}
+                        setRelayNameInput={setRelayNameInput}
+                        relayPinInput={relayPinInput}
+                        setRelayPinInput={setRelayPinInput}
+                        relayStatusInput={relayStatusInput}
+                        setRelayStatusInput={setRelayStatusInput}
+                        addrelay={addrelay}
+                    />
                     <WifiCredentials updateCredentials={updateCredentials} />
                     <FirmwareUpdate updateFirmware={updateFirmware} />
                 </>
