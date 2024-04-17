@@ -30,5 +30,5 @@ Firmware/.vscode/settings.json
 Firmware/src/fabfarm_irrigation/fabfarm_irrigation.ino.cpp
 Firmware/src/fabfarm_irrigation/data/Untitled-1.js
 Firmware/test/Untitled-1
-Firmware/.vscode/c_cpp_properties.json
-Firmware/.vscode/launch.json
+*c_cpp_properties.json
+*launch.json
