@@ -1,5 +1,5 @@
 .pio
 .vscode/*
 Firmware/.editorconfig
-Firmware/.vscode/launch.json
-Firmware/.vscode/c_cpp_properties.json
+*launch.json
+*c_cpp_properties.json

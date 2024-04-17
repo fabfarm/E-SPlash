@@ -1,6 +1,0 @@
-{
-  "files.associations": {
-    "*.yaml": "home-assistant"
-  },
-  "C_Cpp.errorSquiggles": "Disabled"
-}
