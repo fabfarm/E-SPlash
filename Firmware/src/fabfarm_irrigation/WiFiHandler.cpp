@@ -1,6 +1,6 @@
 #include "WiFiHandler.h"
 #include "Config.h"
-#include <AsyncElegantOTA.h>
+#include <ElegantOTA.h>
 
 
 void printAccessPointIP()
@@ -139,6 +139,6 @@ void configureWiFiSettings()
 
 void initializeServer()
 {
-    AsyncElegantOTA.begin(&server);
+    ElegantOTA.begin(&server);
     server.begin();
 }
