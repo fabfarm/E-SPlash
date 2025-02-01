@@ -19,8 +19,7 @@ RtcDS1302<ThreeWire> Rtc(myWire);
 
 ESP32Time rtc;
 AsyncWebServer server(80);
-int jsonSize = 1800;
-DynamicJsonDocument doc(jsonSize);
+JsonDocument doc;
 boolean isScheduleMode = false;
 
 WiFiMulti wifiMulti;

@@ -7,7 +7,7 @@ const int HTTP_INTERNAL_SERVER_ERROR = 500;
 const int HTTP_METHOD_NOT_ALLOWED = 405;
 
 // Helper function to serialize JSON and send response
-void sendJsonResponse(AsyncWebServerRequest *request, DynamicJsonDocument &data)
+void sendJsonResponse(AsyncWebServerRequest *request, JsonDocument &data)
 {
     char jsonReply[1800];
     serializeJson(data, jsonReply);
@@ -18,7 +18,7 @@ void sendJsonResponse(AsyncWebServerRequest *request, DynamicJsonDocument &data)
 void handleGetDataJsonRequest(AsyncWebServerRequest *request)
 {
     Serial.println("/data.json");
-    DynamicJsonDocument data = doc;
+    JsonDocument data = doc;
 
     data["data"]["currentTime"] = rtc.getTime("%A, %B %d %Y %H:%M");
     data["data"]["temperature"] = readDHTTemperature();
@@ -114,7 +114,7 @@ void handleUpdateRelayTimeRequest(AsyncWebServerRequest *request, JsonVariant &j
 // Handler for POST /relay/add-time
 void handleAddRelayTimeRequest(AsyncWebServerRequest *request, JsonVariant &json)
 {
-    JsonObject nested = doc["relays"][json["relayIndex"]]["times"].as<JsonArray>().createNestedObject();
+    JsonObject nested = doc["relays"][json["relayIndex"]]["times"].as<JsonArray>().add<JsonObject>();
     nested["startTime"] = "10:00";
     nested["duration"] = 30;
 
@@ -149,14 +149,12 @@ void handleDeleteRelayTimeRequest(AsyncWebServerRequest *request)
 // Handler for POST /relay/add
 void handleAddRelayRequest(AsyncWebServerRequest *request, JsonVariant &json)
 {
-    JsonObject nested = doc["relays"].as<JsonArray>().createNestedObject();
+    JsonObject nested = doc["relays"].as<JsonArray>().add<JsonObject>();
 
-    const size_t CAPACITY = JSON_ARRAY_SIZE(3);
-
-    StaticJsonDocument<CAPACITY> newArray;
+    JsonDocument newArray;
 
     JsonArray array = newArray.to<JsonArray>();
-    JsonObject newTime = array.createNestedObject();
+    JsonObject newTime = array.add<JsonObject>();
     newTime["startTime"] = "10:00";
     newTime["duration"] = 30;
     nested["times"] = array;

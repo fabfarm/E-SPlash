@@ -61,8 +61,7 @@ extern RtcDS1302<ThreeWire> Rtc;
 
 extern ESP32Time rtc;
 extern AsyncWebServer server;
-extern int jsonSize;
-extern DynamicJsonDocument doc;
+extern JsonDocument doc;
 extern boolean isScheduleMode;
 
 #endif // CONFIG_H
