@@ -12,6 +12,69 @@ let timeoutID = null;
 let doRefresh = false;
 
 // Functions
+function getNextScheduleEvent() {
+	if (!jsonDataState.data || !jsonDataState.data.isScheduleMode || !jsonDataState.relays) {
+		return null;
+	}
+	
+	let now = new Date();
+	let currentMinutes = now.getHours() * 60 + now.getMinutes();
+	let nextEvent = null;
+	
+	jsonDataState.relays.forEach(relay => {
+		if (relay.times) {
+			relay.times.forEach(time => {
+				let startMinutes = parseTimeHHMMToMinutes(time.startTime);
+				let endMinutes = startMinutes + parseInt(time.duration);
+				
+				// Find next start or end event after current time
+				if (startMinutes > currentMinutes) {
+					nextEvent = Math.min(nextEvent || Infinity, startMinutes);
+				}
+				if (endMinutes > currentMinutes) {
+					nextEvent = Math.min(nextEvent || Infinity, endMinutes);
+				}
+				
+				// Handle schedules that cross midnight (next day)
+				let nextDayStart = startMinutes + (24 * 60);
+				let nextDayEnd = endMinutes + (24 * 60);
+				nextEvent = Math.min(nextEvent || Infinity, nextDayStart);
+				nextEvent = Math.min(nextEvent || Infinity, nextDayEnd);
+			});
+		}
+	});
+	
+	return nextEvent === Infinity ? null : nextEvent;
+}
+
+function getSmartPollInterval() {
+	if (!jsonDataState.data || !jsonDataState.data.isScheduleMode) {
+		// Manual mode - only need to update current time occasionally
+		return 30000; // 30 seconds
+	}
+	
+	let nextEvent = getNextScheduleEvent();
+	if (!nextEvent) {
+		// No schedules configured - poll infrequently
+		return 60000; // 60 seconds
+	}
+	
+	let now = new Date();
+	let currentMinutes = now.getHours() * 60 + now.getMinutes();
+	let minutesToNext = Math.abs(nextEvent - currentMinutes);
+	
+	if (minutesToNext <= 2) {
+		// Schedule event within 2 minutes - poll frequently
+		return 10000; // 10 seconds
+	} else if (minutesToNext <= 10) {
+		// Schedule event within 10 minutes - poll moderately
+		return 30000; // 30 seconds
+	} else {
+		// No immediate schedule events - poll infrequently
+		return 60000; // 60 seconds
+	}
+}
+
 function fetchJSONState() {
 	fetch(GET_DATA_ENDPOINT)
 	  .then(res => res.json())
@@ -22,14 +85,16 @@ function fetchJSONState() {
 		updateElementIfChanged("currentTime", jsonDataState.data.currentTime);
 		if (doRefresh) {
 				updateSchedulingHtml(rebuildHtml);
-		  timeoutID = setTimeout(fetchJSONState, 1000);
+		  let interval = getSmartPollInterval();
+		  timeoutID = setTimeout(fetchJSONState, interval);
 			}
 	  })
 	  .catch(error => {
 			console.log(error);
 		if (doRefresh) {
 				updateSchedulingHtml();
-		  timeoutID = setTimeout(fetchJSONState, 1000);
+		  let interval = getSmartPollInterval();
+		  timeoutID = setTimeout(fetchJSONState, interval);
 			}
 		});
 }

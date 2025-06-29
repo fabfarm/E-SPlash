@@ -17,7 +17,6 @@ void sendJsonResponse(AsyncWebServerRequest *request, JsonDocument &data)
 // Handler for GET /data.json
 void handleGetDataJsonRequest(AsyncWebServerRequest *request)
 {
-    Serial.println("/data.json");
     JsonDocument data = doc;
 
     data["data"]["currentTime"] = rtc.getTime("%A, %B %d %Y %H:%M");

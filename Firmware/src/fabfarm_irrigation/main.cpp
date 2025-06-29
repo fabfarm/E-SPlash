@@ -22,5 +22,4 @@ void loop()
   {
     scheduleMode();
   }
-  //sleep(1);
 }
