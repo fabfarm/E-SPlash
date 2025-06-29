@@ -22,9 +22,12 @@ void switchDevice(int pinNumber, bool state, const char *deviceName)
 void handleDevices(JsonArray devices, bool (*shouldEnableDevice)(JsonObject &))
 {
   bool enablePump = false;
-  for (JsonObject device : devices)
+  int relayPins[] = {RELAY1_PIN, RELAY2_PIN, RELAY3_PIN};
+  
+  for (int i = 0; i < devices.size() && i < 3; i++)
   {
-    int pinNumber = device["pin"];
+    JsonObject device = devices[i];
+    int pinNumber = relayPins[i];
     bool enableDevice = shouldEnableDevice(device);
     switchDevice(pinNumber, enableDevice, device["name"]);
     enablePump = enablePump || enableDevice;
@@ -69,9 +72,11 @@ void disableAllDevices()
 {
   switchDevice(pumpPinNumber, false, "Pump");
 
+  int relayPins[] = {RELAY1_PIN, RELAY2_PIN, RELAY3_PIN};
   JsonArray relays = doc["relays"];
-  for (JsonObject relay : relays)
+  for (int i = 0; i < relays.size() && i < 3; i++)
   {
-    switchDevice(relay["pin"], false, relay["name"]);
+    JsonObject relay = relays[i];
+    switchDevice(relayPins[i], false, relay["name"]);
   }
 }

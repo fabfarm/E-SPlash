@@ -14,7 +14,6 @@
     "relays": [
         {
             "name": "Area 1",
-            "pin": 27,
             "isEnabled": false,
             "active": true,
             "times": [
@@ -26,7 +25,6 @@
         },
         {
             "name": "Area 2",
-            "pin": 26,
             "isEnabled": false,
             "active": true,
             "times": [
@@ -38,7 +36,6 @@
         },
         {
             "name": "Area 3",
-            "pin": 25,
             "isEnabled": false,
             "active": true,
             "times": [

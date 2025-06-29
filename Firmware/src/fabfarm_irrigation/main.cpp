@@ -5,7 +5,6 @@ void setup()
   Serial.begin(9600);
   setupStorage();
   readDataJson();
-  initializeHardwarePins();
   configureWiFiSettings();
   scanAvailableWiFiNetworks();
   initiateWiFiConnection();
