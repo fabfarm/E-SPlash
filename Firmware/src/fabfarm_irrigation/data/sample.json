@@ -1,10 +1,7 @@
 {
     "data": {
         "currentTime": null,
-        "temperature": null,
-        "humidity": null,
         "isScheduleMode": true,
-        "batLevel": 14,
         "changedtime": [
             {
                 "internettime": true,

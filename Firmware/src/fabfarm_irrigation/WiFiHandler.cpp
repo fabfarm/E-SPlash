@@ -1,12 +1,11 @@
 #include "WiFiHandler.h"
 #include "Config.h"
-#include <ElegantOTA.h>
 
 
 void printAccessPointIP()
 {
     Serial.println();
-    Serial.println("*****************************************************");
+    Serial.println("*********************");
     Serial.printf("* SoftAP IP is: %s\n\r", WiFi.softAPIP().toString().c_str());
 }
 
@@ -139,6 +138,5 @@ void configureWiFiSettings()
 
 void initializeServer()
 {
-    ElegantOTA.begin(&server);
     server.begin();
 }

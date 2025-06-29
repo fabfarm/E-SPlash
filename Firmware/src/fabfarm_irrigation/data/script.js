@@ -20,9 +20,6 @@ function fetchJSONState() {
 			previousJsonDataState = jsonDataState;
 			jsonDataState = jsonData;
 		updateElementIfChanged("currentTime", jsonDataState.data.currentTime);
-		updateElementIfChanged("temperature", jsonDataState.data.temperature);
-		updateElementIfChanged("humidity", jsonDataState.data.humidity);
-		updateElementIfChanged("batLevel", jsonDataState.data.batLevel);
 		if (doRefresh) {
 				updateSchedulingHtml(rebuildHtml);
 		  timeoutID = setTimeout(fetchJSONState, 1000);

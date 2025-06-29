@@ -21,9 +21,6 @@ void handleGetDataJsonRequest(AsyncWebServerRequest *request)
     JsonDocument data = doc;
 
     data["data"]["currentTime"] = rtc.getTime("%A, %B %d %Y %H:%M");
-    data["data"]["temperature"] = readDHTTemperature();
-    data["data"]["humidity"] = readDHTHumidity();
-    data["data"]["batLevel"] = getBatteryLevel();
 
     sendJsonResponse(request, data);
 }

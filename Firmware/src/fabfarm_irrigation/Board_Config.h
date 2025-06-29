@@ -7,9 +7,6 @@ struct BoardConfig
 {
   const char *name;
   int pump_pin;
-  int voltage_pin;
-  int dht_pin;
-  int dht_type;
   const char *wifi_hostname;
   const char *ap_ssid;
   const char *ap_password;

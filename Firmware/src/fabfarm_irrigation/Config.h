@@ -6,7 +6,6 @@
 #include <LittleFS.h>
 #include <ArduinoJson.h>
 #include <AsyncJson.h>
-#include <DHT.h>
 #include <ESP32Time.h>
 #include <WiFi.h>
 #include <WiFiMulti.h>
@@ -21,7 +20,6 @@
 #include "RelayHandler.h"
 #include "TimeHandler.h"
 #include "Board_Config.h"
-#include "SetupSensors.h"
 #include "storageHandler.h"
 
 extern WiFiMulti wifiMulti;
@@ -29,16 +27,12 @@ extern WiFiMulti wifiMulti;
 #define BOARD_CONFIG configs[1]
 
 extern int pumpPinNumber;
-extern int batVoltPin;
 extern const char *wifi_network_hostname;
 extern const char *soft_ap_ssid;
 extern const char *soft_ap_password;
 
 #define ds_3231
 #define TTL_Logic_Low
-
-#define DHTPIN BOARD_CONFIG.dht_pin
-#define DHTTYPE BOARD_CONFIG.dht_type
 
 #define countof(a) (sizeof(a) / sizeof(a[0]))
 
