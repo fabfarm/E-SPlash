@@ -3,15 +3,15 @@
 
 #include "Config.h"
 
+// Hardware configuration - pins are defined in platformio.ini
 struct BoardConfig
 {
   const char *name;
-  int pump_pin;
   const char *wifi_hostname;
   const char *ap_ssid;
   const char *ap_password;
 };
 
-extern const BoardConfig configs[];
+extern const BoardConfig config;
 
 #endif

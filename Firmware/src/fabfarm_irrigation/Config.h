@@ -24,7 +24,7 @@
 
 extern WiFiMulti wifiMulti;
 
-#define BOARD_CONFIG configs[1]
+#define BOARD_CONFIG config
 
 extern int pumpPinNumber;
 extern const char *wifi_network_hostname;
