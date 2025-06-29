@@ -30,6 +30,11 @@ void handleUpdateDataRequest(AsyncWebServerRequest *request, JsonVariant &json)
 {
     doc = json.as<JsonObject>();
 
+    // Check if UTC offset was updated and reconfigure timezone
+    if (json["data"]["changedtime"][0]["utcOffset"].is<int>()) {
+        updateTimezone();
+    }
+
     if (writeDataJson())
     {
         request->send(HTTP_OK);

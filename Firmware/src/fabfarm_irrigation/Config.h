@@ -21,12 +21,9 @@
 #include "JsonHandler.h"
 #include "RelayHandler.h"
 #include "TimeHandler.h"
-#include "Board_Config.h"
 #include "storageHandler.h"
 
 extern WiFiMulti wifiMulti;
-
-#define BOARD_CONFIG config
 
 extern int pumpPinNumber;
 extern const char *wifi_network_hostname;
@@ -34,7 +31,6 @@ extern const char *soft_ap_ssid;
 extern const char *soft_ap_password;
 
 #define ds_3231
-#define TTL_Logic_Low
 
 #define countof(a) (sizeof(a) / sizeof(a[0]))
 

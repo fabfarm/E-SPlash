@@ -5,5 +5,6 @@
 
 bool writeDataJson();
 void readDataJson();
+void initializeHardwarePins();
 
 #endif // JSON_HANDLER_H

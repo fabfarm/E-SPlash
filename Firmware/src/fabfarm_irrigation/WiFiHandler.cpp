@@ -67,9 +67,9 @@ void initiateWiFiConnection()
     {
         printConnectedWiFiStatus();
         
-        // Perform initial internet time sync on startup
-        Serial.println("* Performing initial internet time sync...");
-        syncWithInternetTime();
+        // Schedule initial internet time sync (non-blocking)
+        Serial.println("* WiFi connected - internet time sync will be attempted");
+        // Note: syncWithInternetTime() will be called from the main loop when convenient
     }
     else
     {

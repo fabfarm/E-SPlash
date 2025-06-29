@@ -63,6 +63,36 @@
 						</div>
 						<span class="m-2 display-6">Use internet time</span>
 					</div>
+					<div class="d-flex align-items-center bg-white rounded p-4 m-2 justify-content-center">
+						<label for="utcOffset" class="m-2 display-6">UTC Offset (hours):</label>
+						<select id="utcOffset" onchange="updateUTCOffset()" style="width:100px;">
+							<option value="-12">UTC-12</option>
+							<option value="-11">UTC-11</option>
+							<option value="-10">UTC-10</option>
+							<option value="-9">UTC-9</option>
+							<option value="-8">UTC-8</option>
+							<option value="-7">UTC-7</option>
+							<option value="-6">UTC-6</option>
+							<option value="-5">UTC-5</option>
+							<option value="-4">UTC-4</option>
+							<option value="-3">UTC-3</option>
+							<option value="-2">UTC-2</option>
+							<option value="-1">UTC-1</option>
+							<option value="0">UTC+0</option>
+							<option value="1" selected>UTC+1</option>
+							<option value="2">UTC+2</option>
+							<option value="3">UTC+3</option>
+							<option value="4">UTC+4</option>
+							<option value="5">UTC+5</option>
+							<option value="6">UTC+6</option>
+							<option value="7">UTC+7</option>
+							<option value="8">UTC+8</option>
+							<option value="9">UTC+9</option>
+							<option value="10">UTC+10</option>
+							<option value="11">UTC+11</option>
+							<option value="12">UTC+12</option>
+						</select>
+					</div>
 				</div>
 				<div class="shadow d-flex align-items-center bg-white rounded p-4 m-2 justify-content-center flex-column">
 					<h6 class="display-6 main-title"><strong>Sensors</strong></h6>
@@ -188,6 +218,12 @@
 						//document.getElementById("date").innerText
 						document.getElementById("time").innerText = jsonData.data.changedtime[0].Ttime;
 						document.getElementById("useInternetTime").checked = jsonData.data.changedtime[0].internettime;
+						
+						// Set UTC offset if available
+						if (jsonData.data.changedtime[0].utcOffset !== undefined) {
+							document.getElementById("utcOffset").value = jsonData.data.changedtime[0].utcOffset;
+						}
+						
 						var htmlrelay = "";
 						for(var i = 0; i  < jsonData.relays.length; i++) {
 							var relay =  jsonData.relays[i];
@@ -227,12 +263,26 @@
 			refresh();
 
 			function enableInternetUpdate() {
-				jsonData.data.changedtime[0].internettime = document.getElementById("internetTime").checked ? 1 : 0;
+				jsonData.data.changedtime[0].internettime = document.getElementById("useInternetTime").checked ? 1 : 0;
 				var json = JSON.stringify(jsonData);
 				var xmlhttp = new XMLHttpRequest();   
 				xmlhttp.open("POST", "/updateData");
 				xmlhttp.setRequestHeader("Content-Type", "application/json;");
 				xmlhttp.send(json);
+				return;
+			}
+
+			function updateUTCOffset() {
+				if (!jsonData.data.changedtime[0]) {
+					jsonData.data.changedtime[0] = {};
+				}
+				jsonData.data.changedtime[0].utcOffset = parseInt(document.getElementById("utcOffset").value);
+				var json = JSON.stringify(jsonData);
+				var xmlhttp = new XMLHttpRequest();   
+				xmlhttp.open("POST", "/updateData");
+				xmlhttp.setRequestHeader("Content-Type", "application/json;");
+				xmlhttp.send(json);
+				console.log("UTC offset updated to:", jsonData.data.changedtime[0].utcOffset);
 				return;
 			}
 

@@ -125,9 +125,18 @@ void initializeInternetTimeSync()
     Serial.println("*****************************************************");
     Serial.println("* Initializing Internet Time Synchronization");
 
-    // Configure NTP servers (using pool.ntp.org for reliability)
-    configTime(0, 0, "pool.ntp.org", "time.nist.gov", "time.google.com");
+    // Get UTC offset from JSON data (default to UTC+1 for Portugal)
+    int utcOffsetHours = 1; // Default timezone
+    if (doc["data"]["changedtime"][0]["utcOffset"].is<int>()) {
+        utcOffsetHours = doc["data"]["changedtime"][0]["utcOffset"];
+    }
+    
+    long utcOffsetSeconds = utcOffsetHours * 3600;
 
+    // Configure NTP with timezone offset
+    configTime(utcOffsetSeconds, 0, "pool.ntp.org", "time.nist.gov", "time.google.com");
+
+    Serial.printf("* UTC offset set to: %+d hours (%ld seconds)\n", utcOffsetHours, utcOffsetSeconds);
     Serial.println("* NTP servers configured: pool.ntp.org, time.nist.gov, time.google.com");
     Serial.println("* Internet time sync initialized");
     Serial.println("*****************************************************");
@@ -145,9 +154,9 @@ void syncWithInternetTime()
     Serial.println("* Attempting to sync with internet time...");
 
     struct tm timeinfo;
-    if (!getLocalTime(&timeinfo, 10000)) // 10 second timeout
+    if (!getLocalTime(&timeinfo, 2000)) // Reduced to 2 second timeout
     {
-        Serial.println("* Failed to get internet time");
+        Serial.println("* Failed to get internet time (continuing without sync)");
         Serial.println("*****************************************************");
         return;
     }
@@ -236,4 +245,20 @@ void handleInternetTimeSync()
             }
         }
     }
+}
+
+void updateTimezone()
+{
+    // Get UTC offset from JSON data
+    int utcOffsetHours = 1; // Default timezone
+    if (doc["data"]["changedtime"][0]["utcOffset"].is<int>()) {
+        utcOffsetHours = doc["data"]["changedtime"][0]["utcOffset"];
+    }
+    
+    long utcOffsetSeconds = utcOffsetHours * 3600;
+
+    // Reconfigure NTP with new timezone offset
+    configTime(utcOffsetSeconds, 0, "pool.ntp.org", "time.nist.gov", "time.google.com");
+
+    Serial.printf("* Timezone updated to UTC%+d (%ld seconds)\n", utcOffsetHours, utcOffsetSeconds);
 }

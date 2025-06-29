@@ -11,5 +11,6 @@ void printRtcDateTimeInLoop();
 void initializeInternetTimeSync();
 void syncWithInternetTime();
 void handleInternetTimeSync();
+void updateTimezone();
 
 #endif // WIFIHANDLER_H

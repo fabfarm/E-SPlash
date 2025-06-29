@@ -1,9 +1,9 @@
 #include "Config.h"
 
 int pumpPinNumber = PUMP_PIN;
-const char *wifi_network_hostname = BOARD_CONFIG.wifi_hostname;
-const char *soft_ap_ssid = BOARD_CONFIG.ap_ssid;
-const char *soft_ap_password = BOARD_CONFIG.ap_password;
+const char *wifi_network_hostname = WIFI_HOSTNAME;
+const char *soft_ap_ssid = AP_SSID;
+const char *soft_ap_password = AP_PASSWORD;
 
 #ifdef ds_3231
 RtcDS3231<TwoWire> Rtc(Wire);

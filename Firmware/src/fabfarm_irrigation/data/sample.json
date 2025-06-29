@@ -5,6 +5,7 @@
         "changedtime": [
             {
                 "internettime": true,
+                "utcOffset": 1,
                 "Ttime": "02:02",
                 "Tdate": "01/01/2021"
             }
@@ -12,7 +13,7 @@
     },
     "relays": [
         {
-            "name": "Fruit",
+            "name": "Area 1",
             "pin": 27,
             "isEnabled": false,
             "active": true,
@@ -24,7 +25,7 @@
             ]
         },
         {
-            "name": "Vegetables",
+            "name": "Area 2",
             "pin": 26,
             "isEnabled": false,
             "active": true,
@@ -36,7 +37,7 @@
             ]
         },
         {
-            "name": "Water",
+            "name": "Area 3",
             "pin": 25,
             "isEnabled": false,
             "active": true,
