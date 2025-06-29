@@ -13,6 +13,8 @@
 #include <RtcDS3231.h>
 #include <ThreeWire.h>
 #include <RtcDS1302.h>
+#include <time.h>
+#include <sntp.h>
 
 #include "WebServerManager.h"
 #include "WiFiHandler.h"

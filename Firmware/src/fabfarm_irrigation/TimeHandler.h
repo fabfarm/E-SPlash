@@ -8,5 +8,8 @@ void printRtcDateTime(const RtcDateTime &dt);
 void syncInternalRtcWithExternal(const RtcDateTime &dt);
 void initializeRtc();
 void printRtcDateTimeInLoop();
+void initializeInternetTimeSync();
+void syncWithInternetTime();
+void handleInternetTimeSync();
 
 #endif // WIFIHANDLER_H

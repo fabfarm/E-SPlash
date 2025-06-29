@@ -1,5 +1,6 @@
 #include "WiFiHandler.h"
 #include "Config.h"
+#include "TimeHandler.h"
 
 
 void printAccessPointIP()
@@ -65,6 +66,10 @@ void initiateWiFiConnection()
     if (wifiMulti.run() == WL_CONNECTED)
     {
         printConnectedWiFiStatus();
+        
+        // Perform initial internet time sync on startup
+        Serial.println("* Performing initial internet time sync...");
+        syncWithInternetTime();
     }
     else
     {
@@ -89,6 +94,9 @@ void handleWiFiConnection()
             Serial.print(WiFi.SSID());
             Serial.print(" ");
             Serial.println(WiFi.RSSI());
+            
+            // Handle internet time synchronization when WiFi is connected
+            handleInternetTimeSync();
         }
         else
         {

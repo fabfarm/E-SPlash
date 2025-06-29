@@ -87,6 +87,9 @@ void initializeRtc()
 
     Serial.println("* END of data from first external RTC function");
     Serial.println("*****************************************************");
+    
+    // Initialize internet time synchronization
+    initializeInternetTimeSync();
 }
 
 void printRtcDateTimeInLoop()
@@ -115,4 +118,122 @@ void printRtcDateTimeInLoop()
     }
 
     Serial.println("End of data from void printRtcDateTimeInLoop().");
+}
+
+void initializeInternetTimeSync()
+{
+    Serial.println("*****************************************************");
+    Serial.println("* Initializing Internet Time Synchronization");
+
+    // Configure NTP servers (using pool.ntp.org for reliability)
+    configTime(0, 0, "pool.ntp.org", "time.nist.gov", "time.google.com");
+
+    Serial.println("* NTP servers configured: pool.ntp.org, time.nist.gov, time.google.com");
+    Serial.println("* Internet time sync initialized");
+    Serial.println("*****************************************************");
+}
+
+void syncWithInternetTime()
+{
+    if (WiFi.status() != WL_CONNECTED)
+    {
+        Serial.println("* WiFi not connected - cannot sync with internet time");
+        return;
+    }
+
+    Serial.println("*****************************************************");
+    Serial.println("* Attempting to sync with internet time...");
+
+    struct tm timeinfo;
+    if (!getLocalTime(&timeinfo, 10000)) // 10 second timeout
+    {
+        Serial.println("* Failed to get internet time");
+        Serial.println("*****************************************************");
+        return;
+    }
+
+    // Update internal ESP32 RTC
+    rtc.setTimeStruct(timeinfo);
+
+    // Update external RTC if available
+#ifdef ds_3231
+    RtcDateTime internetTime = RtcDateTime(
+        timeinfo.tm_year + 1900,
+        timeinfo.tm_mon + 1,
+        timeinfo.tm_mday,
+        timeinfo.tm_hour,
+        timeinfo.tm_min,
+        timeinfo.tm_sec);
+
+    if (Rtc.IsDateTimeValid())
+    {
+        Rtc.SetDateTime(internetTime);
+        Serial.println("* External RTC updated with internet time");
+    }
+#endif
+
+    Serial.printf("* Time synced: %04d-%02d-%02d %02d:%02d:%02d\n",
+                  timeinfo.tm_year + 1900,
+                  timeinfo.tm_mon + 1,
+                  timeinfo.tm_mday,
+                  timeinfo.tm_hour,
+                  timeinfo.tm_min,
+                  timeinfo.tm_sec);
+    Serial.println("* Internet time sync completed successfully");
+    Serial.println("*****************************************************");
+}
+
+void handleInternetTimeSync()
+{
+    static unsigned long lastSyncAttempt = 0;
+    static unsigned long lastSuccessfulSync = 0;
+    const unsigned long syncInterval = 3600000; // 1 hour in milliseconds
+    const unsigned long retryInterval = 300000;  // 5 minutes for retry on failure
+
+    unsigned long currentMillis = millis();
+
+    // Check if WiFi is connected and it's time to sync
+    if (WiFi.status() == WL_CONNECTED)
+    {
+        // If we've never synced, or it's been more than the sync interval
+        if (lastSuccessfulSync == 0 || (currentMillis - lastSuccessfulSync >= syncInterval))
+        {
+            // Avoid too frequent attempts - wait at least retry interval between attempts
+            if (currentMillis - lastSyncAttempt >= retryInterval)
+            {
+                lastSyncAttempt = currentMillis;
+
+                // Try to sync
+                struct tm timeinfo;
+                if (getLocalTime(&timeinfo, 5000)) // 5 second timeout for regular checks
+                {
+                    // Update internal ESP32 RTC
+                    rtc.setTimeStruct(timeinfo);
+
+                    // Update external RTC if available
+#ifdef ds_3231
+                    RtcDateTime internetTime = RtcDateTime(
+                        timeinfo.tm_year + 1900,
+                        timeinfo.tm_mon + 1,
+                        timeinfo.tm_mday,
+                        timeinfo.tm_hour,
+                        timeinfo.tm_min,
+                        timeinfo.tm_sec);
+
+                    if (Rtc.IsDateTimeValid())
+                    {
+                        Rtc.SetDateTime(internetTime);
+                    }
+#endif
+
+                    lastSuccessfulSync = currentMillis;
+                    Serial.println("* Automatic internet time sync completed");
+                }
+                else
+                {
+                    Serial.println("* Automatic internet time sync failed - will retry later");
+                }
+            }
+        }
+    }
 }
