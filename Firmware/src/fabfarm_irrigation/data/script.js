@@ -49,14 +49,14 @@ function getNextScheduleEvent() {
 
 function getSmartPollInterval() {
 	if (!jsonDataState.data || !jsonDataState.data.isScheduleMode) {
-		// Manual mode - only need to update current time occasionally
-		return 30000; // 30 seconds
+		// Manual mode - need frequent updates for real-time feedback
+		return 5000; // 5 seconds
 	}
 	
 	let nextEvent = getNextScheduleEvent();
 	if (!nextEvent) {
-		// No schedules configured - poll infrequently
-		return 60000; // 60 seconds
+		// No schedules configured - still poll regularly for status updates
+		return 10000; // 10 seconds
 	}
 	
 	let now = new Date();
@@ -64,14 +64,14 @@ function getSmartPollInterval() {
 	let minutesToNext = Math.abs(nextEvent - currentMinutes);
 	
 	if (minutesToNext <= 2) {
-		// Schedule event within 2 minutes - poll frequently
-		return 10000; // 10 seconds
+		// Schedule event within 2 minutes - poll very frequently
+		return 3000; // 3 seconds
 	} else if (minutesToNext <= 10) {
-		// Schedule event within 10 minutes - poll moderately
-		return 30000; // 30 seconds
+		// Schedule event within 10 minutes - poll frequently
+		return 5000; // 5 seconds
 	} else {
-		// No immediate schedule events - poll infrequently
-		return 60000; // 60 seconds
+		// No immediate schedule events - poll moderately
+		return 10000; // 10 seconds
 	}
 }
 
@@ -135,11 +135,21 @@ function updateSchedulingHtml(rebuildHtml = false) {
 				document.getElementById(`relay${i}.isEnabled`).checked = relay.isEnabled;
 			} else {
 				relaysHtml.push(
-					`<div class="shadow d-flex align-items-center bg-white rounded p-4 m-2 justify-content-center flex-column">
-						<h6 class="display-6 main-title"><strong>${relay.name}</strong></h6>
-						<div class="form-check form-switch">
-							<input style="width: 100px; height: 50px;" onChange="updateRelayEnabled(${i}, this);"
-								id="relay${i}.isEnabled" type="checkbox" ${relay.isEnabled ? "checked" : ""} class="form-check-input">
+					`<div class="relay-item">
+						<div class="relay-header">
+							<span class="relay-name">${relay.name}</span>
+							<span class="relay-status ${relay.isEnabled ? 'status-on' : 'status-off'}">
+								${relay.isEnabled ? 'ON' : 'OFF'}
+							</span>
+						</div>
+						<div class="d-flex justify-content-center">
+							<div class="form-check form-switch">
+								<input style="width: 60px; height: 30px; transform: scale(1.5);" onChange="updateRelayEnabled(${i}, this);"
+									id="relay${i}.isEnabled" type="checkbox" ${relay.isEnabled ? "checked" : ""} class="form-check-input">
+								<label class="form-check-label ms-3 fw-bold" for="relay${i}.isEnabled">
+									${relay.isEnabled ? 'Turn OFF' : 'Turn ON'}
+								</label>
+							</div>
 						</div>
 				 	</div>`);
 	 		}
@@ -161,32 +171,56 @@ function updateSchedulingHtml(rebuildHtml = false) {
 					if(time.duration != previousTime.duration)
 						document.getElementById(`relay${i}.time${j}.duration`).value = time.duration;
 				} else {
-					times += `<form id="relay${i}.time${j}">
+					times += `<form id="relay${i}.time${j}" class="mb-3">
 								<input type="hidden" name="relayIndex" value="${i}"/>
 								<input type="hidden" name="timeIndex" value="${j}"/>
-								<div class="d-flex flex-column align-items-stretch w-100 p-2">
-									<div class="d-flex align-items-center justify-content-end w-100">
-										<button class="btn btn-danger" onClick="removeTime(${i}, ${j})">Remove Time</button>
+								<div class="border rounded-3 p-3 bg-light">
+									<div class="d-flex justify-content-between align-items-center mb-3">
+										<h6 class="mb-0 text-primary">Schedule ${j + 1}</h6>
+										<button type="button" class="btn btn-outline-danger btn-sm" onClick="removeTime(${i}, ${j})">
+											<i class="fas fa-trash"></i> Remove
+										</button>
 									</div>
-									<div class="d-flex align-items-center">
-										<input class="form-control m-2" id="relay${i}.time${j}.startTime" name="startTime" type="time" onchange="updateRelayTimes(${i}, ${j}, this)" required value="${time.startTime}">
-										<input class="form-control m-2" id="relay${i}.time${j}.endTime"   name="endTime"   type="time" onchange="updateRelayTimes(${i}, ${j}, this)" required value="${time.endTime}">
+									<div class="row g-3 mb-3">
+										<div class="col-md-6">
+											<label class="form-label fw-bold">Start Time</label>
+											<input class="form-control" id="relay${i}.time${j}.startTime" name="startTime" type="time" onchange="updateRelayTimes(${i}, ${j}, this)" required value="${time.startTime}">
+										</div>
+										<div class="col-md-6">
+											<label class="form-label fw-bold">End Time</label>
+											<input class="form-control" id="relay${i}.time${j}.endTime" name="endTime" type="time" onchange="updateRelayTimes(${i}, ${j}, this)" required value="${time.endTime}">
+										</div>
 									</div>
-									<div class="d-flex align-items-center mt-2">
+									<div class="mb-3">
+										<label class="form-label fw-bold">Duration: <span class="text-primary">${time.duration} minutes</span></label>
 										<input class="form-range" id="relay${i}.time${j}.duration" name="duration" type="range" onchange="updateRelayTimes(${i}, ${j}, this)" min="0" max="60" value="${time.duration}" step="1">
 									</div>
-									<div class="d-flex align-items-center w-100 justify-content-center">
-										<input class="form-control w-25" id="relay${i}.time${j}.durationInput" name="durationInput" onchange="updateRelayTimes(${i}, ${j}, this)" value="${time.duration}" type="number"><span class="m-2">min</span>
+									<div class="row">
+										<div class="col-6">
+											<input class="form-control" id="relay${i}.time${j}.durationInput" name="durationInput" onchange="updateRelayTimes(${i}, ${j}, this)" value="${time.duration}" type="number" min="0" max="60">
+										</div>
+										<div class="col-6 d-flex align-items-center">
+											<span class="fw-bold">minutes</span>
+										</div>
 									</div>
 								</div>
 							</form>`;
 				}
 			});
 			relaysHtml.push(
-				`<div class="shadow d-flex align-items-center bg-white rounded p-4 m-2 justify-content-center flex-column">
-						<h6 class="display-6 main-title"><strong>${relay.name}</strong></h6>
-						${times}
-						<button class="btn btn-primary" onClick="addTime(${i})">Add time</button>
+				`<div class="relay-item">
+					<div class="relay-header">
+						<span class="relay-name">${relay.name}</span>
+						<span class="relay-status ${relay.isEnabled ? 'status-on' : 'status-off'}">
+							${relay.isEnabled ? 'ACTIVE' : 'INACTIVE'}
+						</span>
+					</div>
+					${times}
+					<div class="text-center mt-3">
+						<button class="btn btn-modern btn-sm" onClick="addTime(${i})">
+							<i class="fas fa-plus"></i> Add Schedule
+						</button>
+					</div>
 				</div>`);
 		}
 	});

@@ -1,0 +1,301 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title>Setup Page Preview</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .setup-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header-section {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .setup-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .card-title {
+            color: #2c3e50;
+            font-weight: 700;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        .zone-item {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 5px solid #3498db;
+            transition: all 0.3s ease;
+        }
+
+        .zone-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .zone-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .zone-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .zone-status {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-on {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-off {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .btn-modern {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 24px;
+            color: white;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-modern:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            color: white;
+        }
+
+        .btn-edit {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 8px 16px;
+            font-size: 0.85rem;
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .form-control-modern {
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 15px 20px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control-modern:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+
+        .time-display {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .wifi-network {
+            background: #e8f4f8;
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            border-left: 4px solid #17a2b8;
+            font-family: monospace;
+        }
+
+        .section-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="setup-container">
+        <div class="header-section">
+            <h1 class="display-4 mb-2"><strong>System Setup</strong></h1>
+            <p class="lead">Configure your irrigation system settings</p>
+        </div>
+
+        <div class="section-grid">
+            <!-- Time & Date Section -->
+            <div class="setup-card">
+                <h2 class="card-title"><i class="fas fa-clock"></i> Time & Date</h2>
+                
+                <div class="time-display">Monday, 2024-06-30 14:30:25</div>
+                
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Date</label>
+                        <input type="date" class="form-control form-control-modern" value="2024-06-30" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Time</label>
+                        <input type="time" class="form-control form-control-modern" value="14:30" />
+                    </div>
+                </div>
+                
+                <button class="btn btn-modern w-100 mb-3">
+                    <i class="fas fa-save"></i> Update Time & Date
+                </button>
+                
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" checked>
+                        <label class="form-check-label fw-bold">Auto-sync with internet time</label>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Timezone (UTC Offset)</label>
+                        <select class="form-select form-control-modern">
+                            <option value="1" selected>UTC+1</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- WiFi Settings Section -->
+            <div class="setup-card">
+                <h2 class="card-title"><i class="fas fa-wifi"></i> WiFi Networks</h2>
+                
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Network Name (SSID)</label>
+                        <input type="text" placeholder="Enter network name" class="form-control form-control-modern">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Password</label>
+                        <input type="password" placeholder="Enter password" class="form-control form-control-modern">
+                    </div>
+                </div>
+                
+                <button class="btn btn-modern w-100 mb-4">
+                    <i class="fas fa-plus"></i> Add WiFi Network
+                </button>
+                
+                <div class="mb-3">
+                    <h6 class="fw-bold mb-3">Configured Networks:</h6>
+                    <div class="wifi-network">
+                        <i class="fas fa-wifi me-2"></i>fabfarm_ele_container
+                    </div>
+                    <div class="wifi-network">
+                        <i class="fas fa-wifi me-2"></i>fabfarm
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Irrigation Zones Section -->
+        <div class="setup-card">
+            <h2 class="card-title"><i class="fas fa-seedling"></i> Irrigation Zones</h2>
+            <p class="text-muted mb-4">Customize your irrigation zone names for easier identification</p>
+            
+            <div>
+                <div class="zone-item">
+                    <div class="zone-header">
+                        <div class="zone-name">Tomato Garden</div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="zone-status status-off">OFF</span>
+                            <button class="btn btn-edit btn-sm">
+                                <i class="fas fa-edit"></i> Edit Name
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="zone-item">
+                    <div class="zone-header">
+                        <div class="zone-name">Herb Section</div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="zone-status status-on">ON</span>
+                            <button class="btn btn-edit btn-sm">
+                                <i class="fas fa-edit"></i> Edit Name
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="zone-item">
+                    <div class="zone-header">
+                        <div class="zone-name">Greenhouse Area</div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="zone-status status-off">OFF</span>
+                            <button class="btn btn-edit btn-sm">
+                                <i class="fas fa-edit"></i> Edit Name
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Section -->
+        <div class="setup-card text-center">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <button class="btn btn-modern w-100">
+                        <i class="fas fa-download"></i> Update Firmware
+                    </button>
+                </div>
+                <div class="col-md-4">
+                    <button class="btn btn-modern w-100">
+                        <i class="fas fa-home"></i> Back to Control
+                    </button>
+                </div>
+                <div class="col-md-4">
+                    <button class="btn btn-modern w-100">
+                        <i class="fas fa-sync"></i> Refresh Settings
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

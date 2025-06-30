@@ -14,6 +14,20 @@ bool writeFile(String path, String data)
     return true;
 }
 
+bool appendFile(String path, String data)
+{
+    File file = LittleFS.open(path, "a");
+    if (!file)
+    {
+        Serial.printf("Failed to open file '%s' for appending\n", path.c_str());
+        return false;
+    }
+    int bytesWritten = file.print(data);
+    file.close();
+    Serial.printf("Appended to file '%s' (%d bytes)\n", path.c_str(), bytesWritten);
+    return true;
+}
+
 String readFile(String path)
 {
     if (!LittleFS.exists(path))

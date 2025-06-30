@@ -4,6 +4,7 @@
 #include "Config.h"
 
 bool writeFile(String path, String data);
+bool appendFile(String path, String data);
 String readFile(String path);
 void setupStorage();
 

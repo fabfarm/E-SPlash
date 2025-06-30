@@ -1,165 +1,177 @@
 <!DOCTYPE HTML>
 <html lang="en">
 	<head>
-		<title>Fabfarm Irrigation Setup Page</title>
+		<title>Fabfarm Irrigation Setup</title>
 		<link rel="shortcut icon" type="image/png" href="/favicon.ico"/>
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta charset="UTF-8" />
 		<link rel="stylesheet" type="text/css" href="/all.css" />
 		<link rel="stylesheet" type="text/css" href="/style.css" />
+		<link rel="stylesheet" type="text/css" href="/setup.css" />
 		<link href="/bootstrap.min.css" rel="stylesheet" />
-		<style>
-			body {
-				background-color: #f7f9fb;
-				margin: auto;
-			}
-
-			.main-title {
-				font-weight: bold;
-			}
-
-			.toast {
-				bottom: 0;
-				right: 5px;
-				position: fixed;
-				display: none;
-			}
-
-			.spinner-container {
-				position: fixed;
-				bottom: 0;
-				right: 5px;
-				display: none;
-			}
-
-			#schedulingMode {
-				width: 100px;
-				height: 50px;
-			}
-		</style>
 	</head>
 	<body>
-		<div class="container-fluid position-relative d-flex align-items-center flex-column">
-			<img src="/logo.png" alt="FabFarm Algarve" class="rounded mx-auto d-block p-10 m-5" />
-			<h1 class="display-1 main-title">
-				<strong>Irrigation System</strong>
-			</h1>
-			<div class="shadow d-flex w-100 flex-column justify-content-center align-items-center bg-white rounded p-4 m-2">
-				<h5 id="currentTime" class="m-2"></h5>
+		<div class="setup-container">
+			<div class="header-section">
+				<img src="/logo.png" alt="FabFarm Algarve" class="mb-4" />
+				<h1 class="display-4 mb-2"><strong>System Setup</strong></h1>
+				<p class="lead">Configure your irrigation system settings</p>
 			</div>
-			<div id="main">
-				<div class="shadow d-flex align-items-center bg-white rounded p-4 m-2 justify-content-center flex-column">
-					<h6 class="display-6 main-title"><strong>Date and time</strong></h6>
-					<div class="d-flex align-items-center bg-white rounded p-4 m-2 justify-content-center">
-						<form id = "timeform" class= "form">
-							<div>Date : <input type="date" id="date" name="date" style="width:130px;" /></div>
-							<div>Time : <input type="time" id="time" name="time" style="width:70px;" /></div>
-							<button class="btn btn-primary" onClick="updateTime(this)">Change time and date</button>
-						</form>
-					</div>
-					<div class="d-flex align-items-center bg-white rounded p-4 m-2 justify-content-center">
-						<div class="form-check form-switch">
-							<input type="checkbox" id="useInternetTime" onclick="enableInternetUpdate(this)" value="true">
+
+			<div class="section-grid">
+				<!-- Time & Date Section -->
+				<div class="setup-card">
+					<h2 class="card-title"><i class="fas fa-clock"></i> Time & Date</h2>
+					
+					<div class="time-display" id="currentTime">Loading...</div>
+					
+					<div class="row g-3 mb-4">
+						<div class="col-md-6">
+							<label class="form-label fw-bold">Date</label>
+							<input type="date" id="date" class="form-control form-control-modern" />
 						</div>
-						<span class="m-2 display-6">Use internet time</span>
+						<div class="col-md-6">
+							<label class="form-label fw-bold">Time</label>
+							<input type="time" id="time" class="form-control form-control-modern" />
+						</div>
 					</div>
-					<div class="d-flex align-items-center bg-white rounded p-4 m-2 justify-content-center">
-						<label for="utcOffset" class="m-2 display-6">UTC Offset (hours):</label>
-						<select id="utcOffset" onchange="updateUTCOffset()" style="width:100px;">
-							<option value="-12">UTC-12</option>
-							<option value="-11">UTC-11</option>
-							<option value="-10">UTC-10</option>
-							<option value="-9">UTC-9</option>
-							<option value="-8">UTC-8</option>
-							<option value="-7">UTC-7</option>
-							<option value="-6">UTC-6</option>
-							<option value="-5">UTC-5</option>
-							<option value="-4">UTC-4</option>
-							<option value="-3">UTC-3</option>
-							<option value="-2">UTC-2</option>
-							<option value="-1">UTC-1</option>
-							<option value="0">UTC+0</option>
-							<option value="1" selected>UTC+1</option>
-							<option value="2">UTC+2</option>
-							<option value="3">UTC+3</option>
-							<option value="4">UTC+4</option>
-							<option value="5">UTC+5</option>
-							<option value="6">UTC+6</option>
-							<option value="7">UTC+7</option>
-							<option value="8">UTC+8</option>
-							<option value="9">UTC+9</option>
-							<option value="10">UTC+10</option>
-							<option value="11">UTC+11</option>
-							<option value="12">UTC+12</option>
-						</select>
+					
+					<button class="btn btn-modern w-100 mb-3" onClick="updateTime(this)">
+						<i class="fas fa-save"></i> Update Time & Date
+					</button>
+					
+					<div class="d-flex align-items-center justify-content-between mb-3">
+						<div class="form-check form-switch">
+							<input type="checkbox" id="useInternetTime" onclick="enableInternetUpdate()" class="form-check-input">
+							<label class="form-check-label fw-bold" for="useInternetTime">Auto-sync with internet time</label>
+						</div>
+					</div>
+					
+					<div class="row">
+						<div class="col-12">
+							<label for="utcOffset" class="form-label fw-bold">Timezone (UTC Offset)</label>
+							<select id="utcOffset" onchange="updateUTCOffset()" class="form-select form-control-modern">
+								<option value="-12">UTC-12</option>
+								<option value="-11">UTC-11</option>
+								<option value="-10">UTC-10</option>
+								<option value="-9">UTC-9</option>
+								<option value="-8">UTC-8</option>
+								<option value="-7">UTC-7</option>
+								<option value="-6">UTC-6</option>
+								<option value="-5">UTC-5</option>
+								<option value="-4">UTC-4</option>
+								<option value="-3">UTC-3</option>
+								<option value="-2">UTC-2</option>
+								<option value="-1">UTC-1</option>
+								<option value="0">UTC+0</option>
+								<option value="1" selected>UTC+1</option>
+								<option value="2">UTC+2</option>
+								<option value="3">UTC+3</option>
+								<option value="4">UTC+4</option>
+								<option value="5">UTC+5</option>
+								<option value="6">UTC+6</option>
+								<option value="7">UTC+7</option>
+								<option value="8">UTC+8</option>
+								<option value="9">UTC+9</option>
+								<option value="10">UTC+10</option>
+								<option value="11">UTC+11</option>
+								<option value="12">UTC+12</option>
+							</select>
+						</div>
 					</div>
 				</div>
-				<div class="shadow d-flex align-items-center bg-white rounded p-4 m-2 justify-content-center flex-column">
-					<h6 class="display-6 main-title"><strong>Sensors</strong></h6>
-				</div>
-				<div class="shadow d-flex align-items-center bg-white rounded p-4 m-2 justify-content-center flex-column">
-					<h6 class="display-6 main-title"><strong>Relays</strong></h6>
-					<p>This system has 3 fixed irrigation zones plus a pump relay.<br/>
-					   The relays are hardware-configured and cannot be modified through software.</p>
-					<table id="productTable">
-						<thead>
-							<tr>
-							   <th>Zone Name</th>
-							   <th>Current Status</th>
-							</tr>
-						</thead>
-						<tbody id="relays"></tbody>
-					</table>
-				</div>
-				<div class="shadow d-flex align-items-center bg-white rounded p-4 m-2 justify-content-center flex-column">
-					<h6 class="display-6 main-title"><strong>Wifi Credentials</strong></h6>
-					<p>Note: WiFi credentials are stored in the credentials.txt file.<br/>
-					   Multiple networks can be configured. Device will automatically connect to available networks.</p>
-					<form id = "credentialsform" class= "form">
-						<div>SSID: <input type="text" name="ssid" id="ssid" placeholder="Network name"></div>
-						<div>Password: <input type="text" name="password" id="password"  placeholder="Network password"></div>
-						<button type="button" class="btn btn-primary" onClick="updateCredentials(this)">Add WiFi Network</button>
-					</form>
-					<div id="current-networks">
-						<h6>Current Networks:</h6>
-						<ul id="network-list"></ul>
+
+				<!-- WiFi Settings Section -->
+				<div class="setup-card">
+					<h2 class="card-title"><i class="fas fa-wifi"></i> WiFi Networks</h2>
+					
+					<div class="row g-3 mb-4">
+						<div class="col-md-6">
+							<label class="form-label fw-bold">Network Name (SSID)</label>
+							<input type="text" name="ssid" id="ssid" placeholder="Enter network name" class="form-control form-control-modern">
+						</div>
+						<div class="col-md-6">
+							<label class="form-label fw-bold">Password</label>
+							<input type="password" name="password" id="password" placeholder="Enter password" class="form-control form-control-modern">
+						</div>
+					</div>
+					
+					<button type="button" class="btn btn-modern w-100 mb-4" onClick="updateCredentials()">
+						<i class="fas fa-plus"></i> Add WiFi Network
+					</button>
+					
+					<div class="mb-3">
+						<h6 class="fw-bold mb-3">Configured Networks:</h6>
+						<div id="network-list">
+							<div class="loading-message">Loading networks...</div>
+						</div>
 					</div>
 				</div>
 			</div>
-			<hr />
-			<a href="/update" class="btn btn-primary">Update Firmware</a><br />
-			<a href="/" class="btn btn-primary">Back to Control Page</a>
-			<div class="toast-container position-fixed">
-				<div id="toast-error" class="toast p-1 text-white bg-danger align-items-center">
-					<div class="d-flex w-100">
-						<div class="toast-body" id="toast-error-body"></div>
-						<button class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast-error" aria-label="Close" onclick="closeErrorToast()"></button>
+
+			<!-- Irrigation Zones Section -->
+			<div class="setup-card">
+				<h2 class="card-title"><i class="fas fa-seedling"></i> Irrigation Zones</h2>
+				<p class="text-muted mb-4">Customize your irrigation zone names for easier identification</p>
+				
+				<div id="zones-container">
+					<div class="loading-message">Loading zones...</div>
+				</div>
+			</div>
+
+			<!-- Navigation Section -->
+			<div class="setup-card text-center">
+				<div class="row g-3">
+					<div class="col-md-4">
+						<a href="/update" class="btn btn-modern w-100">
+							<i class="fas fa-download"></i> Update Firmware
+						</a>
 					</div>
-				</div>
-				<div class="spinner-border spinner-container text-primary" id="spinner-bottom-right" role="status">
-					<span class="visually-hidden">Loading...</span>
-				</div>
-				<div id="toast-success" class="toast p-1 text-white bg-success align-items-center">
-					<div class="d-flex w-100">
-						<div class="toast-body" id="toast-success-body">Success</div>
-						<button class="btn-close btn-close-white me-2 m-auto" aria-label="Close" onclick="closeSuccessToast()"></button>
+					<div class="col-md-4">
+						<a href="/" class="btn btn-modern w-100">
+							<i class="fas fa-home"></i> Back to Control
+						</a>
+					</div>
+					<div class="col-md-4">
+						<button class="btn btn-modern w-100" onclick="location.reload()">
+							<i class="fas fa-sync"></i> Refresh Settings
+						</button>
 					</div>
 				</div>
 			</div>
 		</div>
+
+		<!-- Toast Notifications -->
+		<div class="toast-container position-fixed">
+			<div id="toast-error" class="toast p-3 text-white bg-danger align-items-center" style="display: none;">
+				<div class="d-flex w-100">
+					<div class="toast-body" id="toast-error-body"></div>
+					<button class="btn-close btn-close-white me-2 m-auto" onclick="closeErrorToast()"></button>
+				</div>
+			</div>
+			<div id="toast-success" class="toast p-3 text-white bg-success align-items-center" style="display: none;">
+				<div class="d-flex w-100">
+					<div class="toast-body" id="toast-success-body">Success</div>
+					<button class="btn-close btn-close-white me-2 m-auto" onclick="closeSuccessToast()"></button>
+				</div>
+			</div>
+		</div>
+
 		<script src="/script.js"></script>
 		<script type="text/javascript">
-			var jsonData; 
-			function updateCredentials(obj){
+			var jsonData = null; 
+			
+			// Update WiFi credentials
+			function updateCredentials(){
 				var ssid = document.getElementById("ssid").value.trim();
 				var password = document.getElementById("password").value.trim();
 				
 				if (!ssid) {
-					alert("Please enter a network name (SSID)");
+					showToast("Please enter a network name (SSID)", false);
 					return;
 				}
 				
-				// Send credentials as form data to a dedicated endpoint
+				// Send credentials as form data to the new endpoint
 				var formData = new FormData();
 				formData.append('ssid', ssid);
 				formData.append('password', password);
@@ -168,12 +180,12 @@
 				xmlhttp.onreadystatechange = function() {
 					if (this.readyState == 4) {
 						if (this.status == 200) {
-							alert("WiFi credentials added successfully");
+							showToast("WiFi network added successfully!", true);
 							document.getElementById("ssid").value = "";
 							document.getElementById("password").value = "";
 							loadNetworkList(); // Refresh the network list
 						} else {
-							alert("Error adding WiFi credentials");
+							showToast("Error adding WiFi network: " + this.responseText, false);
 						}
 					}
 				};
@@ -181,156 +193,373 @@
 				xmlhttp.send(formData);
 			}
 
+			// Load WiFi network list - read from the new endpoint
 			function loadNetworkList() {
-				// Load and display current networks from credentials file
+				var networkList = document.getElementById("network-list");
+				networkList.innerHTML = '<div class="loading-message">Loading networks...</div>';
+				
 				var xmlhttp = new XMLHttpRequest();
 				xmlhttp.onreadystatechange = function() {
-					if (this.readyState == 4 && this.status == 200) {
-						var networks = this.responseText.split('\n').filter(line => line.trim());
-						var networkList = document.getElementById("network-list");
-						networkList.innerHTML = "";
-						
-						networks.forEach(function(network) {
-							if (network.trim()) {
-								var ssid = network.split(',')[0];
-								var li = document.createElement('li');
-								li.textContent = ssid;
-								networkList.appendChild(li);
+					if (this.readyState == 4) {
+						if (this.status == 200) {
+							var networks = this.responseText.split('\n').filter(line => line.trim());
+							networkList.innerHTML = "";
+							
+							if (networks.length === 0) {
+								networkList.innerHTML = '<div class="text-muted">No networks configured</div>';
+								return;
 							}
-						});
+							
+							networks.forEach(function(network) {
+								if (network.trim()) {
+									var parts = network.split(',');
+									if (parts.length >= 1) {
+										var ssid = parts[0].trim();
+										var networkDiv = document.createElement('div');
+										networkDiv.className = 'wifi-network';
+										networkDiv.innerHTML = '<i class="fas fa-wifi me-2"></i>' + ssid;
+										networkList.appendChild(networkDiv);
+									}
+								}
+							});
+						} else {
+							networkList.innerHTML = '<div class="text-muted">Could not load networks (Error: ' + this.status + ')</div>';
+						}
 					}
+				};
+				xmlhttp.timeout = 5000;
+				xmlhttp.ontimeout = function() {
+					networkList.innerHTML = '<div class="text-muted">Timeout loading networks</div>';
 				};
 				xmlhttp.open("GET", "/wifi/list");
 				xmlhttp.send();
 			}
 
-			function updateRelays(obj) {
-				var1 = document.getElementById("relayname").value;
-				var2 = document.getElementById("relaypin").value;
-				var3 = document.getElementById("relaystatus").value;
-				// for(var i = 0; i < jsonData.relays.length; i++) { 
-				//	if var2 = jsonData.relays[i].times.pin ; 
-				// }
-				jsonData.relay[0].name
-				var json = JSON.stringify(jsonData);
-				var xmlhttp = new XMLHttpRequest();
-				xmlhttp.open("POST", "/updateData");
-				xmlhttp.setRequestHeader("Content-Type", "application/json;");
-				xmlhttp.send(json);
-			}
-
-			function updateTime(obj) {	   
-				jsonData.data.changedtime[0].manualtimeenabled =0;
-				var fl1= document.getElementById("date").value;
-				var fl2= document.getElementById("time").value;
-				jsonData.data.changedtime[0].Ttime = fl2 ;
-				var timex = (new Date(fl1));
+			// Update time and date
+			function updateTime(obj) {
+				if (!jsonData) {
+					showToast("System data not loaded yet", false);
+					return;
+				}
+				
+				var fl1 = document.getElementById("date").value;
+				var fl2 = document.getElementById("time").value;
+				
+				if (!fl1 || !fl2) {
+					showToast("Please enter both date and time", false);
+					return;
+				}
+				
+				// Ensure the changedtime structure exists
+				if (!jsonData.data.changedtime) {
+					jsonData.data.changedtime = [{}];
+				}
+				if (!jsonData.data.changedtime[0]) {
+					jsonData.data.changedtime[0] = {};
+				}
+				
+				jsonData.data.changedtime[0].manualtimeenabled = 0;
+				jsonData.data.changedtime[0].Ttime = fl2;
+				jsonData.data.changedtime[0].Tdate = fl1;
+				
+				var timex = new Date(fl1);
 				var hour = fl2.split(":")[0];
 				var min = fl2.split(":")[1];
 				var day = timex.getDate();
 				var month = timex.getMonth();
-				var year = timex.getYear();
-				jsonData.data.changedtime[0].min= parseInt(min);
-				jsonData.data.changedtime[0].hour= parseInt(hour);
-				jsonData.data.changedtime[0].day= day ;
-				jsonData.data.changedtime[0].month= month+1;
-				jsonData.data.changedtime[0].year= year +1900;
-				console.log(day);
-				console.log(jsonData.data.changedtime[0].day);
-				console.log(jsonData.data.changedtime.year);
+				var year = timex.getFullYear();
+				
+				jsonData.data.changedtime[0].min = parseInt(min);
+				jsonData.data.changedtime[0].hour = parseInt(hour);
+				jsonData.data.changedtime[0].day = day;
+				jsonData.data.changedtime[0].month = month + 1;
+				jsonData.data.changedtime[0].year = year;
+				
 				var json = JSON.stringify(jsonData);
 				var xmlhttp = new XMLHttpRequest();   
+				xmlhttp.onreadystatechange = function() {
+					if (this.readyState == 4) {
+						if (this.status == 200) {
+							showToast("Time and date updated successfully!", true);
+							refresh(); // Refresh to show updated time
+						} else {
+							showToast("Error updating time and date", false);
+						}
+					}
+				};
 				xmlhttp.open("POST", "/updateData");
 				xmlhttp.setRequestHeader("Content-Type", "application/json;");
 				xmlhttp.send(json);
-				return;
 			}
 
+			// Enable/disable internet time
+			function enableInternetUpdate() {
+				if (!jsonData) {
+					showToast("System data not loaded yet", false);
+					return;
+				}
+				
+				// Ensure the changedtime structure exists
+				if (!jsonData.data.changedtime) {
+					jsonData.data.changedtime = [{}];
+				}
+				if (!jsonData.data.changedtime[0]) {
+					jsonData.data.changedtime[0] = {};
+				}
+				
+				jsonData.data.changedtime[0].internettime = document.getElementById("useInternetTime").checked;
+				var json = JSON.stringify(jsonData);
+				var xmlhttp = new XMLHttpRequest();   
+				xmlhttp.onreadystatechange = function() {
+					if (this.readyState == 4) {
+						if (this.status == 200) {
+							showToast("Internet time setting updated!", true);
+						} else {
+							showToast("Error updating internet time setting", false);
+						}
+					}
+				};
+				xmlhttp.open("POST", "/updateData");
+				xmlhttp.setRequestHeader("Content-Type", "application/json;");
+				xmlhttp.send(json);
+			}
+
+			// Update UTC offset
+			function updateUTCOffset() {
+				if (!jsonData) {
+					showToast("System data not loaded yet", false);
+					return;
+				}
+				
+				// Ensure the changedtime structure exists
+				if (!jsonData.data.changedtime) {
+					jsonData.data.changedtime = [{}];
+				}
+				if (!jsonData.data.changedtime[0]) {
+					jsonData.data.changedtime[0] = {};
+				}
+				
+				jsonData.data.changedtime[0].utcOffset = parseInt(document.getElementById("utcOffset").value);
+				var json = JSON.stringify(jsonData);
+				var xmlhttp = new XMLHttpRequest();   
+				xmlhttp.onreadystatechange = function() {
+					if (this.readyState == 4) {
+						if (this.status == 200) {
+							showToast("Timezone updated successfully!", true);
+						} else {
+							showToast("Error updating timezone", false);
+						}
+					}
+				};
+				xmlhttp.open("POST", "/updateData");
+				xmlhttp.setRequestHeader("Content-Type", "application/json;");
+				xmlhttp.send(json);
+			}
+
+			// Edit zone name
+			function editZoneName(index) {
+				var zoneNameElement = document.getElementById('zone-name-' + index);
+				var editInputElement = document.getElementById('edit-input-' + index);
+				var editBtnElement = document.getElementById('edit-btn-' + index);
+				var saveBtnElement = document.getElementById('save-btn-' + index);
+				
+				zoneNameElement.style.display = 'none';
+				editInputElement.classList.add('show');
+				editBtnElement.style.display = 'none';
+				saveBtnElement.style.display = 'inline-block';
+				
+				document.getElementById('zone-input-' + index).value = jsonData.relays[index].name;
+				document.getElementById('zone-input-' + index).focus();
+			}
+
+			// Save zone name
+			function saveZoneName(index) {
+				var newName = document.getElementById('zone-input-' + index).value.trim();
+				
+				if (!newName) {
+					showToast("Zone name cannot be empty", false);
+					return;
+				}
+				
+				// Update the JSON data
+				jsonData.relays[index].name = newName;
+				
+				var json = JSON.stringify(jsonData);
+				var xmlhttp = new XMLHttpRequest();   
+				xmlhttp.onreadystatechange = function() {
+					if (this.readyState == 4) {
+						if (this.status == 200) {
+							showToast("Zone name updated successfully!", true);
+							// Update the UI
+							document.getElementById('zone-name-' + index).textContent = newName;
+							
+							// Hide edit mode
+							var zoneNameElement = document.getElementById('zone-name-' + index);
+							var editInputElement = document.getElementById('edit-input-' + index);
+							var editBtnElement = document.getElementById('edit-btn-' + index);
+							var saveBtnElement = document.getElementById('save-btn-' + index);
+							
+							zoneNameElement.style.display = 'inline';
+							editInputElement.classList.remove('show');
+							editBtnElement.style.display = 'inline-block';
+							saveBtnElement.style.display = 'none';
+						} else {
+							showToast("Error updating zone name", false);
+						}
+					}
+				};
+				xmlhttp.open("POST", "/updateData");
+				xmlhttp.setRequestHeader("Content-Type", "application/json;");
+				xmlhttp.send(json);
+			}
+
+			// Render zones
+			function renderZones() {
+				var zonesContainer = document.getElementById("zones-container");
+				
+				if (!jsonData || !jsonData.relays || jsonData.relays.length === 0) {
+					zonesContainer.innerHTML = '<div class="text-muted">No zone configuration found</div>';
+					return;
+				}
+				
+				var zonesHtml = "";
+				var activeZoneCount = 0;
+				
+				for(var i = 0; i < jsonData.relays.length; i++) {
+					var relay = jsonData.relays[i];
+					if (relay.active) {
+						activeZoneCount++;
+						var status = relay.isEnabled ? "ON" : "OFF";
+						var statusClass = relay.isEnabled ? "status-on" : "status-off";
+						
+						zonesHtml += `
+							<div class="zone-item">
+								<div class="zone-header">
+									<div class="zone-name" id="zone-name-${i}">${relay.name || 'Zone ' + (i+1)}</div>
+									<div class="d-flex align-items-center gap-2">
+										<span class="zone-status ${statusClass}">${status}</span>
+										<button class="btn btn-edit btn-sm" id="edit-btn-${i}" onclick="editZoneName(${i})">
+											<i class="fas fa-edit"></i> Edit Name
+										</button>
+										<button class="btn btn-save btn-sm" id="save-btn-${i}" onclick="saveZoneName(${i})" style="display: none;">
+											<i class="fas fa-save"></i> Save
+										</button>
+									</div>
+								</div>
+								<div class="edit-zone-input" id="edit-input-${i}">
+									<input type="text" class="form-control form-control-modern" id="zone-input-${i}" placeholder="Enter zone name" maxlength="20">
+								</div>
+							</div>
+						`;
+					}
+				}
+				
+				if (activeZoneCount === 0) {
+					zonesHtml = '<div class="text-muted">No active zones configured</div>';
+				}
+				
+				zonesContainer.innerHTML = zonesHtml;
+			}
+
+			// Main refresh function
 			function refresh() {
 				var r3 = new XMLHttpRequest();
 				r3.onreadystatechange = function() {
-					if (this.readyState == 4 && this.status == 200) {
-						jsonData = JSON.parse(this.responseText);
-						document.getElementById("currentTime").innerText = jsonData.data.currentTime;
-						//document.getElementById("date").innerText
-						document.getElementById("time").innerText = jsonData.data.changedtime[0].Ttime;
-						document.getElementById("useInternetTime").checked = jsonData.data.changedtime[0].internettime;
-						
-						// Set UTC offset if available
-						if (jsonData.data.changedtime[0].utcOffset !== undefined) {
-							document.getElementById("utcOffset").value = jsonData.data.changedtime[0].utcOffset;
-						}
-						
-						var htmlrelay = "";
-						for(var i = 0; i  < jsonData.relays.length; i++) {
-							var relay =  jsonData.relays[i];
-							if (relay.isEnabled == 1){
-								var status = "ON";
+					if (this.readyState == 4) {
+						if (this.status == 200) {
+							try {
+								jsonData = JSON.parse(this.responseText);
+								
+								// Update time display
+								document.getElementById("currentTime").innerText = jsonData.data.currentTime || "Time not available";
+								
+								// Update form values safely
+								if (jsonData.data.changedtime && jsonData.data.changedtime[0]) {
+									var timeData = jsonData.data.changedtime[0];
+									
+									// Set time field
+									if (timeData.Ttime) {
+										document.getElementById("time").value = timeData.Ttime;
+									}
+									
+									// Set date field
+									if (timeData.Tdate) {
+										// Convert from MM/DD/YYYY to YYYY-MM-DD for date input
+										var dateParts = timeData.Tdate.split('/');
+										if (dateParts.length === 3) {
+											var formattedDate = dateParts[2] + '-' + dateParts[0].padStart(2, '0') + '-' + dateParts[1].padStart(2, '0');
+											document.getElementById("date").value = formattedDate;
+										}
+									}
+									
+									// Set internet time checkbox
+									document.getElementById("useInternetTime").checked = timeData.internettime === true || timeData.internettime === 1;
+									
+									// Set UTC offset if available
+									if (timeData.utcOffset !== undefined) {
+										document.getElementById("utcOffset").value = timeData.utcOffset;
+									}
+								}
+								
+								// Render zones
+								renderZones();
+								
+							} catch (e) {
+								console.error("Error parsing JSON:", e);
+								document.getElementById("currentTime").innerText = "Error loading data";
+								document.getElementById("zones-container").innerHTML = '<div class="text-muted">Error parsing system data</div>';
 							}
-							else{
-								var status = "OFF";
-							}	   
-							if  (relay.active ==1 ){
-								htmlrelay+=  
-							   `<tr>
-									<td>${relay.name}</td>
-									<td>${status}</td>
-								</tr>`
-							}
+						} else {
+							document.getElementById("currentTime").innerText = "Connection failed (Status: " + this.status + ")";
+							document.getElementById("zones-container").innerHTML = '<div class="text-muted">Could not connect to system</div>';
 						}
-
-						var main = document.getElementById("relays");
-						main.innerHTML = htmlrelay;
 					}
 				};
 
 				r3.open("GET", "/data.json", true);
-				r3.timeout = 2000;
+				r3.timeout = 10000;
 				r3.ontimeout = function(e) {
-					// retry
-					refresh();
+					document.getElementById("currentTime").innerText = "Connection timeout";
+					document.getElementById("zones-container").innerHTML = '<div class="text-muted">Connection timeout</div>';
+					showToast("Connection timeout - please check your connection", false);
 				};
-				// for testing:
-				//r3.open("GET", "sample.json", true);
 				r3.send();
-
-			};
-			refresh();
-			loadNetworkList(); // Load current WiFi networks
-
-			function enableInternetUpdate() {
-				jsonData.data.changedtime[0].internettime = document.getElementById("useInternetTime").checked ? 1 : 0;
-				var json = JSON.stringify(jsonData);
-				var xmlhttp = new XMLHttpRequest();   
-				xmlhttp.open("POST", "/updateData");
-				xmlhttp.setRequestHeader("Content-Type", "application/json;");
-				xmlhttp.send(json);
-				return;
 			}
 
-			function updateUTCOffset() {
-				if (!jsonData.data.changedtime[0]) {
-					jsonData.data.changedtime[0] = {};
+			// Toast notifications
+			function showToast(message, isSuccess) {
+				var toast = isSuccess ? document.getElementById("toast-success") : document.getElementById("toast-error");
+				var toastBody = isSuccess ? document.getElementById("toast-success-body") : document.getElementById("toast-error-body");
+				
+				toast.style.display = "flex";
+				toastBody.innerText = message;
+				
+				setTimeout(() => {
+					toast.style.display = "none";
+				}, 5000);
+			}
+
+			function closeErrorToast() {
+				document.getElementById("toast-error").style.display = "none";
+			}
+
+			function closeSuccessToast() {
+				document.getElementById("toast-success").style.display = "none";
+			}
+
+			// Initialize page
+			document.addEventListener('DOMContentLoaded', function() {
+				refresh();
+				loadNetworkList();
+			});
+			
+			// Fallback initialization
+			setTimeout(function() {
+				if (!jsonData) {
+					refresh();
+					loadNetworkList();
 				}
-				jsonData.data.changedtime[0].utcOffset = parseInt(document.getElementById("utcOffset").value);
-				var json = JSON.stringify(jsonData);
-				var xmlhttp = new XMLHttpRequest();   
-				xmlhttp.open("POST", "/updateData");
-				xmlhttp.setRequestHeader("Content-Type", "application/json;");
-				xmlhttp.send(json);
-				console.log("UTC offset updated to:", jsonData.data.changedtime[0].utcOffset);
-				return;
-			}
-
-			function ManualChangeCredentials(f1,f2) {
-				var ssid= document.getElementById(f1).innerText;
-				var pass= document.getElementById(f2).innerText;
-
-				console.log(ssid);
-				console.log(pass);
-
-				return;
-			}
+			}, 1000);
 		</script>
 	</body>
 </html>

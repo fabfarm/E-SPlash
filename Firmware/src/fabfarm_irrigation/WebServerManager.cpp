@@ -191,6 +191,44 @@ void handleDeleteRelayRequest(AsyncWebServerRequest *request)
     }
 }
 
+// Handler for POST /wifi/add - Add new WiFi credentials
+void handleAddWiFiCredentialsRequest(AsyncWebServerRequest *request)
+{
+    String ssid = "";
+    String password = "";
+    
+    // Get parameters from form data
+    if (request->hasParam("ssid", true)) {
+        ssid = request->getParam("ssid", true)->value();
+    }
+    if (request->hasParam("password", true)) {
+        password = request->getParam("password", true)->value();
+    }
+    
+    if (ssid.length() == 0) {
+        request->send(400, "text/plain", "SSID is required");
+        return;
+    }
+    
+    // Append to credentials file
+    String credentials = ssid + "," + password + "\n";
+    if (appendFile("/credentials.txt", credentials.c_str())) {
+        // Add to WiFi multi for immediate use
+        wifiMulti.addAP(ssid.c_str(), password.c_str());
+        Serial.printf("Added WiFi credentials - SSID: %s\n", ssid.c_str());
+        request->send(HTTP_OK, "text/plain", "WiFi credentials added successfully");
+    } else {
+        request->send(HTTP_INTERNAL_SERVER_ERROR, "text/plain", "Failed to save WiFi credentials");
+    }
+}
+
+// Handler for GET /wifi/list - List configured WiFi networks
+void handleListWiFiNetworksRequest(AsyncWebServerRequest *request)
+{
+    String credentialsData = readFile("/credentials.txt");
+    request->send(HTTP_OK, "text/plain", credentialsData);
+}
+
 void serverHandle()
 {
     server.on("/data.json", HTTP_GET, handleGetDataJsonRequest);
@@ -202,6 +240,10 @@ void serverHandle()
     server.on("^\\/relay\\/([0-9]+)\\/time\\/([0-9]+)$", HTTP_DELETE, handleDeleteRelayTimeRequest);
     AsyncCallbackJsonWebHandler *addRelay = new AsyncCallbackJsonWebHandler("/relay/add", handleAddRelayRequest);
     server.on("^\\/relay\\/([0-9]+)$", HTTP_DELETE, handleDeleteRelayRequest);
+    
+    // WiFi management endpoints
+    server.on("/wifi/add", HTTP_POST, handleAddWiFiCredentialsRequest);
+    server.on("/wifi/list", HTTP_GET, handleListWiFiNetworksRequest);
 
     server.addHandler(updateData);
     server.addHandler(updateRelayTime);

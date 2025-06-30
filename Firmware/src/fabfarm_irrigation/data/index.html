@@ -7,63 +7,249 @@
 		<meta charset="UTF-8" />
 		<link rel="stylesheet" type="text/css" href="/all.css" />
 		<link rel="stylesheet" type="text/css" href="/style.css" />
+		<link rel="stylesheet" type="text/css" href="/setup.css" />
 		<link href="/bootstrap.min.css" rel="stylesheet" />
 		<style>
+			/* Override body background for main page */
 			body {
-				background-color: #f7f9fb;
-				margin: auto;
+				background: linear-gradient(180deg, #ffffff 0%, #e8f5e8 15%, #4a90a4 50%, #2c5530 100%);
+				min-height: 100vh;
+				font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+			}
+
+			.main-container {
+				max-width: 1200px;
+				margin: 0 auto;
+				padding: 20px;
+			}
+
+			.header-section {
+				text-align: center;
+				margin-bottom: 40px;
+				color: white;
+			}
+
+			.header-section img {
+				background: rgba(255, 255, 255, 0.95);
+				padding: 20px 30px;
+				border-radius: 25px;
+				box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+				backdrop-filter: blur(15px);
+				border: 2px solid rgba(255, 255, 255, 0.3);
+				width: 90%;
+				max-width: 400px;
+				height: auto;
+				object-fit: contain;
+				margin-bottom: 20px;
 			}
 
 			.main-title {
-				font-weight: bold;
+				font-weight: 700;
+				color: white;
+				text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+			}
+
+			.main-card {
+				background: rgba(255, 255, 255, 0.95);
+				border-radius: 20px;
+				padding: 30px;
+				margin-bottom: 30px;
+				box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+				backdrop-filter: blur(10px);
+				border: 1px solid rgba(255, 255, 255, 0.2);
+			}
+
+			.card-title {
+				color: #2c5530;
+				font-weight: 700;
+				font-size: 1.5rem;
+				margin-bottom: 20px;
+				border-bottom: 3px solid #4a90a4;
+				padding-bottom: 10px;
+			}
+
+			.time-display {
+				background: linear-gradient(135deg, #4a90a4 0%, #2c5530 100%);
+				color: white;
+				border-radius: 15px;
+				padding: 20px;
+				text-align: center;
+				font-size: 1.5rem;
+				font-weight: 600;
+				margin-bottom: 20px;
+			}
+
+			.scheduling-toggle {
+				background: #f8f9fa;
+				border-radius: 15px;
+				padding: 25px;
+				text-align: center;
+				border-left: 5px solid #4a90a4;
+			}
+
+			.toggle-container {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				gap: 20px;
+				margin-top: 15px;
+			}
+
+			.toggle-label {
+				font-size: 1.2rem;
+				font-weight: 600;
+				color: #2c5530;
+			}
+
+			#schedulingMode {
+				width: 60px;
+				height: 30px;
+				transform: scale(1.5);
+			}
+
+			.relay-item {
+				background: #f8f9fa;
+				border-radius: 15px;
+				padding: 20px;
+				margin-bottom: 15px;
+				border-left: 5px solid #4a90a4;
+				transition: all 0.3s ease;
+			}
+
+			.relay-item:hover {
+				transform: translateY(-2px);
+				box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+			}
+
+			.relay-header {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				margin-bottom: 15px;
+			}
+
+			.relay-name {
+				font-size: 1.2rem;
+				font-weight: 600;
+				color: #2c5530;
+			}
+
+			.relay-status {
+				padding: 8px 16px;
+				border-radius: 20px;
+				font-size: 0.85rem;
+				font-weight: 600;
+			}
+
+			.status-on {
+				background: #d4edda;
+				color: #155724;
+			}
+
+			.status-off {
+				background: #f8d7da;
+				color: #721c24;
+			}
+
+			.btn-modern {
+				background: linear-gradient(135deg, #4a90a4 0%, #2c5530 100%);
+				border: none;
+				border-radius: 25px;
+				padding: 12px 24px;
+				color: white;
+				font-weight: 600;
+				transition: all 0.3s ease;
+				text-transform: uppercase;
+				letter-spacing: 0.5px;
+				text-decoration: none;
+			}
+
+			.btn-modern:hover {
+				transform: translateY(-2px);
+				box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+				color: white;
+				text-decoration: none;
+			}
+
+			.btn-setup {
+				background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+				margin-top: 30px;
+				display: inline-block;
 			}
 
 			.toast {
-				bottom: 0;
-				right: 5px;
+				bottom: 20px;
+				right: 20px;
 				position: fixed;
-				display: none;
+				z-index: 1050;
 			}
 
 			.spinner-container {
 				position: fixed;
-				bottom: 0;
-				right: 5px;
-				display: none;
+				bottom: 20px;
+				right: 20px;
+				z-index: 1040;
 			}
 
-			#schedulingMode {
-				width: 100px;
-				height: 50px;
+			.section-grid {
+				display: grid;
+				grid-template-columns: 1fr;
+				gap: 30px;
+			}
+
+			@media (min-width: 768px) {
+				.section-grid {
+					grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+				}
 			}
 		</style>
 	</head>
 	<body>
-		<div class="container-fluid position-relative d-flex align-items-center flex-column">
-			<img src="/logo.png" alt="FabFarm Algarve" class="rounded mx-auto d-block p-10 m-5" />
-			<h1 class="display-1 main-title">
-				<strong>Irrigation System</strong>
-			</h1>
-			<div class="d-flex align-items-stretch w-100">
-				<div class="shadow d-flex w-100 flex-column justify-content-center align-items-center bg-white rounded p-4 m-2">
-					<h5 id="currentTime" class="m-2"></h5>
+		<div class="main-container">
+			<div class="header-section">
+				<img src="/logo.png" alt="FabFarm Algarve" />
+				<h1 class="display-4 main-title">
+					<strong>Irrigation System</strong>
+				</h1>
+				<p class="lead">Smart Agriculture Water Management</p>
+			</div>
+
+			<div class="section-grid">
+				<!-- Time Display Card -->
+				<div class="main-card">
+					<h2 class="card-title"><i class="fas fa-clock"></i> Current Time</h2>
+					<div class="time-display" id="currentTime">Loading...</div>
+				</div>
+
+				<!-- Scheduling Mode Card -->
+				<div class="main-card">
+					<h2 class="card-title"><i class="fas fa-cog"></i> Scheduling Mode</h2>
+					<div class="scheduling-toggle">
+						<div class="toggle-container">
+							<span class="toggle-label">Manual</span>
+							<div class="form-check form-switch">
+								<input onclick="updateSchedulingMode(this)" id="schedulingMode" class="form-check-input" type="checkbox" value="true">
+							</div>
+							<span class="toggle-label">Automatic</span>
+						</div>
+					</div>
 				</div>
 			</div>
-			<div id="main">
-				<div class="shadow d-flex align-items-center bg-white rounded p-4 m-2 justify-content-center flex-column">
-			        <h6 class="display-6 main-title"><strong>Scheduling Mode</strong></h6>
-			        <div class="d-flex align-items-center bg-white rounded p-4 m-2 justify-content-center">
-				        <span class="m-2 display-6">Manual</span>
-			            <div class="form-check form-switch">
-			                <input onclick="updateSchedulingMode(this)" id="schedulingMode" class="form-check-input" type="checkbox" value="true">
-			            </div>
-				        <span class="m-2 display-6">Automatic</span>
-			        </div>
-		        </div>
+
+			<!-- Relays Section -->
+			<div class="main-card">
+				<h2 class="card-title"><i class="fas fa-water"></i> Irrigation Zones</h2>
 				<div id="relays"></div>
 			</div>
-			<hr />
-			<a href="/setuppage.html" class="btn btn-primary">Setup Page</a>
+
+			<!-- Setup Button -->
+			<div class="text-center">
+				<a href="/setuppage.html" class="btn btn-modern btn-setup">
+					<i class="fas fa-tools"></i> System Setup
+				</a>
+			</div>
+
+			<!-- Toast Notifications -->
 			<div class="toast-container position-fixed">
 				<div id="toast-error" class="toast p-1 text-white bg-danger align-items-center">
 					<div class="d-flex w-100">
