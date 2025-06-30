@@ -11,7 +11,6 @@ void setup()
   disableAllDevices();
   printCompilationTimestamp();
   initializeRtc();
-  initializeOTA();  // Initialize OTA after WiFi connection
   initializeServer();
   serverHandle();
 }
@@ -19,10 +18,9 @@ void setup()
 void loop()
 {
   handleWiFiConnection();
-  handleOTA();  // Handle OTA updates
   
-  // Only run irrigation logic if OTA is not in progress
-  if (!isOTAActive() && isScheduleMode)
+  // Run irrigation logic if in schedule mode
+  if (isScheduleMode)
   {
     scheduleMode();
   }

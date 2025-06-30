@@ -22,7 +22,6 @@
 #include "RelayHandler.h"
 #include "TimeHandler.h"
 #include "storageHandler.h"
-#include "OTAHandler.h"
 
 extern WiFiMulti wifiMulti;
 
