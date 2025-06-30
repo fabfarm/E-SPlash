@@ -99,34 +99,31 @@
 				</div>
 				<div class="shadow d-flex align-items-center bg-white rounded p-4 m-2 justify-content-center flex-column">
 					<h6 class="display-6 main-title"><strong>Relays</strong></h6>
-					<h3>Current relays :</h3>
+					<p>This system has 3 fixed irrigation zones plus a pump relay.<br/>
+					   The relays are hardware-configured and cannot be modified through software.</p>
 					<table id="productTable">
 						<thead>
 							<tr>
-							   <th>Relay name </th>
-							   <th>Relay Pin </th>
-							   <th>Current status</th>
+							   <th>Zone Name</th>
+							   <th>Current Status</th>
 							</tr>
 						</thead>
 						<tbody id="relays"></tbody>
 					</table>
-					<h5>Add a relay:</h5>
-					<form id = "relayform" class= "form">
-						<div>
-						   <input type="text" id="relayname" style="width:90px" name="inputInt" placeholder = "Relay Name">
-						   <input type="number" id="relaypin" style="width:70px" name="inputInt"  placeholder = "Pin number">
-						   <input type="text" id="relaystatus" style="width:90px" name="inputInt" placeholder = "Relay status">
-						</div>
-						<button type="submit" class="btn btn-primary" name = "submit" onclick="addRelay(this)">Add Relay</button>
-					</form>
 				</div>
 				<div class="shadow d-flex align-items-center bg-white rounded p-4 m-2 justify-content-center flex-column">
 					<h6 class="display-6 main-title"><strong>Wifi Credentials</strong></h6>
+					<p>Note: WiFi credentials are stored in the credentials.txt file.<br/>
+					   Multiple networks can be configured. Device will automatically connect to available networks.</p>
 					<form id = "credentialsform" class= "form">
-						<div>SSID: <input type="text" name="ssid" id="ssid" placeholder="ssid"></div>
-						<div>Password: <input type="text" name="password" id="password"  placeholder = "password"></div>
-						<button class="btn btn-primary" onClick="updateCredentials(this)">Change WiFi Credentials</button>
+						<div>SSID: <input type="text" name="ssid" id="ssid" placeholder="Network name"></div>
+						<div>Password: <input type="text" name="password" id="password"  placeholder="Network password"></div>
+						<button type="button" class="btn btn-primary" onClick="updateCredentials(this)">Add WiFi Network</button>
 					</form>
+					<div id="current-networks">
+						<h6>Current Networks:</h6>
+						<ul id="network-list"></ul>
+					</div>
 				</div>
 			</div>
 			<hr />
@@ -154,17 +151,57 @@
 		<script type="text/javascript">
 			var jsonData; 
 			function updateCredentials(obj){
-				var fl1 = document.getElementById("ssid").value;
-				var fl2 = document.getElementById("password").value;
-				jsonData.data.credentials[0].ssid = fl1;
-				jsonData.data.credentials[0].password=fl2;
-				console.log(fl1);
-				console.log(fl2);
-				var json = JSON.stringify(jsonData);
+				var ssid = document.getElementById("ssid").value.trim();
+				var password = document.getElementById("password").value.trim();
+				
+				if (!ssid) {
+					alert("Please enter a network name (SSID)");
+					return;
+				}
+				
+				// Send credentials as form data to a dedicated endpoint
+				var formData = new FormData();
+				formData.append('ssid', ssid);
+				formData.append('password', password);
+				
 				var xmlhttp = new XMLHttpRequest();
-				xmlhttp.open("POST", "/updateData");
-				xmlhttp.setRequestHeader("Content-Type", "application/json;");
-				xmlhttp.send(json);
+				xmlhttp.onreadystatechange = function() {
+					if (this.readyState == 4) {
+						if (this.status == 200) {
+							alert("WiFi credentials added successfully");
+							document.getElementById("ssid").value = "";
+							document.getElementById("password").value = "";
+							loadNetworkList(); // Refresh the network list
+						} else {
+							alert("Error adding WiFi credentials");
+						}
+					}
+				};
+				xmlhttp.open("POST", "/wifi/add");
+				xmlhttp.send(formData);
+			}
+
+			function loadNetworkList() {
+				// Load and display current networks from credentials file
+				var xmlhttp = new XMLHttpRequest();
+				xmlhttp.onreadystatechange = function() {
+					if (this.readyState == 4 && this.status == 200) {
+						var networks = this.responseText.split('\n').filter(line => line.trim());
+						var networkList = document.getElementById("network-list");
+						networkList.innerHTML = "";
+						
+						networks.forEach(function(network) {
+							if (network.trim()) {
+								var ssid = network.split(',')[0];
+								var li = document.createElement('li');
+								li.textContent = ssid;
+								networkList.appendChild(li);
+							}
+						});
+					}
+				};
+				xmlhttp.open("GET", "/wifi/list");
+				xmlhttp.send();
 			}
 
 			function updateRelays(obj) {
@@ -237,9 +274,7 @@
 								htmlrelay+=  
 							   `<tr>
 									<td>${relay.name}</td>
-									<td>${relay.pin}</td>
 									<td>${status}</td>
-									<td><button class="btn btn-primary" value="${i}" onclick="removeRelay(${i})"></button></td>
 								</tr>`
 							}
 						}
@@ -261,6 +296,7 @@
 
 			};
 			refresh();
+			loadNetworkList(); // Load current WiFi networks
 
 			function enableInternetUpdate() {
 				jsonData.data.changedtime[0].internettime = document.getElementById("useInternetTime").checked ? 1 : 0;
@@ -287,45 +323,12 @@
 			}
 
 			function ManualChangeCredentials(f1,f2) {
-
 				var ssid= document.getElementById(f1).innerText;
 				var pass= document.getElementById(f2).innerText;
 
 				console.log(ssid);
 				console.log(pass);
 
-				return;
-			}
-
-			function deleterelay(obj,relay){
-				jsonData.relays[relay].active = 0;
-				window.location.reload();
-				var json = JSON.stringify(jsonData);
-				var xmlhttp = new XMLHttpRequest();   
-				xmlhttp.open("POST", "/updateData");
-				xmlhttp.setRequestHeader("Content-Type", "application/json;");
-				xmlhttp.send(json);
-				return;
-			}
-
-			function addrelay(obj){
-				for(var i = 0; i  < jsonData.relays.length; i++) {
-					var relay =  jsonData.relays[i];
-					if (relay.active == 0 ){
-					relay.name =  document.getElementById("relayname").value; 
-					relay.pin = document.getElementById("relaypin").value;
-					relay.active = 1;
-				}
-					else {
-						console.log(" no relays available");
-					}
-				}
-				window.location.reload();
-				var json = JSON.stringify(jsonData);
-				var xmlhttp = new XMLHttpRequest();   
-				xmlhttp.open("POST", "/updateData");
-				xmlhttp.setRequestHeader("Content-Type", "application/json;");
-				xmlhttp.send(json);
 				return;
 			}
 		</script>

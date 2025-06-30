@@ -1,6 +1,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#include <ElegantOTA.h>
 #include <Arduino.h>
 #include <FS.h>
 #include <LittleFS.h>

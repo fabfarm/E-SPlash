@@ -3,6 +3,7 @@
 void setup()
 {
   Serial.begin(9600);
+  ElegantOTA.begin(&server);
   setupStorage();
   readDataJson();
   configureWiFiSettings();
@@ -17,6 +18,8 @@ void setup()
 
 void loop()
 {
+  // Handle OTA updates
+  ElegantOTA.loop();
   handleWiFiConnection();
   
   // Run irrigation logic if in schedule mode

@@ -7,7 +7,7 @@ let mainHtmlState = [];
 const GET_DATA_ENDPOINT = "/data.json";
 const UPDATE_RELAY_TIME = "/relay/update-time";
 const ADD_RELAY_TIME = "/relay/add-time";
-const ADD_RELAY = "/relay/add";
+// Removed ADD_RELAY constant since relays are now hardcoded
 let timeoutID = null;
 let doRefresh = false;
 
@@ -136,7 +136,7 @@ function updateSchedulingHtml(rebuildHtml = false) {
 			} else {
 				relaysHtml.push(
 					`<div class="shadow d-flex align-items-center bg-white rounded p-4 m-2 justify-content-center flex-column">
-						<h6 class="display-6 main-title"><strong>${relay.name} (pin ${relay.pin})</strong></h6>
+						<h6 class="display-6 main-title"><strong>${relay.name}</strong></h6>
 						<div class="form-check form-switch">
 							<input style="width: 100px; height: 50px;" onChange="updateRelayEnabled(${i}, this);"
 								id="relay${i}.isEnabled" type="checkbox" ${relay.isEnabled ? "checked" : ""} class="form-check-input">
@@ -184,7 +184,7 @@ function updateSchedulingHtml(rebuildHtml = false) {
 			});
 			relaysHtml.push(
 				`<div class="shadow d-flex align-items-center bg-white rounded p-4 m-2 justify-content-center flex-column">
-						<h6 class="display-6 main-title"><strong>${relay.name} (pin ${relay.pin})</strong></h6>
+						<h6 class="display-6 main-title"><strong>${relay.name}</strong></h6>
 						${times}
 						<button class="btn btn-primary" onClick="addTime(${i})">Add time</button>
 				</div>`);
@@ -368,50 +368,7 @@ function parseTimeMinutesToHHMM(time) {
 	return h + ":" + m;
 }
 
-// Setup functions
-function addRelay(payload) {
-	displayLoadSpinner();
-
-	fetch(ADD_RELAY, {
-		method: "POST",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({
-			relayIndex: payload.relayIndex,
-			name: payload.name,
-			pin: payload.pin,
-		}),
-	}).then(() => {
-		// Update local state
-		jsonDataState.relays[payload.relayIndex].push(
-			JSON.parse(
-				JSON.stringify({
-					name: payload.name,
-					pin: payload.pin,
-					isEnabled: 0
-				})
-			)
-		);
-		updateSchedulingHtml(true);
-
-		closeLoadSpinner();
-		displaySuccessToast();
-	});
-}
-  
-
-function removeRelay(payload) {
-	displayLoadSpinner();
-
-	let url = `/relay/${payload.relayIndex}`;
-	fetch(url, { method: "DELETE" }).then(() => {
-		// Update local state
-	  jsonDataState.relays.splice(payload.relayIndex, 1);
-		updateSchedulingHtml(true);
-
-		closeLoadSpinner();
-		displaySuccessToast();
-	});
-}
+// Setup functions - removed relay add/remove functions since relays are now hardcoded
 
   //ui functions
 const showToast = (message, isSuccess) => {
