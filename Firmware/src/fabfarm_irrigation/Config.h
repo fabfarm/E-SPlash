@@ -44,7 +44,9 @@ extern int sclPin;
 extern ThreeWire myWire;
 extern RtcDS1302<ThreeWire> Rtc;
 #endif
-#ifdef TTL_Logic_Low
+
+// Relay logic configuration
+#ifdef INVERT_RELAY_LOGIC
 #define ON LOW
 #define OFF HIGH
 #else
