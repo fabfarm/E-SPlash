@@ -10,6 +10,7 @@ void switchDeviceQuiet(int pinNumber, bool state, const char *deviceName, bool &
 bool handleDevicesWithStateTracking(JsonArray devices, bool (*shouldEnableDevice)(JsonObject &));
 bool shouldEnableDeviceInScheduleMode(JsonObject &device);
 void scheduleMode();
+void manualMode();
 bool shouldEnableDeviceInManualMode(JsonObject &device);
 void disableAllDevices();
 
