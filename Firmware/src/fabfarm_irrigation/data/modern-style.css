@@ -1,7 +1,6 @@
 /* General Body Styles */
 body {
-    background: linear-gradient(180deg, #ffffff 0%, #e8f5e8 15%, #4a90a4 50%, #2c5530 100%);
-    min-height: 100vh;
+    background-color: #ecf0f1;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
@@ -16,18 +15,16 @@ body {
 .header-section {
     text-align: center;
     margin-bottom: 40px;
-    color: white;
+    color: #2c3e50;
 }
 
 .header-section img {
-    background: rgba(255, 255, 255, 0.95);
+    background: white;
     padding: 20px 30px;
     border-radius: 25px;
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
-    backdrop-filter: blur(15px);
-    border: 2px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
     width: 90%;
-    max-width: 400px;
+    max-width: 300px;
     height: auto;
     object-fit: contain;
     margin-bottom: 20px;
@@ -35,33 +32,32 @@ body {
 
 .main-title {
     font-weight: 700;
-    color: white;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    color: #2c3e50;
+    text-shadow: none;
 }
 
 /* Card Styles */
 .main-card, .setup-card {
-    background: rgba(255, 255, 255, 0.95);
+    background: white;
     border-radius: 20px;
     padding: 30px;
     margin-bottom: 30px;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e0e0e0;
 }
 
 .card-title {
-    color: #2c5530;
+    color: #2c3e50;
     font-weight: 700;
     font-size: 1.5rem;
     margin-bottom: 20px;
-    border-bottom: 3px solid #4a90a4;
+    border-bottom: 3px solid #1abc9c;
     padding-bottom: 10px;
 }
 
 /* Time Display */
 .time-display {
-    background: linear-gradient(135deg, #4a90a4 0%, #2c5530 100%);
+    background: #2c3e50;
     color: white;
     border-radius: 15px;
     padding: 20px;
@@ -77,7 +73,7 @@ body {
     border-radius: 15px;
     padding: 25px;
     text-align: center;
-    border-left: 5px solid #4a90a4;
+    border-left: 5px solid #1abc9c;
 }
 
 .toggle-container {
@@ -91,7 +87,7 @@ body {
 .toggle-label {
     font-size: 1.2rem;
     font-weight: 600;
-    color: #2c5530;
+    color: #2c3e50;
 }
 
 #schedulingMode {
@@ -106,13 +102,13 @@ body {
     border-radius: 15px;
     padding: 20px;
     margin-bottom: 15px;
-    border-left: 5px solid #4a90a4;
+    border-left: 5px solid #1abc9c;
     transition: all 0.3s ease;
 }
 
 .relay-item:hover, .zone-item:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
 }
 
 .relay-header, .zone-header {
@@ -125,7 +121,7 @@ body {
 .relay-name, .zone-name {
     font-size: 1.2rem;
     font-weight: 600;
-    color: #2c5530;
+    color: #2c3e50;
 }
 
 .relay-status, .zone-status {
@@ -147,7 +143,7 @@ body {
 
 /* Button Styles */
 .btn-modern {
-    background: linear-gradient(135deg, #4a90a4 0%, #2c5530 100%);
+    background: #1abc9c;
     border: none;
     border-radius: 25px;
     padding: 12px 24px;
@@ -160,27 +156,56 @@ body {
 }
 
 .btn-modern:hover {
+    background: #16a085;
     transform: translateY(-2px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
     color: white;
     text-decoration: none;
 }
 
 .btn-setup {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    background: #e74c3c;
     margin-top: 30px;
     display: inline-block;
 }
 
 .btn-edit {
-	background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+	background: #3498db;
 	padding: 8px 16px;
 	font-size: 0.85rem;
 }
 
 .btn-save {
-	background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+	background: #2ecc71;
 }
+
+/* Day Picker Styles */
+.day-picker {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.day-picker .day {
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    border: 2px solid #e0e0e0;
+    transition: all 0.3s ease;
+}
+
+.day-picker .day.active {
+    background-color: #1abc9c;
+    color: white;
+    border-color: #1abc9c;
+}
+
 
 /* Form Styles */
 .form-control-modern {
@@ -192,8 +217,8 @@ body {
 }
 
 .form-control-modern:focus {
-	border-color: #4a90a4;
-	box-shadow: 0 0 0 0.2rem rgba(74, 144, 164, 0.25);
+	border-color: #1abc9c;
+	box-shadow: 0 0 0 0.2rem rgba(26, 188, 156, 0.25);
 }
 
 .edit-zone-input {
@@ -207,11 +232,11 @@ body {
 
 /* WiFi Network List */
 .wifi-network {
-	background: #e8f5e8;
+	background: #f8f9fa;
 	border-radius: 10px;
 	padding: 12px 16px;
 	margin-bottom: 8px;
-	border-left: 4px solid #4a90a4;
+	border-left: 4px solid #1abc9c;
 	font-family: monospace;
 }
 

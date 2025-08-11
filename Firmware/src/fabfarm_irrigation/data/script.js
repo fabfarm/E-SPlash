@@ -171,6 +171,14 @@ function updateSchedulingHtml(rebuildHtml = false) {
 					if(time.duration != previousTime.duration)
 						document.getElementById(`relay${i}.time${j}.duration`).value = time.duration;
 				} else {
+                    const days = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+                    let dayPickerHtml = '<div class="day-picker">';
+                    days.forEach(day => {
+                        const isActive = time.days && time.days.includes(day);
+                        dayPickerHtml += `<div class="day ${isActive ? 'active' : ''}" data-day="${day}" onclick="toggleDay(this, ${i}, ${j})">${day.toUpperCase()}</div>`;
+                    });
+                    dayPickerHtml += '</div>';
+
 					times += `<form id="relay${i}.time${j}" class="mb-3">
 								<input type="hidden" name="relayIndex" value="${i}"/>
 								<input type="hidden" name="timeIndex" value="${j}"/>
@@ -181,6 +189,7 @@ function updateSchedulingHtml(rebuildHtml = false) {
 											<i class="fas fa-trash"></i> Remove
 										</button>
 									</div>
+                                    ${dayPickerHtml}
 									<div class="row g-3 mb-3">
 										<div class="col-md-6">
 											<label class="form-label fw-bold">Start Time</label>
@@ -227,6 +236,11 @@ function updateSchedulingHtml(rebuildHtml = false) {
 
 	if(rebuildHtml)
 		relays.innerHTML = relaysHtml.join(""); //this will REBUILD the page per ping (?)
+}
+
+function toggleDay(element, relayIndex, timeIndex) {
+    element.classList.toggle('active');
+    updateRelayTimes(relayIndex, timeIndex, element);
 }
 
 function updateSchedulingMode(event) {
@@ -279,11 +293,18 @@ function updateRelayEnabled(index, event) {
 }
 
 function updateRelayTimes(relayIndex, timeIndex, event) {
-	let startTime = event.form.elements.startTime.value;
-	let endTime = event.form.elements.endTime.value;
-	let duration = event.form.elements.duration.value;
+    const form = document.getElementById(`relay${relayIndex}.time${timeIndex}`);
+	let startTime = form.elements.startTime.value;
+	let endTime = form.elements.endTime.value;
+	let duration = form.elements.duration.value;
 	if(event.name == "durationInput")
 		duration = event.value;
+
+    let days = [];
+    const dayElements = form.querySelectorAll('.day.active');
+    dayElements.forEach(dayEl => {
+        days.push(dayEl.getAttribute('data-day'));
+    });
 
 	let startToUpdate = parseTimeHHMMToMinutes(startTime);
 	let durationToUpdate = parseInt(duration);
@@ -324,11 +345,13 @@ function updateRelayTimes(relayIndex, timeIndex, event) {
 				timeIndex: timeIndex,
 				startTime: parseTimeMinutesToHHMM(startToUpdate),
 				duration: durationToUpdate,
+                days: days
 			}),
 		}).then(() => {
 			// Update local state
 			jsonDataState.relays[relayIndex].times[timeIndex].startTime = parseTimeMinutesToHHMM(startToUpdate);
 			jsonDataState.relays[relayIndex].times[timeIndex].duration = durationToUpdate;
+            jsonDataState.relays[relayIndex].times[timeIndex].days = days;
 			document.getElementById(`relay${relayIndex}.time${timeIndex}.endTime`).value = parseTimeMinutesToHHMM(endToDisplay);
 			document.getElementById(`relay${relayIndex}.time${timeIndex}.duration`).value = durationToUpdate;
 			document.getElementById(`relay${relayIndex}.time${timeIndex}.durationInput`).value = durationToUpdate;
@@ -357,7 +380,7 @@ function addTime(relayIndex) {
 	}).then(() => {
 		// Update local state
 		jsonDataState.relays[relayIndex].times.push(
-			JSON.parse(JSON.stringify({ startTime: "10:00", duration: 30 }))
+			JSON.parse(JSON.stringify({ startTime: "10:00", duration: 30, days: [] }))
 		);
 		updateSchedulingHtml(true);
 	

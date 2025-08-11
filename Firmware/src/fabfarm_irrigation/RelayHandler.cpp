@@ -7,10 +7,38 @@ static unsigned long lastScheduleCheck = 0;
 static unsigned long nextScheduleEvent = 0;
 static const unsigned long SCHEDULE_CHECK_INTERVAL = 60000; // Check every minute as fallback
 
-bool isWithinTimeslot(int startTimeInMinutes, int duration)
+// Helper to convert day of the week integer to a string
+const char* dayOfWeekToString(int day) {
+  switch (day) {
+    case 0: return "sun";
+    case 1: return "mon";
+    case 2: return "tue";
+    case 3: return "wed";
+    case 4: return "thu";
+    case 5: return "fri";
+    case 6: return "sat";
+    default: return "";
+  }
+}
+
+bool isWithinTimeslot(int startTimeInMinutes, int duration, JsonArray days)
 {
   if (duration <= 0)
   {
+    return false;
+  }
+
+  // Check day of the week
+  bool todayIsScheduled = false;
+  const char* currentDayStr = dayOfWeekToString(rtc.getDayofWeek());
+  for (const char* scheduledDay : days) {
+    if (strcmp(scheduledDay, currentDayStr) == 0) {
+      todayIsScheduled = true;
+      break;
+    }
+  }
+
+  if (!todayIsScheduled) {
     return false;
   }
 
@@ -122,7 +150,8 @@ bool shouldEnableDeviceInScheduleMode(JsonObject &device)
     int minutes = time["startTime"].as<String>().substring(3).toInt();
     int startTimeInMinutes = (hours * 60) + minutes;
     int cycleDuration = time["duration"];
-    if (isWithinTimeslot(startTimeInMinutes, cycleDuration))
+    JsonArray days = time["days"];
+    if (isWithinTimeslot(startTimeInMinutes, cycleDuration, days))
     {
       return true;
     }
